@@ -345,7 +345,7 @@
       </div>
 
       <div class="forgot-wrap">
-        <a href="#" class="forgot-link">Forgot password?</a>
+        <a href="/forgot-password.html" class="forgot-link">Forgot password?</a>
       </div>
 
       <button type="submit" class="submit-btn" id="submitBtn">Sign In</button>
@@ -381,12 +381,32 @@
     }
   })();
 
-  // ── Prefill email from URL (e.g. from landing page CTA) ──
+  // ── Prefill email from URL and handle post-action toasts ──
   (function() {
     const params = new URLSearchParams(window.location.search);
     const email = params.get('email');
-    if (email) {
-      document.getElementById('email').value = decodeURIComponent(email);
+    if (email) document.getElementById('email').value = decodeURIComponent(email);
+
+    // Show a success banner after email verification or password reset
+    if (params.get('verified') === '1' || params.get('reset') === '1') {
+      const isVerify = params.get('verified') === '1';
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:#F0FDF4;border:1.5px solid #BBF7D0;color:#15803D;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:20px;display:flex;gap:10px;align-items:center';
+      banner.innerHTML = isVerify
+        ? '✅ Email verified! You can now sign in.'
+        : '✅ Password reset! Sign in with your new password.';
+      const form = document.getElementById('loginForm');
+      form.parentNode.insertBefore(banner, form);
+    }
+
+    if (params.get('verify_error')) {
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:#FEF2F2;border:1.5px solid #FECACA;color:#B91C1C;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:20px';
+      banner.textContent = params.get('verify_error') === 'expired'
+        ? '⚠️ Verification link expired. Sign in and resend from Settings.'
+        : '⚠️ Invalid verification link. Sign in and resend from Settings.';
+      const form = document.getElementById('loginForm');
+      form.parentNode.insertBefore(banner, form);
     }
   })();
 

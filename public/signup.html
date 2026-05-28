@@ -379,7 +379,7 @@
       <div class="form-group">
         <div class="form-label-row">
           <label for="password">Password</label>
-          <span class="field-hint">Min 6 characters</span>
+          <span class="field-hint">Min 8 characters</span>
         </div>
         <div class="pw-wrap">
           <input
@@ -493,8 +493,8 @@
     el.style.display = 'block';
 
     let score = 0;
-    if (value.length >= 6) score++;
-    if (value.length >= 10) score++;
+    if (value.length >= 8) score++;
+    if (value.length >= 12) score++;
     if (/[A-Z]/.test(value)) score++;
     if (/[0-9]/.test(value)) score++;
     if (/[^A-Za-z0-9]/.test(value)) score++;
@@ -595,8 +595,8 @@
     if (!password) {
       setFieldState('password', 'passwordMsg', 'error', 'Please create a password.');
       valid = false;
-    } else if (password.length < 6) {
-      setFieldState('password', 'passwordMsg', 'error', 'Password must be at least 6 characters.');
+    } else if (password.length < 8) {
+      setFieldState('password', 'passwordMsg', 'error', 'Password must be at least 8 characters.');
       valid = false;
     } else {
       clearFieldState('password', 'passwordMsg');
@@ -686,8 +686,8 @@
 
   document.getElementById('password').addEventListener('blur', function() {
     const val = this.value;
-    if (val && val.length < 6) {
-      setFieldState('password', 'passwordMsg', 'error', 'Password must be at least 6 characters.');
+    if (val && val.length < 8) {
+      setFieldState('password', 'passwordMsg', 'error', 'Password must be at least 8 characters.');
     } else if (val) {
       clearFieldState('password', 'passwordMsg');
     }

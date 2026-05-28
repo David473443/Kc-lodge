@@ -468,8 +468,32 @@
           </div>
           <button type="button" class="btn btn-danger btn-sm" onclick="logout()">Sign Out</button>
         </div>
+        <div class="account-row" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#B91C1C">Delete Account</div>
+            <div style="font-size:12px;color:var(--muted)">Permanently deletes your account and all data. This cannot be undone.</div>
+          </div>
+          <button type="button" class="btn btn-danger btn-sm" onclick="openDeleteAccount()">Delete</button>
+        </div>
       </div>
     </main>
+  </div>
+</div>
+
+<!-- Delete account modal -->
+<div class="confirm-overlay" id="deleteAccountOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" style="color:#B91C1C">Delete your account?</div>
+    <div class="confirm-msg">This will permanently delete your account, all saved analyses, tasks, timetables, and reminders. There is no undo.</div>
+    <div class="form-group" style="margin-top:16px;margin-bottom:0">
+      <label for="deleteConfirmPw" style="font-size:13px;font-weight:600">Enter your password to confirm</label>
+      <input type="password" id="deleteConfirmPw" placeholder="Your current password" autocomplete="current-password" style="width:100%;background:#fff;border:1.5px solid #E2E2DC;border-radius:9px;padding:10px 14px;font-size:14px;margin-top:6px;" />
+      <div style="font-size:12px;color:#B91C1C;margin-top:4px;display:none" id="deleteConfirmPwErr">Incorrect password.</div>
+    </div>
+    <div class="confirm-actions" style="margin-top:16px">
+      <button type="button" class="btn-ghost" onclick="closeDeleteAccount()">Cancel</button>
+      <button type="button" class="btn btn-danger btn-sm" id="deleteAccountBtn" onclick="confirmDeleteAccount()">Delete Forever</button>
+    </div>
   </div>
 </div>
 
@@ -771,10 +795,51 @@
   // ── Keyboard: Escape ──
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
-      if (document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm();
+      if (document.getElementById('deleteAccountOverlay').classList.contains('open')) closeDeleteAccount();
+      else if (document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm();
       else closeSidebar();
     }
   });
+
+  // ── Delete account ──
+  function openDeleteAccount() {
+    document.getElementById('deleteConfirmPw').value = '';
+    document.getElementById('deleteConfirmPwErr').style.display = 'none';
+    document.getElementById('deleteAccountOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('deleteConfirmPw').focus(), 50);
+  }
+  function closeDeleteAccount() {
+    document.getElementById('deleteAccountOverlay').classList.remove('open');
+  }
+  async function confirmDeleteAccount() {
+    const pw = document.getElementById('deleteConfirmPw').value;
+    const errEl = document.getElementById('deleteConfirmPwErr');
+    const btn = document.getElementById('deleteAccountBtn');
+    if (!pw) { errEl.textContent = 'Password is required.'; errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Deleting…';
+    try {
+      const res = await fetch('/api/auth/account', {
+        method: 'DELETE',
+        headers: authHeaders(),
+        body: JSON.stringify({ password: pw })
+      });
+      if (res.status === 401) {
+        const data = await res.json().catch(() => ({}));
+        errEl.textContent = data.error || 'Incorrect password.';
+        errEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Delete Forever';
+        return;
+      }
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Delete failed');
+      localStorage.removeItem('cm_token');
+      localStorage.removeItem('cm_user');
+      window.location.href = '/login.html';
+    } catch (err) {
+      showToast(err.message || 'Delete failed. Please try again.');
+      btn.disabled = false; btn.textContent = 'Delete Forever';
+    }
+  }
 
   // ── Init ──
   async function init() {

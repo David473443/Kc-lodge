@@ -39,6 +39,7 @@ const NAV_ITEMS = [
   { href: '/cgpa.html',       icon: '📈', label: 'CGPA Calc' },
   { href: '/notes.html',      icon: '🗂',  label: 'Notes' },
   { href: '/reminders.html',  icon: '🔔', label: 'Reminders', badge: true },
+  { href: '/feedback.html',   icon: '💬', label: 'Feedback' },
   { href: '/settings.html',   icon: '⚙',  label: 'Settings' },
 ];
 
@@ -167,6 +168,45 @@ function renderNav(activePage) {
   if (pageContent) pageContent.classList.add('page-content');
   // Start reminder checker on every app page
   if (Auth.getToken()) Reminders.startChecker();
+  // Show email verification banner if needed
+  _injectVerificationBanner();
+}
+
+function _injectVerificationBanner() {
+  const user = Auth.getUser();
+  if (!user || user.email_verified !== 0) return;
+  if (document.getElementById('cm-verify-banner')) return;
+  const css = `
+    #cm-verify-banner{background:#FFFBEB;border-bottom:1.5px solid #FDE68A;padding:10px 20px;display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-size:13px;color:#92400E;z-index:999;flex-wrap:wrap;}
+    #cm-verify-banner a{color:#B45309;font-weight:600;cursor:pointer;text-decoration:underline;}
+    #cm-verify-banner .cm-vb-close{margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px;color:#92400E;line-height:1;}
+    #cm-verify-banner .cm-vb-sent{color:#15803D;font-weight:600;}
+  `;
+  document.head.insertAdjacentHTML('beforeend', `<style>${css}</style>`);
+  const banner = document.createElement('div');
+  banner.id = 'cm-verify-banner';
+  banner.innerHTML = `<span>📧 <strong>Verify your email</strong> to secure your account.</span><a id="cm-resend-link" onclick="resendVerificationEmail(this)">Resend verification email</a><button class="cm-vb-close" onclick="this.closest('#cm-verify-banner').remove()" title="Dismiss">✕</button>`;
+  document.body.insertAdjacentElement('afterbegin', banner);
+}
+
+async function resendVerificationEmail(link) {
+  link.textContent = 'Sending…';
+  link.style.pointerEvents = 'none';
+  try {
+    const res = await fetch('/api/auth/resend-verification', {
+      method: 'POST',
+      headers: Auth.headers()
+    });
+    if (res.ok) {
+      link.outerHTML = '<span class="cm-vb-sent">✓ Verification email sent! Check your inbox.</span>';
+    } else {
+      link.textContent = 'Failed — try again';
+      link.style.pointerEvents = '';
+    }
+  } catch {
+    link.textContent = 'Network error — try again';
+    link.style.pointerEvents = '';
+  }
 }
 
 function openSidebar() {
