@@ -302,6 +302,33 @@
       color: var(--accent);
     }
 
+    /* ── Style bar ── */
+    .style-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--card2);
+      flex-wrap: wrap;
+    }
+    .style-label { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
+    .style-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .style-pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .style-pill:hover { border-color: var(--accent); color: var(--accent); }
+    .style-pill.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
     /* ── AI Chat tab ── */
     .chat-wrap {
       display: flex;
@@ -492,6 +519,20 @@
     <div class="tab-content" id="tab-topics"></div>
     <div class="tab-content" id="tab-chat">
       <div class="chat-wrap">
+
+        <!-- Style selector -->
+        <div class="style-bar">
+          <span class="style-label">AI Style:</span>
+          <div class="style-pills">
+            <button class="style-pill active" data-style="simple" onclick="setStyle(this)" title="Plain English, easy to understand">🧠 Simple</button>
+            <button class="style-pill" data-style="academic" onclick="setStyle(this)" title="Formal university-level language">🎓 Academic</button>
+            <button class="style-pill" data-style="exam" onclick="setStyle(this)" title="Exam-focused, bullet points, model answers">📝 Exam Mode</button>
+            <button class="style-pill" data-style="naija" onclick="setStyle(this)" title="Casual Nigerian student vibes">🇳🇬 Naija Mode</button>
+            <button class="style-pill" data-style="eli5" onclick="setStyle(this)" title="Explain Like I'm 5 — super basic analogies">👶 ELI5</button>
+            <button class="style-pill" data-style="tutor" onclick="setStyle(this)" title="Patient one-on-one tutoring style">👨‍🏫 Tutor</button>
+          </div>
+        </div>
+
         <div class="chat-suggestions" id="chatSuggestions">
           <button class="suggestion" onclick="sendSuggestion(this)">Write my assignment for me</button>
           <button class="suggestion" onclick="sendSuggestion(this)">What are my urgent deadlines?</button>
@@ -521,6 +562,15 @@
   let studyContext = null;
   let chatHistory = [];
   let isStreaming = false;
+  let currentStyle = 'simple';
+
+  function setStyle(btn) {
+    document.querySelectorAll('.style-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    currentStyle = btn.dataset.style;
+    const styleNames = { simple: 'Simple', academic: 'Academic', exam: 'Exam Mode', naija: 'Naija Mode', eli5: 'ELI5', tutor: 'Tutor' };
+    showToast('Style switched to ' + styleNames[currentStyle], 'success');
+  }
 
   // ── File upload & drag-drop ──
   const dropZone = document.getElementById('dropZone');
@@ -862,7 +912,7 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, history: chatHistory.slice(-10), context: studyContext })
+        body: JSON.stringify({ message, history: chatHistory.slice(-10), context: studyContext, style: currentStyle })
       });
 
       if (!res.ok) {
