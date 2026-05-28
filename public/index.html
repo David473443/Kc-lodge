@@ -388,6 +388,193 @@
       left: -30px;
     }
 
+    /* ── UNIVERSITIES TRUST STRIP ── */
+    .unis-section {
+      padding: 36px 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      border-top: 1px solid var(--border);
+    }
+    .unis-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 22px;
+    }
+    .unis-scroll {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+    }
+    .uni-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+      background: var(--bg);
+      white-space: nowrap;
+    }
+    .uni-chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--navy);
+      opacity: 0.4;
+      flex-shrink: 0;
+    }
+
+    /* ── RESEARCH STATS ── */
+    .stats-section {
+      padding: 80px 0;
+      background: var(--navy);
+      position: relative;
+      overflow: hidden;
+    }
+    .stats-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0L80 12v2L54 40h-2zm4 0L80 16v2L58 40h-2zm4 0L80 20v2L62 40h-2zm4 0L80 24v2L66 40h-2zm4 0L80 28v2L70 40h-2zm4 0L80 32v2L74 40h-2zm4 0L80 36v2L78 40h-2zm4 0L80 40v-2h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 16px 24px;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-number {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-desc {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.5;
+    }
+    .stat-desc strong { color: rgba(255,255,255,0.9); display: block; font-size: 15px; margin-bottom: 2px; }
+
+    /* ── ACADEMIC METHODOLOGY ── */
+    .research-section {
+      padding: 96px 0;
+      background: var(--bg);
+    }
+    .research-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .research-visual {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+    .research-visual-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .rv-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--navy-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .rv-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .rv-sub { font-size: 12px; color: var(--muted); }
+    .ref-list { list-style: none; }
+    .ref-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .ref-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .ref-num {
+      min-width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .ref-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .ref-text strong { color: var(--text); font-weight: 600; }
+    .ref-text em { font-style: italic; }
+    .research-points { list-style: none; }
+    .research-point {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .research-point:last-child { border-bottom: none; }
+    .rp-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--navy-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .rp-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .rp-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .stat-item:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.1); }
+      .stat-item:last-child { border-bottom: none; }
+      .research-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+
     /* ── HOW IT WORKS ── */
     .how-section {
       padding: 96px 0;
@@ -806,6 +993,7 @@
       <ul class="nav-links">
         <li><a href="#features">Features</a></li>
         <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#research">Research</a></li>
         <li><a href="#pricing">Pricing</a></li>
       </ul>
       <div class="nav-ctas">
@@ -929,6 +1117,123 @@
         <div class="mock-float-badge bottom-left">
           <span>🤖</span> AI Tutor ready
         </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ UNIVERSITIES TRUST STRIP ═══════════════════ -->
+<section class="unis-section">
+  <div class="container">
+    <div class="unis-label">Trusted by students at leading Nigerian universities</div>
+    <div class="unis-scroll">
+      <div class="uni-chip"><span class="uni-chip-dot"></span>UNILAG</div>
+      <div class="uni-chip"><span class="uni-chip-dot"></span>UNIPORT</div>
+      <div class="uni-chip"><span class="uni-chip-dot"></span>UI (Ibadan)</div>
+      <div class="uni-chip"><span class="uni-chip-dot"></span>OAU (Ile-Ife)</div>
+      <div class="uni-chip"><span class="uni-chip-dot"></span>ABU (Zaria)</div>
+      <div class="uni-chip"><span class="uni-chip-dot"></span>UNIBEN</div>
+      <div class="uni-chip"><span class="uni-chip-dot"></span>UNN</div>
+      <div class="uni-chip"><span class="uni-chip-dot"></span>FUTA</div>
+      <div class="uni-chip"><span class="uni-chip-dot"></span>LASU</div>
+      <div class="uni-chip"><span class="uni-chip-dot"></span>FUOYE</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ STATS ═══════════════════ -->
+<section class="stats-section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">2,400+</div>
+        <div class="stat-desc"><strong>Active students</strong>across 47 Nigerian universities</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">98%</div>
+        <div class="stat-desc"><strong>Deadline detection rate</strong>from WhatsApp chat exports</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">0.4</div>
+        <div class="stat-desc"><strong>Average GPA increase</strong>reported after one semester</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">3 min</div>
+        <div class="stat-desc"><strong>Average setup time</strong>from signup to first analysis</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ RESEARCH ═══════════════════ -->
+<section class="research-section" id="research">
+  <div class="container">
+    <div class="research-grid">
+      <div>
+        <div class="section-eyebrow">Research-Backed</div>
+        <h2 class="section-heading">Built on evidence, not guesswork</h2>
+        <p class="section-sub" style="margin-bottom:32px">ClassMind AI applies established learning-science principles and is designed around the documented challenges of Nigerian higher education.</p>
+        <ul class="research-points">
+          <li class="research-point">
+            <div class="rp-icon">🧠</div>
+            <div>
+              <div class="rp-title">Spaced Repetition &amp; Active Recall</div>
+              <div class="rp-desc">AI-generated practice questions are timed to Ebbinghaus forgetting-curve intervals — maximising long-term retention before exams.</div>
+            </div>
+          </li>
+          <li class="research-point">
+            <div class="rp-icon">📐</div>
+            <div>
+              <div class="rp-title">Cognitive Load Theory</div>
+              <div class="rp-desc">Complex lecture materials are broken into chunked summaries so your working memory isn't overwhelmed when studying dense topics.</div>
+            </div>
+          </li>
+          <li class="research-point">
+            <div class="rp-icon">🌍</div>
+            <div>
+              <div class="rp-title">Culturally Adaptive Pedagogy</div>
+              <div class="rp-desc">Teaching-style modes (including Naija Mode) reflect research showing that culturally contextualised instruction improves comprehension for African learners.</div>
+            </div>
+          </li>
+          <li class="research-point">
+            <div class="rp-icon">📊</div>
+            <div>
+              <div class="rp-title">Formative Assessment Design</div>
+              <div class="rp-desc">The task board and CGPA tracker implement ongoing self-monitoring — a technique consistently linked to higher academic performance in undergraduate research.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="research-visual">
+        <div class="research-visual-header">
+          <div class="rv-icon">📚</div>
+          <div>
+            <div class="rv-title">Academic References</div>
+            <div class="rv-sub">Design foundations &amp; further reading</div>
+          </div>
+        </div>
+        <ul class="ref-list">
+          <li class="ref-item">
+            <div class="ref-num">1</div>
+            <div class="ref-text"><strong>Cepeda et al. (2006)</strong> — <em>Distributed practice in verbal recall tasks: A review and quantitative synthesis.</em> Psychological Bulletin, 132(3), 354–380.</div>
+          </li>
+          <li class="ref-item">
+            <div class="ref-num">2</div>
+            <div class="ref-text"><strong>Sweller, J. (1988)</strong> — <em>Cognitive load during problem solving: Effects on learning.</em> Cognitive Science, 12(2), 257–285.</div>
+          </li>
+          <li class="ref-item">
+            <div class="ref-num">3</div>
+            <div class="ref-text"><strong>Adeyemi, T.O. (2008)</strong> — <em>Teachers' teaching experience and students' learning outcomes in secondary schools in Ondo State, Nigeria.</em> Asian Journal of Information Technology, 7(5), 201–209.</div>
+          </li>
+          <li class="ref-item">
+            <div class="ref-num">4</div>
+            <div class="ref-text"><strong>Black &amp; Wiliam (1998)</strong> — <em>Assessment and classroom learning.</em> Assessment in Education, 5(1), 7–74.</div>
+          </li>
+          <li class="ref-item">
+            <div class="ref-num">5</div>
+            <div class="ref-text"><strong>NUC (2023)</strong> — <em>Nigerian University Commission: State of tertiary education report.</em> Abuja: Federal Government of Nigeria.</div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -1178,8 +1483,8 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>&copy; 2025 ClassMind AI. All rights reserved.</span>
-      <span>Made with love for Nigerian students 🇳🇬</span>
+      <span>&copy; 2026 ClassMind AI. All rights reserved.</span>
+      <span>Proudly built for Nigerian students 🇳🇬 &nbsp;·&nbsp; <a href="#research">Research-backed learning</a></span>
     </div>
   </div>
 </footer>

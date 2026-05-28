@@ -148,10 +148,16 @@ app.get('/api/auth/me', auth, (req, res) => {
 
 app.put('/api/auth/profile', auth, async (req, res) => {
   try {
-    const { name, university, level, department, courses, onboarded, password } = req.body;
+    const { name, university, level, department, courses, onboarded, password, current_password } = req.body;
     const u = db.prepare('SELECT * FROM users WHERE id=?').get(req.user.id);
     let hash = u.password_hash;
-    if (password && password.length >= 6) hash = await bcrypt.hash(password, 10);
+    if (password && password.length >= 6) {
+      if (current_password) {
+        const valid = await bcrypt.compare(current_password, u.password_hash);
+        if (!valid) return res.status(400).json({ error: 'Current password is incorrect.' });
+      }
+      hash = await bcrypt.hash(password, 10);
+    }
     db.prepare('UPDATE users SET name=?,university=?,level=?,department=?,courses=?,onboarded=?,password_hash=? WHERE id=?')
       .run(name||u.name, university??u.university, level??u.level, department??u.department, JSON.stringify(courses||JSON.parse(u.courses||'[]')), onboarded!==undefined?onboarded:u.onboarded, hash, req.user.id);
     const updated = db.prepare('SELECT id,name,email,university,level,department,courses,onboarded FROM users WHERE id=?').get(req.user.id);
@@ -217,7 +223,8 @@ app.post('/api/tasks', auth, (req, res) => {
     const { subject, title, deadline, priority, details } = req.body;
     if (!title) return res.status(400).json({ error: 'Title required.' });
     const r = db.prepare('INSERT INTO tasks (user_id,subject,title,deadline,priority,details) VALUES (?,?,?,?,?,?)').run(req.user.id, subject||'', title, deadline||'No deadline', priority||'MEDIUM', details||'');
-    res.json({ id: r.lastInsertRowid });
+    const task = db.prepare('SELECT * FROM tasks WHERE id=?').get(r.lastInsertRowid);
+    res.json(task);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -230,7 +237,8 @@ app.put('/api/tasks/:id', auth, (req, res) => {
     const { subject, title, deadline, priority, details, status } = req.body;
     db.prepare('UPDATE tasks SET subject=?,title=?,deadline=?,priority=?,details=?,status=? WHERE id=? AND user_id=?')
       .run(subject??t.subject, title??t.title, deadline??t.deadline, priority??t.priority, details??t.details, status??t.status, req.params.id, req.user.id);
-    res.json({ ok: true });
+    const updated = db.prepare('SELECT * FROM tasks WHERE id=? AND user_id=?').get(req.params.id, req.user.id);
+    res.json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
