@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ClassMind AI — Your Smart Study Assistant</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#00FF88" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ClassMind AI" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -602,13 +607,30 @@
     document.getElementById('charCount').textContent = pasteArea.value.length.toLocaleString() + ' characters';
   });
 
-  function readFile(file) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      pasteArea.value = e.target.result;
-      pasteArea.dispatchEvent(new Event('input'));
-    };
-    reader.readAsText(file);
+  async function readFile(file) {
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (isPdf) {
+      showToast('Reading PDF...', 'success');
+      try {
+        const formData = new FormData();
+        formData.append('pdf', file);
+        const res = await fetch('/api/parse-pdf', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        pasteArea.value = data.text;
+        pasteArea.dispatchEvent(new Event('input'));
+        showToast('PDF loaded! Click "Analyze with AI" to continue.', 'success');
+      } catch (err) {
+        showToast('Failed to read PDF: ' + err.message);
+      }
+    } else {
+      const reader = new FileReader();
+      reader.onload = e => {
+        pasteArea.value = e.target.result;
+        pasteArea.dispatchEvent(new Event('input'));
+      };
+      reader.readAsText(file);
+    }
   }
 
   // ── Demo data ──
@@ -753,6 +775,100 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
     `;
   }
 
+  // ── Deadline parser ──
+  function parseDeadline(str) {
+    if (!str) return null;
+    const s = str.trim();
+    const now = new Date();
+
+    // Try direct ISO / standard parse first
+    const direct = new Date(s);
+    if (!isNaN(direct) && direct > now) return direct;
+
+    // Extract time component if present (e.g. "10:00 AM", "5pm", "17:00")
+    const timeMatch = s.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+    let hours = 17, minutes = 0; // default 5 PM
+    if (timeMatch) {
+      hours = parseInt(timeMatch[1], 10);
+      minutes = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;
+      const meridiem = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+      if (meridiem === 'pm' && hours < 12) hours += 12;
+      if (meridiem === 'am' && hours === 12) hours = 0;
+    }
+
+    const lower = s.toLowerCase();
+
+    // "Tomorrow"
+    if (lower.startsWith('tomorrow')) {
+      const d = new Date(now);
+      d.setDate(d.getDate() + 1);
+      d.setHours(hours, minutes, 0, 0);
+      return d > now ? d : null;
+    }
+
+    // "Today"
+    if (lower.startsWith('today')) {
+      const d = new Date(now);
+      d.setHours(hours, minutes, 0, 0);
+      return d > now ? d : null;
+    }
+
+    // Weekday names with optional "Next" prefix
+    const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const nextPrefix = lower.startsWith('next ');
+    const searchStr = nextPrefix ? lower.slice(5) : lower;
+    for (let i = 0; i < days.length; i++) {
+      if (searchStr.startsWith(days[i])) {
+        const target = new Date(now);
+        const todayDow = now.getDay();
+        let diff = ((i - todayDow + 7) % 7) || 7;
+        if (nextPrefix) diff += 7; // "Next Friday" = at least 8 days away
+        target.setDate(target.getDate() + diff);
+        target.setHours(hours, minutes, 0, 0);
+        return target > now ? target : null;
+      }
+    }
+
+    return null;
+  }
+
+  // ── Countdown formatter ──
+  function formatCountdown(deadline) {
+    const parsed = parseDeadline(deadline);
+    if (!parsed) return { text: '📅 Check deadline', cls: 'unknown' };
+
+    const diff = parsed - Date.now();
+    if (diff <= 0) return { text: '📅 Check deadline', cls: 'unknown' };
+
+    const totalMins = Math.floor(diff / 60000);
+    const d = Math.floor(totalMins / 1440);
+    const h = Math.floor((totalMins % 1440) / 60);
+    const m = totalMins % 60;
+
+    let text;
+    if (d > 0) text = `⏱ ${d}d ${h}h ${m}m left`;
+    else if (h > 0) text = `⏱ ${h}h ${m}m left`;
+    else text = `⏱ ${m}m left`;
+
+    const hours = diff / 3600000;
+    let cls;
+    if (hours < 24) cls = 'urgent';
+    else if (hours < 72) cls = 'soon';
+    else cls = 'ok';
+
+    return { text, cls };
+  }
+
+  // ── Refresh all countdown displays without full re-render ──
+  function updateCountdowns() {
+    document.querySelectorAll('[data-countdown]').forEach(el => {
+      const deadline = el.dataset.countdown;
+      const { text, cls } = formatCountdown(deadline);
+      el.textContent = text;
+      el.className = 'countdown ' + cls;
+    });
+  }
+
   // ── Assignments ──
   function renderTasks(assignments) {
     if (!assignments.length) {
@@ -760,12 +876,17 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
       return;
     }
 
+    // Store at module level for countdown refreshes
+    currentAssignments = assignments;
+
     const sorted = [...assignments].sort((a, b) => {
       const order = { HIGH: 0, MEDIUM: 1, LOW: 2 };
       return (order[a.priority] ?? 1) - (order[b.priority] ?? 1);
     });
 
-    document.getElementById('tab-tasks').innerHTML = sorted.map(a => `
+    document.getElementById('tab-tasks').innerHTML = sorted.map(a => {
+      const { text: cdText, cls: cdCls } = formatCountdown(a.deadline);
+      return `
       <div class="assignment-card ${a.priority}">
         <div class="assignment-header">
           <div class="assignment-title">${escHtml(a.title)}</div>
@@ -775,6 +896,7 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
           <span>📖 ${escHtml(a.subject)}</span>
           <span>📅 ${escHtml(a.deadline)}</span>
         </div>
+        <div class="countdown ${cdCls}" data-countdown="${escHtml(a.deadline)}">${cdText}</div>
         <div class="assignment-details">${escHtml(a.details)}</div>
         <div style="margin-top:10px">
           <button class="btn btn-primary btn-sm" onclick="askAbout('Help me complete this assignment: ${escAttr(a.title)} for ${escAttr(a.subject)}')">
@@ -782,7 +904,11 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
           </button>
         </div>
       </div>
-    `).join('');
+    `}).join('');
+
+    // Start/restart the 30-second countdown refresh interval
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = setInterval(updateCountdowns, 30000);
   }
 
   // ── Timetable ──
@@ -1022,6 +1148,10 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
   }
   function escAttr(str) {
     return String(str || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
   }
 </script>
 </body>
