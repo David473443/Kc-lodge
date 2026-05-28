@@ -561,6 +561,8 @@
       transition: box-shadow 0.2s;
     }
     .slot:hover { box-shadow: var(--shadow); }
+    .slot-alarm-btn { padding: 5px 8px; border-radius: 7px; border: 1.5px solid #E2E2DC; background: transparent; font-size: 14px; cursor: pointer; flex-shrink: 0; transition: all .15s; align-self: center; }
+    .slot-alarm-btn:hover { background: #FEF9EC; border-color: #C4933F; }
     .slot-time { font-size: 12px; color: var(--muted); min-width: 72px; font-weight: 600; padding-top: 2px; }
     .slot-info { flex: 1; }
     .slot-subject { font-size: 14px; font-weight: 700; color: var(--text); }
@@ -1544,10 +1546,11 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
           <div class="slot">
             <div class="slot-time">${esc(slot.time)}</div>
             <div class="slot-info">
-              <div class="slot-subject">${esc(slot.subject)}</div>
-              <div class="slot-venue">📍 ${esc(slot.venue)}</div>
+              <div class="slot-subject">${esc(slot.subject)}${slot.course_code ? ` <span style="font-size:10px;background:var(--accent-bg,#EBF0F7);color:var(--accent);padding:1px 6px;border-radius:10px;font-weight:700">${esc(slot.course_code)}</span>` : ''}</div>
+              <div class="slot-venue">📍 ${esc(slot.venue)}${slot.lecturer ? ` · 👨‍🏫 ${esc(slot.lecturer)}` : ''}</div>
             </div>
             <span class="slot-type-badge type-${(slot.type || 'class').toLowerCase()}">${(slot.type || 'class').replace('_', ' ')}</span>
+            <button class="slot-alarm-btn" title="Set alarm for this class" onclick="setClassAlarm(${JSON.stringify(slot.day)}, ${JSON.stringify(slot.time)}, ${JSON.stringify(slot.subject)}, ${JSON.stringify(slot.course_code||'')})">🔔</button>
           </div>
         `).join('')}
       </div>
@@ -1909,6 +1912,16 @@ What do you need help with?</div>
     } catch (err) {
       showToast('Error saving: ' + err.message, 'error');
     }
+  }
+
+  function setClassAlarm(day, time, subject, courseCode) {
+    const baseTime = Reminders._nextOccurrence(day, time);
+    Reminders.openModal({
+      title: (subject || 'Class') + (courseCode ? ' (' + courseCode + ')' : ''),
+      body: day + (time ? ' at ' + time : ''),
+      baseTime,
+      sourceType: 'class'
+    });
   }
 </script>
 </body>

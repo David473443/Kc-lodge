@@ -250,6 +250,11 @@
     }
     .task-move-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
     .task-move-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .task-alarm-btn {
+      margin-left: auto; padding: 4px 8px; border-radius: 6px; border: 1.5px solid #E2E2DC;
+      background: transparent; font-size: 13px; cursor: pointer; transition: all 0.15s; line-height: 1;
+    }
+    .task-alarm-btn:hover { background: #FEF9EC; border-color: #C4933F; }
 
     /* ── Empty state ── */
     .kanban-empty {
@@ -590,6 +595,7 @@ function buildTaskCard(t) {
       <div class="task-actions">
         <button class="task-move-btn" onclick="moveTask('${escAttr(t._id || t.id)}', -1)" ${canLeft ? '' : 'disabled'}>← Back</button>
         <button class="task-move-btn" onclick="moveTask('${escAttr(t._id || t.id)}', 1)" ${canRight ? '' : 'disabled'}>Next →</button>
+        <button class="task-alarm-btn" title="Set alarm for this task" onclick="setTaskAlarm(${t._id || t.id}, ${JSON.stringify(escHtml(t.title))}, ${JSON.stringify(escHtml(t.subject || ''))}, ${JSON.stringify(t.deadline || '')})">🔔</button>
       </div>
     </div>`;
 }
@@ -728,6 +734,21 @@ function showToast(msg, type = 'error') {
   el.style.display = 'block';
   clearTimeout(el._t);
   el._t = setTimeout(() => { el.style.display = 'none'; }, 3500);
+}
+
+function setTaskAlarm(id, title, subject, deadline) {
+  let baseTime = null;
+  if (deadline && deadline !== 'No deadline') {
+    const d = new Date(deadline + 'T23:59:00');
+    if (!isNaN(d)) baseTime = d;
+  }
+  Reminders.openModal({
+    title: title + (subject ? ' (' + subject + ')' : ''),
+    body: deadline && deadline !== 'No deadline' ? 'Due: ' + deadline : '',
+    baseTime,
+    sourceType: 'task',
+    sourceId: id
+  });
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────

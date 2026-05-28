@@ -57,6 +57,18 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
+  CREATE TABLE IF NOT EXISTS reminders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT DEFAULT '',
+    remind_at TEXT NOT NULL,
+    triggered INTEGER DEFAULT 0,
+    source_type TEXT DEFAULT 'custom',
+    source_id INTEGER,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
 `);
 
 // ── Auth middleware ──
@@ -220,6 +232,42 @@ app.put('/api/analyses/:id', auth, (req, res) => {
 
 app.delete('/api/analyses/:id', auth, (req, res) => {
   db.prepare('DELETE FROM analyses WHERE id=? AND user_id=?').run(req.params.id, req.user.id);
+  res.json({ ok: true });
+});
+
+// ────────────────────────────────────────────
+// REMINDERS
+// ────────────────────────────────────────────
+
+app.get('/api/reminders', auth, (req, res) => {
+  const rows = db.prepare(
+    'SELECT * FROM reminders WHERE user_id=? ORDER BY remind_at ASC'
+  ).all(req.user.id);
+  res.json(rows);
+});
+
+app.post('/api/reminders', auth, (req, res) => {
+  try {
+    const { title, body = '', remind_at, source_type = 'custom', source_id } = req.body;
+    if (!title?.trim()) return res.status(400).json({ error: 'Title required.' });
+    if (!remind_at) return res.status(400).json({ error: 'remind_at required.' });
+    const r = db.prepare(
+      'INSERT INTO reminders (user_id, title, body, remind_at, source_type, source_id) VALUES (?,?,?,?,?,?)'
+    ).run(req.user.id, title.trim(), body, remind_at, source_type, source_id || null);
+    const row = db.prepare('SELECT * FROM reminders WHERE id=?').get(r.lastInsertRowid);
+    res.json(row);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/reminders/:id/trigger', auth, (req, res) => {
+  db.prepare('UPDATE reminders SET triggered=1 WHERE id=? AND user_id=?').run(req.params.id, req.user.id);
+  res.json({ ok: true });
+});
+
+app.delete('/api/reminders/:id', auth, (req, res) => {
+  db.prepare('DELETE FROM reminders WHERE id=? AND user_id=?').run(req.params.id, req.user.id);
   res.json({ ok: true });
 });
 

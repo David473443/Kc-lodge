@@ -33,12 +33,13 @@ const Auth = {
 };
 
 const NAV_ITEMS = [
-  { href: '/dashboard.html', icon: '⊞', label: 'Dashboard' },
-  { href: '/study.html',     icon: '📚', label: 'Study Hub' },
-  { href: '/tasks.html',     icon: '✓',  label: 'Task Board' },
-  { href: '/cgpa.html',      icon: '📈', label: 'CGPA Calc' },
-  { href: '/notes.html',     icon: '🗂',  label: 'Notes' },
-  { href: '/settings.html',  icon: '⚙',  label: 'Settings' },
+  { href: '/dashboard.html',  icon: '⊞', label: 'Dashboard' },
+  { href: '/study.html',      icon: '📚', label: 'Study Hub' },
+  { href: '/tasks.html',      icon: '✓',  label: 'Task Board' },
+  { href: '/cgpa.html',       icon: '📈', label: 'CGPA Calc' },
+  { href: '/notes.html',      icon: '🗂',  label: 'Notes' },
+  { href: '/reminders.html',  icon: '🔔', label: 'Reminders', badge: true },
+  { href: '/settings.html',   icon: '⚙',  label: 'Settings' },
 ];
 
 function renderNav(activePage) {
@@ -66,7 +67,7 @@ function renderNav(activePage) {
           <li>
             <a href="${item.href}" class="sidebar-link ${activePage === item.label ? 'active' : ''}">
               <span class="sidebar-icon">${item.icon}</span>
-              <span class="sidebar-label">${item.label}</span>
+              <span class="sidebar-label">${item.label}${item.badge ? `<span class="rm-badge" style="display:none;background:#B91C1C;color:#fff;border-radius:10px;font-size:10px;font-weight:700;min-width:17px;height:17px;padding:0 4px;margin-left:6px;vertical-align:middle;display:none;line-height:17px;text-align:center"></span>` : ''}</span>
             </a>
           </li>
         `).join('')}
@@ -164,6 +165,8 @@ function renderNav(activePage) {
   // Wrap existing content in page-content div
   const pageContent = document.querySelector('.page-main');
   if (pageContent) pageContent.classList.add('page-content');
+  // Start reminder checker on every app page
+  if (Auth.getToken()) Reminders.startChecker();
 }
 
 function openSidebar() {
@@ -238,3 +241,225 @@ function showToast(msg, type = 'error') {
   clearTimeout(el._t);
   el._t = setTimeout(() => el.style.display = 'none', 3500);
 }
+
+// ── Reminders / Alarms ──────────────────────────────────────────────────────
+const Reminders = (() => {
+  'use strict';
+  let _injected = false;
+  let _checkerStarted = false;
+  let _current = null;
+  const _fired = new Set(JSON.parse(sessionStorage.getItem('rm_fired') || '[]'));
+
+  function playChime() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [[523,0],[659,0.22],[784,0.44],[1047,0.66]].forEach(([freq, when]) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = freq; osc.type = 'sine';
+        gain.gain.setValueAtTime(0.28, ctx.currentTime + when);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + when + 0.7);
+        osc.start(ctx.currentTime + when);
+        osc.stop(ctx.currentTime + when + 0.8);
+      });
+    } catch {}
+  }
+
+  function _fmtShort(d) {
+    if (!d) return '';
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+      ' ' + new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function _injectUI() {
+    if (_injected) return;
+    _injected = true;
+    const css = `<style id="rm-css">
+      #rm-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9000;align-items:center;justify-content:center}
+      #rm-backdrop.open{display:flex}
+      #rm-modal{background:#fff;border-radius:18px;padding:28px 28px 22px;width:min(440px,95vw);box-shadow:0 24px 80px rgba(0,0,0,0.22);font-family:'Inter',sans-serif}
+      #rm-modal h3{font-family:'Playfair Display',Georgia,serif;font-size:19px;color:#1B3F6E;margin-bottom:3px}
+      .rm-sub{font-size:12px;color:#747474;margin-bottom:18px;line-height:1.5}
+      .rm-section-label{font-size:11px;font-weight:700;color:#747474;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block}
+      .rm-options{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+      .rm-opt{padding:9px 12px;border:1.5px solid #E2E2DC;border-radius:9px;background:#fff;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:all .15s;text-align:left;line-height:1.4}
+      .rm-opt:hover{border-color:#1B3F6E;color:#1B3F6E;background:#EBF0F7}
+      .rm-opt.selected{border-color:#1B3F6E;background:#1B3F6E;color:#fff}
+      .rm-opt .rm-opt-sub{font-size:10px;opacity:0.75;display:block;margin-top:2px}
+      #rm-custom-wrap{margin-bottom:14px}
+      #rm-custom-dt{width:100%;padding:9px 12px;border:1.5px solid #E2E2DC;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;color:#141414;background:#fff}
+      #rm-custom-dt:focus{outline:none;border-color:#1B3F6E}
+      .rm-actions{display:flex;gap:10px;justify-content:flex-end;padding-top:6px}
+      .rm-btn{padding:9px 20px;border-radius:8px;border:none;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+      .rm-btn-cancel{background:transparent;border:1.5px solid #E2E2DC;color:#747474}
+      .rm-btn-cancel:hover{border-color:#999;color:#333}
+      .rm-btn-save{background:#1B3F6E;color:#fff}
+      .rm-btn-save:hover{background:#15335A}
+    </style>`;
+    document.head.insertAdjacentHTML('beforeend', css);
+    const el = document.createElement('div');
+    el.id = 'rm-backdrop';
+    el.innerHTML = `<div id="rm-modal">
+      <h3 id="rm-title">Set Alarm</h3>
+      <div class="rm-sub" id="rm-subtitle"></div>
+      <span class="rm-section-label">Remind me…</span>
+      <div class="rm-options" id="rm-options"></div>
+      <div id="rm-custom-wrap" style="display:none">
+        <span class="rm-section-label">Custom date &amp; time</span>
+        <input type="datetime-local" id="rm-custom-dt">
+      </div>
+      <div class="rm-actions">
+        <button class="rm-btn rm-btn-cancel" onclick="Reminders._close()">Cancel</button>
+        <button class="rm-btn rm-btn-save" onclick="Reminders._confirm()">🔔 Set Alarm</button>
+      </div>
+    </div>`;
+    el.addEventListener('click', e => { if (e.target === el) Reminders._close(); });
+    document.body.appendChild(el);
+  }
+
+  function _nextOccurrence(dayName, timeStr) {
+    const dayMap = {Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6,Sunday:0};
+    const target = dayMap[dayName];
+    if (target === undefined) return null;
+    const [h, m] = (timeStr || '08:00').split(':').map(Number);
+    const now = new Date();
+    const d = new Date(now);
+    d.setHours(h, m || 0, 0, 0);
+    let diff = (target - d.getDay() + 7) % 7;
+    if (diff === 0 && d <= now) diff = 7;
+    d.setDate(d.getDate() + diff);
+    return d;
+  }
+
+  function openModal({ title, body = '', baseTime = null, sourceType = 'custom', sourceId = null }) {
+    _injectUI();
+    const opts = [];
+    if (baseTime) {
+      const bt = new Date(baseTime);
+      opts.push({ label: 'At time of event', sub: _fmtShort(bt), time: bt });
+      [15, 30, 60, 180, 1440].forEach(mins => {
+        const t = new Date(bt - mins * 60000);
+        if (t > new Date()) opts.push({ label: mins < 60 ? `${mins} min before` : mins < 1440 ? `${mins/60}h before` : '1 day before', sub: _fmtShort(t), time: t });
+      });
+    }
+    opts.push({ label: 'Custom time…', sub: 'Pick any date & time', time: null });
+    _current = { title, body, baseTime, sourceType, sourceId, opts, selectedTime: null };
+
+    document.getElementById('rm-title').textContent = title;
+    document.getElementById('rm-subtitle').textContent = body;
+    document.getElementById('rm-options').innerHTML = opts.map((o, i) => `
+      <button class="rm-opt" onclick="Reminders._selectOpt(${i})">
+        ${escHtml(o.label)}<span class="rm-opt-sub">${escHtml(o.sub || '')}</span>
+      </button>`).join('');
+
+    const futureIdx = opts.findIndex(o => o.time === null || o.time > new Date());
+    _selectOpt(futureIdx >= 0 ? futureIdx : 0);
+    document.getElementById('rm-backdrop').classList.add('open');
+  }
+
+  function _selectOpt(idx) {
+    document.querySelectorAll('.rm-opt').forEach((b, i) => b.classList.toggle('selected', i === idx));
+    const opt = _current?.opts[idx];
+    const cw = document.getElementById('rm-custom-wrap');
+    if (!opt) return;
+    if (opt.time === null) {
+      cw.style.display = '';
+      _current.selectedTime = null;
+      const def = new Date(Date.now() + 3600000);
+      document.getElementById('rm-custom-dt').value = def.toISOString().slice(0, 16);
+    } else {
+      cw.style.display = 'none';
+      _current.selectedTime = opt.time.toISOString();
+    }
+  }
+
+  function _close() {
+    document.getElementById('rm-backdrop')?.classList.remove('open');
+    _current = null;
+  }
+
+  async function _confirm() {
+    if (!Auth.getToken()) { showToast('Sign in to set alarms.', 'error'); return; }
+    let remindAt = _current?.selectedTime;
+    if (!remindAt) {
+      const v = document.getElementById('rm-custom-dt')?.value;
+      if (!v) { showToast('Pick a reminder time.', 'error'); return; }
+      remindAt = new Date(v).toISOString();
+    }
+    if (new Date(remindAt) <= new Date()) { showToast('Pick a future time.', 'error'); return; }
+    try {
+      const res = await fetch('/api/reminders', {
+        method: 'POST', headers: Auth.headers(),
+        body: JSON.stringify({
+          title: _current.title, body: _current.body,
+          remind_at: remindAt,
+          source_type: _current.sourceType,
+          source_id: _current.sourceId
+        })
+      });
+      if (res.ok) { showToast('Alarm set! 🔔', 'success'); _close(); _refreshBadge(); }
+      else { const e = await res.json(); showToast(e.error || 'Failed.', 'error'); }
+    } catch { showToast('Network error.', 'error'); }
+  }
+
+  async function _refreshBadge() {
+    if (!Auth.getToken()) return;
+    try {
+      const res = await fetch('/api/reminders', { headers: Auth.headers() });
+      if (!res.ok) return;
+      const rows = await res.json();
+      const count = rows.filter(r => !r.triggered && new Date(r.remind_at) > new Date()).length;
+      document.querySelectorAll('.rm-badge').forEach(b => {
+        b.textContent = count;
+        b.style.display = count > 0 ? 'inline-block' : 'none';
+      });
+    } catch {}
+  }
+
+  async function startChecker() {
+    if (_checkerStarted) return;
+    _checkerStarted = true;
+    _injectUI();
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+    async function check() {
+      if (!Auth.getToken()) return;
+      try {
+        const res = await fetch('/api/reminders', { headers: Auth.headers() });
+        if (!res.ok) return;
+        const rows = await res.json();
+        const now = new Date();
+        let upcoming = 0;
+        for (const r of rows) {
+          if (r.triggered) continue;
+          const due = new Date(r.remind_at);
+          if (!_fired.has(r.id) && due <= now) {
+            _fired.add(r.id);
+            sessionStorage.setItem('rm_fired', JSON.stringify([..._fired]));
+            playChime();
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification('🔔 ClassMind Alarm', {
+                body: r.title + (r.body ? '\n' + r.body : ''),
+                tag: 'cm-rm-' + r.id
+              });
+            }
+            showToast('🔔 ' + r.title, 'success');
+            fetch('/api/reminders/' + r.id + '/trigger', { method: 'POST', headers: Auth.headers() });
+          } else if (!r.triggered && due > now) {
+            upcoming++;
+          }
+        }
+        document.querySelectorAll('.rm-badge').forEach(b => {
+          b.textContent = upcoming;
+          b.style.display = upcoming > 0 ? 'inline-block' : 'none';
+        });
+      } catch {}
+    }
+    check();
+    setInterval(check, 60000);
+  }
+
+  return { openModal, startChecker, playChime, _close, _confirm, _selectOpt, _nextOccurrence };
+})();
