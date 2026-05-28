@@ -4,9 +4,13 @@ try { require('dotenv').config(); } catch {}
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 const path = require('path');
+const multer = require('multer');
+const pdfParse = require('pdf-parse');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
 let anthropic;
 function getClient() {
@@ -19,6 +23,17 @@ function getClient() {
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.post('/api/parse-pdf', upload.single('pdf'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No PDF file uploaded.' });
+    const data = await pdfParse(req.file.buffer);
+    res.json({ text: data.text });
+  } catch (err) {
+    console.error('PDF parse error:', err.message);
+    res.status(500).json({ error: err.message || 'Failed to parse PDF.' });
+  }
+});
 
 const ANALYSIS_SYSTEM = `You are ClassMind AI, a smart academic assistant for Nigerian university students.
 
