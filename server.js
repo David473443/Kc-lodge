@@ -64,12 +64,16 @@ db.exec(`
     body TEXT DEFAULT '',
     remind_at TEXT NOT NULL,
     triggered INTEGER DEFAULT 0,
+    enabled INTEGER DEFAULT 1,
     source_type TEXT DEFAULT 'custom',
     source_id INTEGER,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 `);
+
+// Migration: add enabled column if it doesn't exist yet
+try { db.exec('ALTER TABLE reminders ADD COLUMN enabled INTEGER DEFAULT 1'); } catch {}
 
 // ── Auth middleware ──
 function auth(req, res, next) {
@@ -264,6 +268,14 @@ app.post('/api/reminders', auth, (req, res) => {
 app.post('/api/reminders/:id/trigger', auth, (req, res) => {
   db.prepare('UPDATE reminders SET triggered=1 WHERE id=? AND user_id=?').run(req.params.id, req.user.id);
   res.json({ ok: true });
+});
+
+// Toggle enabled on/off
+app.patch('/api/reminders/:id', auth, (req, res) => {
+  const enabled = req.body.enabled ? 1 : 0;
+  db.prepare('UPDATE reminders SET enabled=?, triggered=0 WHERE id=? AND user_id=?').run(enabled, req.params.id, req.user.id);
+  const row = db.prepare('SELECT * FROM reminders WHERE id=?').get(req.params.id);
+  res.json(row);
 });
 
 app.delete('/api/reminders/:id', auth, (req, res) => {

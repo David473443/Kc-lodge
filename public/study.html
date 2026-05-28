@@ -1330,6 +1330,7 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
       studyContext = await res.json();
       renderAll(studyContext);
       autoSaveAnalysis();
+      autoCreateClassReminders(studyContext.timetable || []);
 
       document.getElementById('loadingSection').style.display = 'none';
       document.getElementById('resultsSection').style.display = 'block';
@@ -1912,6 +1913,32 @@ What do you need help with?</div>
     } catch (err) {
       showToast('Error saving: ' + err.message, 'error');
     }
+  }
+
+  async function autoCreateClassReminders(timetable) {
+    if (!timetable.length || !isLoggedIn()) return;
+    const slots = timetable.filter(s => s.day && s.time && s.type !== 'assignment_due');
+    if (!slots.length) return;
+    let created = 0;
+    for (const slot of slots) {
+      const next = Reminders._nextOccurrence(slot.day, slot.time);
+      if (!next) continue;
+      const remindAt = new Date(next - 15 * 60000); // 15 min before
+      if (remindAt <= new Date()) continue;
+      try {
+        const res = await fetch('/api/reminders', {
+          method: 'POST', headers: authHeaders(),
+          body: JSON.stringify({
+            title: (slot.subject || 'Class') + (slot.course_code ? ' (' + slot.course_code + ')' : ''),
+            body: slot.day + ' at ' + slot.time + (slot.venue ? ' · ' + slot.venue : ''),
+            remind_at: remindAt.toISOString(),
+            source_type: 'class'
+          })
+        });
+        if (res.ok) created++;
+      } catch {}
+    }
+    if (created > 0) showToast('🔔 ' + created + ' class alarm' + (created > 1 ? 's' : '') + ' set automatically', 'success');
   }
 
   function setClassAlarm(day, time, subject, courseCode) {

@@ -409,7 +409,7 @@ const Reminders = (() => {
       const res = await fetch('/api/reminders', { headers: Auth.headers() });
       if (!res.ok) return;
       const rows = await res.json();
-      const count = rows.filter(r => !r.triggered && new Date(r.remind_at) > new Date()).length;
+      const count = rows.filter(r => !r.triggered && r.enabled !== 0 && new Date(r.remind_at) > new Date()).length;
       document.querySelectorAll('.rm-badge').forEach(b => {
         b.textContent = count;
         b.style.display = count > 0 ? 'inline-block' : 'none';
@@ -433,7 +433,7 @@ const Reminders = (() => {
         const now = new Date();
         let upcoming = 0;
         for (const r of rows) {
-          if (r.triggered) continue;
+          if (r.triggered || r.enabled === 0) continue;
           const due = new Date(r.remind_at);
           if (!_fired.has(r.id) && due <= now) {
             _fired.add(r.id);
@@ -447,7 +447,7 @@ const Reminders = (() => {
             }
             showToast('🔔 ' + r.title, 'success');
             fetch('/api/reminders/' + r.id + '/trigger', { method: 'POST', headers: Auth.headers() });
-          } else if (!r.triggered && due > now) {
+          } else if (due > now) {
             upcoming++;
           }
         }
@@ -461,5 +461,15 @@ const Reminders = (() => {
     setInterval(check, 60000);
   }
 
-  return { openModal, startChecker, playChime, _close, _confirm, _selectOpt, _nextOccurrence };
+  async function toggle(id, enabled) {
+    if (!Auth.getToken()) return;
+    const res = await fetch('/api/reminders/' + id, {
+      method: 'PATCH', headers: Auth.headers(),
+      body: JSON.stringify({ enabled: enabled ? 1 : 0 })
+    });
+    _refreshBadge();
+    return res.ok;
+  }
+
+  return { openModal, startChecker, playChime, toggle, _close, _confirm, _selectOpt, _nextOccurrence, _refreshBadge };
 })();
