@@ -205,6 +205,19 @@ app.get('/api/analyses/:id', auth, (req, res) => {
   res.json({ ...row, result: JSON.parse(row.result_json) });
 });
 
+app.put('/api/analyses/:id', auth, (req, res) => {
+  try {
+    const row = db.prepare('SELECT id FROM analyses WHERE id=? AND user_id=?').get(req.params.id, req.user.id);
+    if (!row) return res.status(404).json({ error: 'Not found.' });
+    const { name } = req.body;
+    if (!name?.trim()) return res.status(400).json({ error: 'Name required.' });
+    db.prepare('UPDATE analyses SET name=? WHERE id=? AND user_id=?').run(name.trim(), req.params.id, req.user.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.delete('/api/analyses/:id', auth, (req, res) => {
   db.prepare('DELETE FROM analyses WHERE id=? AND user_id=?').run(req.params.id, req.user.id);
   res.json({ ok: true });
@@ -275,18 +288,27 @@ app.post('/api/cgpa/calculate', (req, res) => {
 
 const ANALYSIS_SYSTEM = `You are ClassMind AI, a smart academic assistant for Nigerian university students.
 
-Analyze the provided course material — which may include WhatsApp chat exports, lecture notes, timetables, past questions, images of notes, or any academic document — and extract structured information.
+Analyze the provided course material — which may include WhatsApp chat exports, lecture notes, timetables, course outlines, semester schedules, past questions, images of notes, or any academic document — and extract ALL structured information available.
 
-Return ONLY valid JSON:
+Return ONLY valid JSON with these fields (omit any field where no data is found, do not include empty arrays):
 {
-  "assignments": [{"subject":"","title":"","deadline":"","priority":"HIGH|MEDIUM|LOW","details":""}],
-  "timetable": [{"day":"","time":"","subject":"","type":"class|lecture|lab|test|exam|assignment_due","venue":""}],
-  "topics": {"SubjectName": {"summary":"","key_points":[]}},
-  "overview": "2-3 sentence summary",
-  "tip": "One AI/tech concept in 50 words relevant to the student"
+  "overview": "2-4 sentence summary of what was found in the material",
+  "assignments": [{"subject":"","course_code":"","title":"","deadline":"YYYY-MM-DD or descriptive","priority":"HIGH|MEDIUM|LOW","details":""}],
+  "timetable": [{"day":"Monday|Tuesday|...|Saturday","time":"HH:MM","subject":"","course_code":"","type":"class|lecture|lab|test|exam|assignment_due","venue":"","lecturer":""}],
+  "lecturers": [{"name":"","title":"Dr|Prof|Mr|Mrs|Engr etc","course":"","course_code":"","office":"","email":"","phone":""}],
+  "course_outline": [{"course":"","course_code":"","credit_units":0,"semester":"","level":"","lecturer":"","topics":["topic 1","topic 2"],"recommended_texts":[""],"assessment":"e.g. 30% CA, 70% exam"}],
+  "topics": {"SubjectName or CourseCode": {"summary":"","key_points":[""],"subtopics":[""]}},
+  "tip": "One practical study tip or tech concept in 50 words relevant to Nigerian university students"
 }
 
-Priority: HIGH=exam/test/<48h, MEDIUM=this week, LOW=future. No markdown, just JSON.`;
+Rules:
+- Priority: HIGH = exam/test/project due within 48h or marked urgent; MEDIUM = due this week; LOW = future deadline
+- Extract ALL course codes (e.g. CSC201, EEE302, MTH101) wherever mentioned
+- Extract ALL lecturer names, titles, offices, contacts if present
+- If a course outline or syllabus is found, populate course_outline with every topic listed
+- For timetable, infer day/time from context if not explicit (e.g. "Monday morning" → day:Monday, time:08:00)
+- Generate topics entries for every subject found — include key points from notes, outlines, or discussed material
+- No markdown, no explanation, just the raw JSON object.`;
 
 app.post('/api/analyze', optionalAuth, async (req, res) => {
   try {

@@ -786,8 +786,45 @@
     el.innerHTML = `<div class="stat-card-value">${esc(String(value))}</div>${sub ? `<div class="stat-card-sub">${esc(sub)}</div>` : ''}`;
   }
 
+  /* ── Deadline countdown helper ── */
+  function deadlineCountdown(dateStr) {
+    if (!dateStr) return '';
+    const due = new Date(dateStr);
+    if (isNaN(due)) return `📅 ${dateStr}`;
+    const now = new Date();
+    const diff = due - now;
+    if (diff < 0) return `<span style="color:var(--high);font-weight:600">⚠ Overdue</span>`;
+    const days = Math.floor(diff / 86400000);
+    const hrs = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    let label, color;
+    if (days === 0 && hrs < 6) { label = hrs > 0 ? `${hrs}h ${mins}m left` : `${mins}m left`; color = 'var(--high)'; }
+    else if (days === 0) { label = `${hrs}h left`; color = 'var(--medium, #E67E22)'; }
+    else if (days <= 2) { label = `${days}d ${hrs}h left`; color = 'var(--medium, #E67E22)'; }
+    else { label = `${days}d left`; color = 'var(--muted)'; }
+    return `<span style="color:${color};font-size:11px;font-weight:600">⏱ ${label}</span>`;
+  }
+
+  /* ── Relative time helper ── */
+  function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    const diff = Date.now() - d;
+    const mins = Math.floor(diff / 60000);
+    const hrs = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    if (hrs < 24) return `${hrs}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
   /* ── Render recent tasks ── */
+  let _dashTasks = [];
   function renderRecentTasks(tasks) {
+    _dashTasks = tasks;
     const container = document.getElementById('recentTasks');
     if (!tasks || !tasks.length) {
       container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">✓</div><p>No tasks yet. <a href="/tasks.html" style="color:var(--accent)">Add one →</a></p></div>`;
@@ -807,7 +844,7 @@
           <div class="task-info">
             <div class="task-subject">${esc(t.subject || t.course || '')}</div>
             <div class="task-title">${esc(t.title)}</div>
-            ${t.due_date || t.deadline ? `<div class="task-deadline">📅 ${esc(t.due_date || t.deadline)}</div>` : ''}
+            ${t.due_date || t.deadline ? `<div class="task-deadline">${deadlineCountdown(t.due_date || t.deadline)}</div>` : ''}
           </div>
           <span class="priority-badge badge-${pri}">${pri}</span>
         </div>
@@ -827,14 +864,12 @@
       .slice(0, 3);
 
     container.innerHTML = recent.map(a => {
-      const date = a.created_at
-        ? new Date(a.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-        : '';
+      const relTime = a.created_at ? timeAgo(a.created_at) : '';
       const overview = a.result?.overview || a.overview || '';
       return `
         <div class="analysis-item">
           <div class="analysis-name">${esc(a.name || 'Untitled Analysis')}</div>
-          ${date ? `<div class="analysis-date">${esc(date)}</div>` : ''}
+          ${relTime ? `<div class="analysis-date">🕐 Last analyzed: ${esc(relTime)}</div>` : ''}
           ${overview ? `<div class="analysis-snippet">${esc(overview)}</div>` : ''}
         </div>
       `;
@@ -917,6 +952,9 @@
 
     /* ── Recent analyses ── */
     renderRecentAnalyses(analyses);
+
+    // Live countdown refresh every 60s
+    setInterval(() => renderRecentTasks(_dashTasks), 60000);
   }
 
   init().catch(err => {

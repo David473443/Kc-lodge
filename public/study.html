@@ -954,10 +954,12 @@
         <div class="results-topbar">
           <div class="results-topbar-left">
             <h1>Analysis Results</h1>
+            <span id="autoSaveIndicator" style="display:none;font-size:12px;color:var(--low);font-weight:600;margin-left:12px;">✓ Saved automatically</span>
+            <span id="autoSaveSpinner" style="display:none;font-size:12px;color:var(--muted);margin-left:12px;">Saving…</span>
           </div>
           <button class="btn btn-outline btn-sm" onclick="backToUpload()">← Analyze Another</button>
           <button class="btn btn-success btn-sm" id="saveBtn" onclick="openSaveModal()" style="display:none">
-            💾 Save to Notes
+            ✏️ Rename &amp; Save
           </button>
         </div>
 
@@ -967,6 +969,8 @@
           <button class="tab" data-tab="assignments" onclick="switchTab('assignments')">📋 Assignments</button>
           <button class="tab" data-tab="schedule" onclick="switchTab('schedule')">📅 Schedule</button>
           <button class="tab" data-tab="topics" onclick="switchTab('topics')">💡 Topics</button>
+          <button class="tab" data-tab="lecturers" onclick="switchTab('lecturers')">👨‍🏫 Lecturers</button>
+          <button class="tab" data-tab="outline" onclick="switchTab('outline')">📚 Course Outline</button>
           <button class="tab" data-tab="chat" onclick="switchTab('chat')">🤖 AI Chat</button>
         </div>
 
@@ -981,6 +985,12 @@
 
         <!-- Topics -->
         <div class="tab-content" id="tab-topics"></div>
+
+        <!-- Lecturers -->
+        <div class="tab-content" id="tab-lecturers"></div>
+
+        <!-- Course Outline -->
+        <div class="tab-content" id="tab-outline"></div>
 
         <!-- Chat -->
         <div class="tab-content" id="tab-chat">
@@ -1317,6 +1327,7 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
 
       studyContext = await res.json();
       renderAll(studyContext);
+      autoSaveAnalysis();
 
       document.getElementById('loadingSection').style.display = 'none';
       document.getElementById('resultsSection').style.display = 'block';
@@ -1337,6 +1348,11 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
     renderAssignments(data.assignments || []);
     renderSchedule(data.timetable || []);
     renderTopics(data.topics || {});
+    renderLecturers(data.lecturers || []);
+    renderCourseOutline(data.course_outline || []);
+    // Show/hide tabs based on data presence
+    document.querySelector('[data-tab="lecturers"]').style.display = (data.lecturers?.length) ? '' : 'none';
+    document.querySelector('[data-tab="outline"]').style.display = (data.course_outline?.length) ? '' : 'none';
     resetChat();
   }
 
@@ -1346,6 +1362,8 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
     const highCount = assignments.filter(a => a.priority === 'HIGH').length;
     const subjects = Object.keys(data.topics || {});
     const timetable = data.timetable || [];
+    const lecturers = data.lecturers || [];
+    const outline = data.course_outline || [];
 
     document.getElementById('tab-overview').innerHTML = `
       <div class="overview-grid">
@@ -1365,6 +1383,14 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
           <div class="stat-num">${subjects.length}</div>
           <div class="stat-label">Subjects Found</div>
         </div>
+        ${lecturers.length ? `<div class="stat-card">
+          <div class="stat-num">${lecturers.length}</div>
+          <div class="stat-label">Lecturers</div>
+        </div>` : ''}
+        ${outline.length ? `<div class="stat-card">
+          <div class="stat-num">${outline.length}</div>
+          <div class="stat-label">Courses Outlined</div>
+        </div>` : ''}
       </div>
       <div class="card">
         <div class="tip-label">OVERVIEW</div>
@@ -1565,6 +1591,57 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
     document.getElementById('chev-' + id).classList.toggle('open');
   }
 
+  /* ── Lecturers ── */
+  function renderLecturers(lecturers) {
+    const el = document.getElementById('tab-lecturers');
+    if (!lecturers.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">👨‍🏫</div><p>No lecturer information found in the material.</p></div>`;
+      return;
+    }
+    el.innerHTML = `<div style="display:grid;gap:14px;padding:4px 0">` + lecturers.map(l => `
+      <div class="topic-card" style="padding:16px 20px">
+        <div style="font-weight:700;font-size:15px;color:var(--accent)">${esc((l.title ? l.title + ' ' : '') + (l.name || 'Unknown'))}</div>
+        ${l.course ? `<div style="margin-top:4px;font-size:13px;color:var(--muted)">📖 ${esc(l.course)}${l.course_code ? ` <span style="background:var(--accent-bg);color:var(--accent);padding:1px 7px;border-radius:20px;font-size:11px;font-weight:700;margin-left:6px">${esc(l.course_code)}</span>` : ''}</div>` : ''}
+        ${l.office ? `<div style="margin-top:4px;font-size:13px">🏢 ${esc(l.office)}</div>` : ''}
+        ${l.email ? `<div style="margin-top:4px;font-size:13px">✉️ <a href="mailto:${esc(l.email)}" style="color:var(--accent)">${esc(l.email)}</a></div>` : ''}
+        ${l.phone ? `<div style="margin-top:4px;font-size:13px">📞 ${esc(l.phone)}</div>` : ''}
+      </div>`).join('') + `</div>`;
+  }
+
+  /* ── Course Outline ── */
+  function renderCourseOutline(outline) {
+    const el = document.getElementById('tab-outline');
+    if (!outline.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">📚</div><p>No course outline found in the material.</p></div>`;
+      return;
+    }
+    el.innerHTML = outline.map((c, i) => {
+      const id = 'outline-' + i;
+      return `
+        <div class="topic-card">
+          <div class="topic-header" onclick="toggleTopic('${id}')">
+            <div class="topic-name">
+              ${esc(c.course || 'Course')}
+              ${c.course_code ? `<span style="background:var(--accent-bg);color:var(--accent);padding:1px 8px;border-radius:20px;font-size:11px;font-weight:700;margin-left:8px">${esc(c.course_code)}</span>` : ''}
+              ${c.credit_units ? `<span style="color:var(--muted);font-size:11px;margin-left:8px">${esc(String(c.credit_units))} units</span>` : ''}
+            </div>
+            <span class="topic-chevron${i === 0 ? ' open' : ''}" id="chev-${id}">▾</span>
+          </div>
+          <div class="topic-body${i === 0 ? ' open' : ''}" id="${id}">
+            ${c.lecturer ? `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">👨‍🏫 ${esc(c.lecturer)}${c.semester ? ` · ${esc(c.semester)}` : ''}</div>` : ''}
+            ${c.assessment ? `<div style="font-size:12px;background:var(--accent-bg);color:var(--accent);padding:4px 10px;border-radius:6px;display:inline-block;margin-bottom:10px">📊 ${esc(c.assessment)}</div>` : ''}
+            ${(c.topics||[]).length ? `<div style="font-weight:600;font-size:12px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)">Topics Covered</div><ul class="topic-points">${(c.topics||[]).map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+            ${(c.recommended_texts||[]).length ? `<div style="font-weight:600;font-size:12px;margin-top:12px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)">Recommended Texts</div><ul class="topic-points">${(c.recommended_texts||[]).map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+            <div style="margin-top:14px">
+              <button class="btn btn-outline btn-sm" onclick="askAbout('Explain the course outline for ${escAttr(c.course || c.course_code || 'this course')} and help me plan my study schedule')">
+                📅 Plan Study Schedule
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
   /* ═══════════════════════════════════════════════
      TABS
   ═══════════════════════════════════════════════ */
@@ -1736,6 +1813,32 @@ What do you need help with?</div>
   /* ═══════════════════════════════════════════════
      SAVE ANALYSIS
   ═══════════════════════════════════════════════ */
+  let savedAnalysisId = null;
+
+  async function autoSaveAnalysis() {
+    if (!studyContext || !isLoggedIn()) return;
+    const spinner = document.getElementById('autoSaveSpinner');
+    const indicator = document.getElementById('autoSaveIndicator');
+    spinner.style.display = 'inline';
+    indicator.style.display = 'none';
+    const now = new Date();
+    const name = 'Analysis — ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    try {
+      const res = await fetch('/api/analyses', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ name, result: studyContext })
+      });
+      spinner.style.display = 'none';
+      if (res.ok) {
+        const data = await res.json();
+        savedAnalysisId = data.id;
+        indicator.style.display = 'inline';
+        document.getElementById('saveBtn').style.display = '';
+      }
+    } catch { spinner.style.display = 'none'; }
+  }
+
   function openSaveModal() {
     if (!isLoggedIn()) {
       showToast('Sign in to save analyses.', 'error');
@@ -1745,9 +1848,11 @@ What do you need help with?</div>
       showToast('No analysis to save yet.', 'error');
       return;
     }
-    document.getElementById('saveNameInput').value = '';
+    const now = new Date();
+    const autoName = 'Analysis — ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('saveNameInput').value = autoName;
     document.getElementById('saveModal').classList.add('open');
-    setTimeout(() => document.getElementById('saveNameInput').focus(), 50);
+    setTimeout(() => { const el = document.getElementById('saveNameInput'); el.focus(); el.select(); }, 50);
   }
 
   function closeSaveModal() {
@@ -1774,11 +1879,21 @@ What do you need help with?</div>
     closeSaveModal();
 
     try {
-      const res = await fetch('/api/analyses', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ name, result: studyContext })
-      });
+      let res;
+      if (savedAnalysisId) {
+        res = await fetch('/api/analyses/' + savedAnalysisId, {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify({ name })
+        });
+      } else {
+        res = await fetch('/api/analyses', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ name, result: studyContext })
+        });
+        if (res.ok) { const d = await res.json(); savedAnalysisId = d.id; }
+      }
 
       if (res.status === 401) { clearAuth(); window.location.href = '/login.html'; return; }
 
@@ -1788,7 +1903,8 @@ What do you need help with?</div>
         throw new Error(errMsg);
       }
 
-      showToast('Analysis saved to Notes!', 'success');
+      showToast('Analysis renamed and saved!', 'success');
+      document.getElementById('autoSaveIndicator').textContent = '✓ Saved: ' + name;
 
     } catch (err) {
       showToast('Error saving: ' + err.message, 'error');

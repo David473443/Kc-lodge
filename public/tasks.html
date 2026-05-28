@@ -522,7 +522,9 @@ function deadlineInfo(dateStr) {
   const days = Math.floor(diff / 86400000);
   const hrs  = Math.floor((diff % 86400000) / 3600000);
   let text, cls;
-  if (days === 0 && hrs === 0) { text = 'Due soon'; cls = 'deadline-urgent'; }
+  const mins = Math.floor((diff % 3600000) / 60000);
+  if (days === 0 && hrs === 0) { text = mins > 0 ? `${mins}m left` : 'Due now'; cls = 'deadline-urgent'; }
+  else if (days === 0 && hrs < 6) { text = `${hrs}h ${mins}m left`; cls = 'deadline-urgent'; }
   else if (days === 0)         { text = hrs + 'h left'; cls = 'deadline-urgent'; }
   else if (days === 1)         { text = '1d ' + hrs + 'h left'; cls = 'deadline-urgent'; }
   else if (days <= 3)          { text = days + 'd ' + hrs + 'h left'; cls = 'deadline-soon'; }
@@ -730,6 +732,8 @@ function showToast(msg, type = 'error') {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 fetchTasks();
+// Live countdown refresh — every 30s for tasks with deadlines
+setInterval(applyFilters, 30000);
 </script>
 </body>
 </html>
