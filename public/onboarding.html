@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Set Up Your Profile — ClassMind AI</title>
+  <meta name="description" content="Set up your ClassMind AI profile so we can personalize your study experience." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1B3F6E;
+      --navy-dark: #15335A;
+      --navy-light: #EBF0F7;
+      --bg: #F6F6F3;
+      --white: #FFFFFF;
+      --text: #141414;
+      --muted: #6B7280;
+      --border: #E2E2DC;
+      --danger: #B91C1C;
+      --danger-bg: #FEF2F2;
+      --danger-border: #FECACA;
+      --success: #15803D;
+      --shadow: 0 2px 8px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.08);
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .logo {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--navy);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .logo-badge {
+      display: inline-block;
+      background: var(--navy);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .top-bar-meta {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-container {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      flex-shrink: 0;
+    }
+    .progress-inner {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px 0;
+    }
+    .progress-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      position: relative;
+    }
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      position: relative;
+      z-index: 1;
+    }
+    .progress-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      right: -50%;
+      height: 2px;
+      background: var(--border);
+      z-index: -1;
+      transition: background 0.4s ease;
+    }
+    .progress-step.completed:not(:last-child)::after {
+      background: var(--navy);
+    }
+
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      transition: all 0.3s ease;
+    }
+    .progress-step.active .step-circle {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(27,63,110,0.3);
+    }
+    .progress-step.completed .step-circle {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+    }
+    .step-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: 0.2px;
+      transition: color 0.3s;
+    }
+    .progress-step.active .step-label,
+    .progress-step.completed .step-label { color: var(--navy); }
+
+    /* ── MAIN ── */
+    .page-center {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 44px 20px 60px;
+    }
+
+    /* ── CARD ── */
+    .onboard-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 48px 48px;
+      width: 100%;
+      max-width: 560px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    /* ── STEP PANELS ── */
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    /* Step heading area */
+    .step-icon-big {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: var(--navy-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    .step-heading {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .step-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    /* ── FORM ELEMENTS ── */
+    .form-group { margin-bottom: 22px; }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 7px;
+      letter-spacing: 0.1px;
+    }
+    .form-group select,
+    .form-group input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .form-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+    .form-group select:focus,
+    .form-group input[type="text"]:focus {
+      border-color: var(--navy);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(27,63,110,0.08);
+    }
+    .form-group select option { background: var(--white); }
+    .form-group input[type="text"]::placeholder { color: #ADADAD; }
+    .form-group input.error-field { border-color: var(--danger); }
+
+    /* ── OTHER INPUT (conditional) ── */
+    .other-input-wrap {
+      margin-top: 12px;
+      display: none;
+    }
+    .other-input-wrap.show { display: block; }
+
+    /* ── LEVEL GRID ── */
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .level-btn {
+      padding: 12px 8px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s;
+    }
+    .level-btn:hover { border-color: var(--navy); color: var(--navy); background: var(--navy-light); }
+    .level-btn.selected {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(27,63,110,0.25);
+    }
+
+    /* ── COURSE INPUT ── */
+    .course-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .course-input-row input {
+      flex: 1;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      text-transform: uppercase;
+    }
+    .course-input-row input:focus {
+      border-color: var(--navy);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(27,63,110,0.08);
+    }
+    .course-input-row input::placeholder { color: #ADADAD; text-transform: none; }
+
+    .add-course-btn {
+      padding: 12px 20px;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+    .add-course-btn:hover { background: var(--navy-dark); }
+
+    /* ── COURSE CHIPS ── */
+    .course-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 44px;
+      padding: 12px;
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      margin-bottom: 8px;
+    }
+    .course-chips:empty::before {
+      content: 'Your courses will appear here as chips';
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+    }
+    .course-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--navy-light);
+      border: 1px solid #C8D9EE;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .chip-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--navy);
+      font-size: 16px;
+      line-height: 1;
+      opacity: 0.5;
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+    .chip-remove:hover { opacity: 1; }
+    .courses-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .skip-link {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
+    }
+    .skip-link:hover { color: var(--navy); text-decoration: underline; }
+
+    /* ── ERROR ALERT ── */
+    .error-alert {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .error-alert.show { display: flex; }
+
+    /* ── NAVIGATION BUTTONS ── */
+    .step-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 36px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .back-btn {
+      padding: 12px 22px;
+      background: transparent;
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .back-btn:hover { border-color: var(--navy); color: var(--navy); background: var(--navy-light); }
+    .back-btn:disabled { opacity: 0; pointer-events: none; }
+
+    .next-btn {
+      padding: 13px 28px;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(27,63,110,0.25);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .next-btn:hover:not(:disabled) {
+      background: var(--navy-dark);
+      box-shadow: 0 4px 16px rgba(27,63,110,0.35);
+      transform: translateY(-1px);
+    }
+    .next-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── PAGE FOOTER ── */
+    .page-footer {
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    /* ── SPINNER ── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 620px) {
+      .onboard-card { padding: 32px 20px; border-radius: 16px; }
+      .top-bar { padding: 14px 20px; }
+      .progress-container { padding: 0 20px; }
+      .level-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+      .level-btn { padding: 10px 4px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="top-bar">
+  <a href="/" class="logo">ClassMind<span class="logo-badge">AI</span></a>
+  <div class="top-bar-meta">Setup · Takes about 1 minute</div>
+</div>
+
+<!-- Progress bar -->
+<div class="progress-container">
+  <div class="progress-inner">
+    <div class="progress-steps">
+      <div class="progress-step active" id="pstep-1">
+        <div class="step-circle" id="pcircle-1">1</div>
+        <div class="step-label">University</div>
+      </div>
+      <div class="progress-step" id="pstep-2">
+        <div class="step-circle" id="pcircle-2">2</div>
+        <div class="step-label">Your Level</div>
+      </div>
+      <div class="progress-step" id="pstep-3">
+        <div class="step-circle" id="pcircle-3">3</div>
+        <div class="step-label">Courses</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="page-center">
+  <div class="onboard-card">
+
+    <!-- ── STEP 1: University ── -->
+    <div class="step-panel active" id="panel-1">
+      <div class="step-icon-big">🏛️</div>
+      <h2 class="step-heading">Which university do you attend?</h2>
+      <p class="step-sub">We'll personalize your experience based on your institution's academic calendar and common course structures.</p>
+
+      <div class="error-alert" id="error-1" role="alert">
+        <span>⚠</span>
+        <span id="errorText-1">Please select your university.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="universitySelect">Select your university</label>
+        <select id="universitySelect" onchange="handleUniversityChange()">
+          <option value="">— Choose your university —</option>
+          <optgroup label="Federal Universities">
+            <option value="UNIPORT">University of Port Harcourt (UNIPORT)</option>
+            <option value="UNILAG">University of Lagos (UNILAG)</option>
+            <option value="UI">University of Ibadan (UI)</option>
+            <option value="UNIBEN">University of Benin (UNIBEN)</option>
+            <option value="OAU">Obafemi Awolowo University (OAU)</option>
+            <option value="ABU">Ahmadu Bello University (ABU)</option>
+            <option value="FUTA">Federal University of Technology, Akure (FUTA)</option>
+            <option value="UNILORIN">University of Ilorin (UNILORIN)</option>
+            <option value="UNN">University of Nigeria, Nsukka (UNN)</option>
+            <option value="UNIMAID">University of Maiduguri (UNIMAID)</option>
+          </optgroup>
+          <optgroup label="State Universities">
+            <option value="LASU">Lagos State University (LASU)</option>
+            <option value="OOU">Olabisi Onabanjo University (OOU)</option>
+            <option value="RSUST">Rivers State University (RSUST)</option>
+            <option value="UNIUYO">University of Uyo (UNIUYO)</option>
+          </optgroup>
+          <optgroup label="Private Universities">
+            <option value="COVENANT">Covenant University</option>
+            <option value="BABCOCK">Babcock University</option>
+            <option value="BELLS">Bells University of Technology</option>
+            <option value="REDEEMERS">Redeemer's University</option>
+          </optgroup>
+          <option value="other">Other (specify below)</option>
+        </select>
+      </div>
+
+      <!-- Other university text input -->
+      <div class="form-group other-input-wrap" id="otherUniWrap">
+        <label for="otherUni">Enter your university name</label>
+        <input
+          type="text"
+          id="otherUni"
+          placeholder="e.g. Madonna University, Enugu State University..."
+        />
+      </div>
+    </div>
+
+    <!-- ── STEP 2: Level & Department ── -->
+    <div class="step-panel" id="panel-2">
+      <div class="step-icon-big">📚</div>
+      <h2 class="step-heading">Your year and department</h2>
+      <p class="step-sub">This helps ClassMind suggest relevant courses, past questions, and study materials for your level.</p>
+
+      <div class="error-alert" id="error-2" role="alert">
+        <span>⚠</span>
+        <span id="errorText-2">Please select your level and department.</span>
+      </div>
+
+      <div class="form-group">
+        <label>Academic level</label>
+        <div class="level-grid">
+          <button class="level-btn" data-level="100L" onclick="selectLevel(this)">100L</button>
+          <button class="level-btn" data-level="200L" onclick="selectLevel(this)">200L</button>
+          <button class="level-btn" data-level="300L" onclick="selectLevel(this)">300L</button>
+          <button class="level-btn" data-level="400L" onclick="selectLevel(this)">400L</button>
+          <button class="level-btn" data-level="500L" onclick="selectLevel(this)">500L</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="departmentSelect">Department / Faculty</label>
+        <select id="departmentSelect">
+          <option value="">— Select your department —</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Engineering">Engineering (all disciplines)</option>
+          <option value="Medicine">Medicine &amp; Surgery</option>
+          <option value="Law">Law</option>
+          <option value="Business Admin">Business Administration</option>
+          <option value="Accounting">Accounting &amp; Finance</option>
+          <option value="Education">Education</option>
+          <option value="Sciences">Pure &amp; Applied Sciences</option>
+          <option value="Arts">Arts &amp; Humanities</option>
+          <option value="Social Sciences">Social Sciences</option>
+          <option value="Agriculture">Agriculture</option>
+          <option value="Pharmacy">Pharmacy</option>
+          <option value="Architecture">Architecture &amp; Urban Planning</option>
+          <option value="Mass Communication">Mass Communication</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: Courses ── -->
+    <div class="step-panel" id="panel-3">
+      <div class="step-icon-big">📋</div>
+      <h2 class="step-heading">Add your courses this semester</h2>
+      <p class="step-sub">Type your course codes (like MTH201, CSC102) and hit Add. ClassMind will track assignments and deadlines for each course.</p>
+
+      <div class="error-alert" id="error-3" role="alert">
+        <span>⚠</span>
+        <span id="errorText-3">Something went wrong saving your profile. Please try again.</span>
+      </div>
+
+      <div class="course-input-row">
+        <input
+          type="text"
+          id="courseInput"
+          placeholder="e.g. MTH201, CSC102, PHY107"
+          maxlength="12"
+          onkeydown="handleCourseKey(event)"
+        />
+        <button class="add-course-btn" onclick="addCourse()">+ Add</button>
+      </div>
+
+      <div class="courses-hint">Your courses:</div>
+      <div class="course-chips" id="courseChips"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+        <span class="courses-hint" id="courseCount">0 courses added</span>
+        <button class="skip-link" onclick="skipCourses()">Skip this step</button>
+      </div>
+    </div>
+
+    <!-- ── NAVIGATION ── -->
+    <div class="step-nav">
+      <button class="back-btn" id="backBtn" onclick="prevStep()" disabled>← Back</button>
+      <button class="next-btn" id="nextBtn" onclick="nextStep()">
+        <span id="nextBtnText">Next</span>
+        <span>→</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div class="page-footer">
+  Your information is private and used only to personalize your ClassMind experience.
+</div>
+
+<script>
+  // ── State ──
+  let currentStep = 1;
+  const totalSteps = 3;
+  let selectedLevel = '';
+  let courses = [];
+
+  // ── Guard: must be logged in ──
+  (function() {
+    const token = localStorage.getItem('cm_token');
+    if (!token) {
+      window.location.replace('/login.html');
+    }
+  })();
+
+  // ── Progress bar update ──
+  function updateProgress() {
+    for (let i = 1; i <= totalSteps; i++) {
+      const pstep = document.getElementById('pstep-' + i);
+      const circle = document.getElementById('pcircle-' + i);
+      pstep.classList.remove('active', 'completed');
+      if (i < currentStep) {
+        pstep.classList.add('completed');
+        circle.textContent = '✓';
+      } else if (i === currentStep) {
+        pstep.classList.add('active');
+        circle.textContent = i;
+      } else {
+        circle.textContent = i;
+      }
+    }
+  }
+
+  // ── Panel switch ──
+  function showStep(step) {
+    for (let i = 1; i <= totalSteps; i++) {
+      const panel = document.getElementById('panel-' + i);
+      panel.classList.toggle('active', i === step);
+    }
+
+    // Back button
+    const backBtn = document.getElementById('backBtn');
+    backBtn.disabled = step === 1;
+
+    // Next button label
+    const nextBtnText = document.getElementById('nextBtnText');
+    if (step === totalSteps) {
+      nextBtnText.textContent = 'Finish Setup';
+    } else {
+      nextBtnText.textContent = 'Next';
+    }
+
+    // Update progress
+    updateProgress();
+  }
+
+  // ── Validation per step ──
+  function validateStep(step) {
+    hideError(step);
+    if (step === 1) {
+      const uni = document.getElementById('universitySelect').value;
+      if (!uni) {
+        showError(1, 'Please select your university to continue.');
+        return false;
+      }
+      if (uni === 'other') {
+        const other = document.getElementById('otherUni').value.trim();
+        if (!other) {
+          showError(1, 'Please enter your university name.');
+          document.getElementById('otherUni').focus();
+          return false;
+        }
+      }
+      return true;
+    }
+    if (step === 2) {
+      if (!selectedLevel) {
+        showError(2, 'Please select your academic level (100L, 200L, etc.).');
+        return false;
+      }
+      const dept = document.getElementById('departmentSelect').value;
+      if (!dept) {
+        showError(2, 'Please select your department or faculty.');
+        document.getElementById('departmentSelect').focus();
+        return false;
+      }
+      return true;
+    }
+    // Step 3: always valid (skip is allowed)
+    return true;
+  }
+
+  // ── Navigation ──
+  function nextStep() {
+    if (!validateStep(currentStep)) return;
+    if (currentStep === totalSteps) {
+      submitOnboarding();
+      return;
+    }
+    currentStep++;
+    showStep(currentStep);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function prevStep() {
+    if (currentStep > 1) {
+      hideError(currentStep);
+      currentStep--;
+      showStep(currentStep);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  // ── University change ──
+  function handleUniversityChange() {
+    const val = document.getElementById('universitySelect').value;
+    const wrap = document.getElementById('otherUniWrap');
+    wrap.classList.toggle('show', val === 'other');
+    if (val !== 'other') {
+      document.getElementById('otherUni').value = '';
+    }
+    hideError(1);
+  }
+
+  // ── Level selection ──
+  function selectLevel(btn) {
+    document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedLevel = btn.dataset.level;
+    hideError(2);
+  }
+
+  // ── Course management ──
+  function addCourse() {
+    const input = document.getElementById('courseInput');
+    const raw = input.value.trim().toUpperCase();
+
+    if (!raw) {
+      input.focus();
+      return;
+    }
+
+    // Accept comma-separated input
+    const codes = raw.split(/[\s,;]+/).filter(Boolean);
+    let added = 0;
+    codes.forEach(code => {
+      const clean = code.replace(/[^A-Z0-9]/g, '').substring(0, 10);
+      if (clean && !courses.includes(clean)) {
+        courses.push(clean);
+        added++;
+      }
+    });
+
+    input.value = '';
+    input.focus();
+    renderChips();
+  }
+
+  function removeCourse(code) {
+    courses = courses.filter(c => c !== code);
+    renderChips();
+  }
+
+  function renderChips() {
+    const container = document.getElementById('courseChips');
+    container.innerHTML = courses.map(code => `
+      <div class="course-chip">
+        ${escHtml(code)}
+        <button class="chip-remove" onclick="removeCourse('${escAttr(code)}')" title="Remove ${escHtml(code)}">&times;</button>
+      </div>
+    `).join('');
+    document.getElementById('courseCount').textContent =
+      courses.length === 0 ? '0 courses added' :
+      courses.length === 1 ? '1 course added' :
+      `${courses.length} courses added`;
+  }
+
+  function handleCourseKey(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addCourse();
+    }
+    // Auto-add on comma or space after a code
+    if ((e.key === ',' || e.key === ' ') && e.target.value.trim().length >= 3) {
+      e.preventDefault();
+      addCourse();
+    }
+  }
+
+  function skipCourses() {
+    courses = [];
+    submitOnboarding();
+  }
+
+  // ── Error helpers ──
+  function showError(step, msg) {
+    const el = document.getElementById('error-' + step);
+    if (msg) document.getElementById('errorText-' + step).textContent = msg;
+    el.classList.add('show');
+  }
+  function hideError(step) {
+    const el = document.getElementById('error-' + step);
+    if (el) el.classList.remove('show');
+  }
+
+  // ── Set loading on finish button ──
+  function setSubmitLoading(loading) {
+    const btn = document.getElementById('nextBtn');
+    const text = document.getElementById('nextBtnText');
+    if (loading) {
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div><span>Saving...</span>';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<span id="nextBtnText">Finish Setup</span><span>→</span>';
+    }
+  }
+
+  // ── Submit onboarding ──
+  async function submitOnboarding() {
+    hideError(3);
+    setSubmitLoading(true);
+
+    // Gather values
+    const uniSelect = document.getElementById('universitySelect').value;
+    const university = uniSelect === 'other'
+      ? document.getElementById('otherUni').value.trim()
+      : uniSelect;
+    const level = selectedLevel;
+    const department = document.getElementById('departmentSelect').value;
+    const token = localStorage.getItem('cm_token');
+
+    const payload = {
+      university,
+      level,
+      department,
+      courses,
+      onboarded: 1
+    };
+
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(payload)
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error('Unexpected server response.');
+      }
+
+      if (!res.ok) {
+        throw new Error(data.message || data.error || 'Failed to save your profile. Please try again.');
+      }
+
+      // Update stored user object
+      const storedUser = localStorage.getItem('cm_user');
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          Object.assign(user, payload);
+          if (data.user) Object.assign(user, data.user);
+          localStorage.setItem('cm_user', JSON.stringify(user));
+        } catch (e) { /* leave as is */ }
+      }
+
+      // Success — go to dashboard
+      window.location.href = '/dashboard.html';
+
+    } catch (err) {
+      setSubmitLoading(false);
+      showError(3, err.message || 'Something went wrong. Please check your connection and try again.');
+
+      // Scroll to error
+      document.getElementById('error-3').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  // ── Utils ──
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(str) {
+    return String(str || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  }
+
+  // ── Init ──
+  showStep(1);
+</script>
+</body>
+</html>

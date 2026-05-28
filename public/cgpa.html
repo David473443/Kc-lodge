@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CGPA Calculator — ClassMind AI</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#1B3F6E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F6F6F3;
+      --card: #FFFFFF;
+      --card2: #F2F2EF;
+      --border: #E2E2DC;
+      --accent: #1B3F6E;
+      --accent-light: #EBF0F7;
+      --accent-hover: #15335A;
+      --text: #141414;
+      --muted: #747474;
+      --high: #B91C1C;
+      --med: #B45309;
+      --low: #15803D;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
+
+    /* ── App layout ── */
+    .app-layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      background: var(--card); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; height: 100vh;
+      z-index: 200; overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 22px 20px 18px;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px; font-weight: 700; color: var(--accent);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .sidebar-logo-badge {
+      display: inline-block; background: var(--accent); color: #fff;
+      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700;
+      letter-spacing: 1px; padding: 2px 6px; border-radius: 4px;
+      margin-left: 5px; vertical-align: middle; position: relative; top: -2px;
+    }
+    .sidebar-nav { list-style: none; padding: 12px 0; flex: 1; }
+    .sidebar-nav li { margin: 2px 8px; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px; text-decoration: none;
+      color: var(--muted); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sidebar-link:hover { background: var(--bg); color: var(--text); }
+    .sidebar-link.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+    .sidebar-icon { font-size: 16px; width: 20px; text-align: center; }
+    .sidebar-footer { padding: 14px 16px; border-top: 1px solid var(--border); flex-shrink: 0; }
+    .sidebar-user { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .sidebar-avatar {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--accent);
+      color: #fff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .sidebar-user-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+    .sidebar-user-uni  { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+    .sidebar-logout {
+      width: 100%; padding: 7px; border: 1.5px solid var(--border); border-radius: 7px;
+      background: transparent; color: var(--muted); font-family: 'Inter', sans-serif;
+      font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+    }
+    .sidebar-logout:hover { border-color: var(--high); color: var(--high); }
+
+    /* ── Mobile ── */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 199; }
+    .mobile-topbar { display: none; }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+      .page-content { margin-left: 0 !important; }
+      .mobile-topbar {
+        display: flex; align-items: center; gap: 12px;
+        height: 52px; padding: 0 16px; background: var(--card);
+        border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+      }
+      .hamburger { background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; }
+      .mobile-logo { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; color: var(--accent); }
+    }
+
+    /* ── Page content ── */
+    .page-content { margin-left: 220px; flex: 1; min-width: 0; }
+    .page-inner { padding: 32px; max-width: 860px; }
+    @media (max-width: 768px) { .page-inner { padding: 16px; } }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 10px 20px; border-radius: 8px; border: none;
+      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.18s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .btn-outline {
+      background: transparent; color: var(--text); border: 1.5px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .btn-sm { padding: 6px 14px; font-size: 12px; }
+    .btn-danger-sm {
+      padding: 4px 10px; border-radius: 6px; border: 1.5px solid #FCA5A5;
+      background: transparent; color: var(--high); font-family: 'Inter', sans-serif;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-danger-sm:hover { background: #FEE2E2; }
+
+    /* ── Form controls ── */
+    input[type="text"], input[type="number"], select {
+      background: var(--card); border: 1.5px solid var(--border); border-radius: 8px;
+      color: var(--text); padding: 8px 10px; font-family: 'Inter', sans-serif;
+      font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,63,110,0.08);
+    }
+    input::placeholder { color: #ADADAD; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px; box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 18px; font-weight: 700; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .section-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+
+    /* ── Page header ── */
+    .page-title    { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .page-subtitle { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+
+    /* ── Course table ── */
+    .course-table { width: 100%; border-collapse: collapse; }
+    .course-table thead th {
+      text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.6px;
+      text-transform: uppercase; color: var(--muted); padding: 0 8px 10px 8px;
+    }
+    .course-table thead th:last-child { text-align: center; }
+    .course-table tbody tr + tr { border-top: 1px solid var(--bg); }
+    .course-row td { padding: 5px 8px; }
+
+    .course-row .inp-name { width: 100%; min-width: 100px; }
+    .course-row .inp-units { width: 64px; text-align: center; }
+    .course-row .sel-grade { min-width: 74px; }
+
+    .grade-cell { text-align: center; }
+
+    .course-table tfoot td {
+      padding-top: 12px; font-size: 12px; font-weight: 600; color: var(--muted);
+    }
+
+    /* ── Grade scale info ── */
+    .grade-ref {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px;
+    }
+    .grade-pill {
+      padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
+      border: 1.5px solid var(--border);
+    }
+
+    /* ── GPA result card ── */
+    .result-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px; box-shadow: var(--shadow);
+      text-align: center; margin-bottom: 20px;
+      display: none;
+    }
+    .result-card.visible { display: block; }
+    .gpa-number {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 72px; font-weight: 700; color: var(--accent);
+      line-height: 1; margin-bottom: 6px;
+    }
+    .gpa-label { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+    .class-badge {
+      display: inline-block; padding: 6px 20px; border-radius: 8px;
+      font-size: 14px; font-weight: 700; margin-bottom: 16px;
+    }
+    .class-first   { background: #DCFCE7; color: #166534; }
+    .class-upper   { background: #DBEAFE; color: #1E40AF; }
+    .class-lower   { background: #FEF3C7; color: #92400E; }
+    .class-third   { background: #FFEDD5; color: #9A3412; }
+    .class-pass    { background: #FEE2E2; color: #991B1B; }
+    .class-fail    { background: #F1F5F9; color: #475569; }
+    .result-meta   { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+
+    /* ── Breakdown table ── */
+    .breakdown-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; text-align: left; }
+    .breakdown-table thead th {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--muted); padding: 0 10px 8px;
+      border-bottom: 2px solid var(--border);
+    }
+    .breakdown-table tbody tr { border-bottom: 1px solid var(--border); }
+    .breakdown-table tbody tr:last-child { border-bottom: none; }
+    .breakdown-table tbody td { padding: 9px 10px; }
+    .grade-A { color: #166534; font-weight: 700; }
+    .grade-B { color: #1E40AF; font-weight: 700; }
+    .grade-C { color: #92400E; font-weight: 700; }
+    .grade-D { color: #9A3412; font-weight: 700; }
+    .grade-E { color: var(--high); font-weight: 700; }
+    .grade-F { color: #6B7280; font-weight: 700; }
+
+    /* ── What-if simulator ── */
+    .whatif-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .whatif-table thead th {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--muted); padding: 0 10px 8px;
+      border-bottom: 2px solid var(--border); text-align: left;
+    }
+    .whatif-table tbody tr { border-bottom: 1px solid var(--border); }
+    .whatif-table tbody tr:last-child { border-bottom: none; }
+    .whatif-table tbody td { padding: 8px 10px; vertical-align: middle; }
+
+    .impact-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .impact-bar {
+      height: 6px; border-radius: 3px;
+      background: linear-gradient(90deg, #BBF7D0, #166534);
+      transition: width 0.3s;
+    }
+    .impact-text { font-size: 12px; font-weight: 700; color: var(--low); white-space: nowrap; }
+    .impact-text.negative { color: var(--high); }
+
+    .highlight-row { background: #FFFBEB; }
+    .highlight-row td:first-child {
+      border-left: 3px solid var(--med);
+      padding-left: 7px;
+    }
+
+    /* ── Goal tracker ── */
+    .goal-section { margin-top: 8px; }
+    .goal-input-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+    .goal-input-row label { margin-bottom: 0; font-size: 14px; white-space: nowrap; }
+    .goal-input-row input { width: 100px; text-align: center; font-size: 18px; font-weight: 700; }
+    .goal-result {
+      background: var(--accent-light); border: 1px solid #C8D9EE;
+      border-radius: 12px; padding: 18px 20px;
+    }
+    .goal-stat { font-size: 28px; font-weight: 700; font-family: 'Playfair Display', serif; color: var(--accent); }
+    .goal-msg  { font-size: 14px; color: var(--text); margin-top: 6px; line-height: 1.6; }
+    .goal-moti { font-size: 13px; color: var(--muted); margin-top: 10px; font-style: italic; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 20px;
+      background: #1A1A1A; color: #fff;
+      padding: 12px 18px; border-radius: 10px; font-size: 14px; font-weight: 500;
+      display: none; z-index: 999; max-width: 320px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-left: 4px solid var(--accent);
+    }
+
+    /* ── Divider ── */
+    .section-divider { height: 1px; background: var(--border); margin: 8px 0 20px; }
+  </style>
+</head>
+<body>
+
+<!-- Mobile topbar -->
+<div class="mobile-topbar">
+  <button class="hamburger" onclick="openSidebar()">☰</button>
+  <div class="mobile-logo">ClassMind<span class="sidebar-logo-badge">AI</span></div>
+</div>
+
+<div class="app-layout">
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">ClassMind<span class="sidebar-logo-badge">AI</span></div>
+    <ul class="sidebar-nav">
+      <li><a href="/dashboard.html" class="sidebar-link"><span class="sidebar-icon">⊞</span><span>Dashboard</span></a></li>
+      <li><a href="/study.html"     class="sidebar-link"><span class="sidebar-icon">📚</span><span>Study Hub</span></a></li>
+      <li><a href="/tasks.html"     class="sidebar-link"><span class="sidebar-icon">✓</span><span>Task Board</span></a></li>
+      <li><a href="/cgpa.html"      class="sidebar-link active"><span class="sidebar-icon">📈</span><span>CGPA Calc</span></a></li>
+      <li><a href="/notes.html"     class="sidebar-link"><span class="sidebar-icon">🗂</span><span>Notes</span></a></li>
+      <li><a href="/settings.html"  class="sidebar-link"><span class="sidebar-icon">⚙</span><span>Settings</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="userAvatar">U</div>
+        <div>
+          <div class="sidebar-user-name" id="userName">Student</div>
+          <div class="sidebar-user-uni"  id="userUni">—</div>
+        </div>
+      </div>
+      <button class="sidebar-logout" onclick="signOut()">Sign out</button>
+    </div>
+  </nav>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Main content -->
+  <main class="page-content">
+    <div class="page-inner">
+
+      <h1 class="page-title">CGPA Calculator</h1>
+      <p class="page-subtitle">Nigerian 5-point grading system — calculate your GPA instantly</p>
+
+      <!-- SECTION 1: Course entry -->
+      <div class="card">
+        <div class="section-title">Current Courses</div>
+        <p class="section-subtitle">Enter your courses, grades, and credit units below</p>
+
+        <div style="overflow-x:auto">
+          <table class="course-table">
+            <thead>
+              <tr>
+                <th style="min-width:130px">Course Name</th>
+                <th>Grade</th>
+                <th style="min-width:80px">Units</th>
+                <th style="width:44px"></th>
+              </tr>
+            </thead>
+            <tbody id="courseRows">
+              <!-- rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="addCourseRow()">+ Add Course</button>
+          <button class="btn btn-primary" id="calcBtn" onclick="calculate()">Calculate GPA</button>
+          <button class="btn btn-outline btn-sm" onclick="resetAll()">Reset</button>
+        </div>
+
+        <!-- Grade reference -->
+        <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:8px">Nigerian Grade Scale</div>
+          <div class="grade-ref">
+            <span class="grade-pill" style="background:#DCFCE7;border-color:#BBF7D0;color:#166534">A = 5 pts (70-100%)</span>
+            <span class="grade-pill" style="background:#DBEAFE;border-color:#BFDBFE;color:#1E40AF">B = 4 pts (60-69%)</span>
+            <span class="grade-pill" style="background:#FEF3C7;border-color:#FDE68A;color:#92400E">C = 3 pts (50-59%)</span>
+            <span class="grade-pill" style="background:#FFEDD5;border-color:#FED7AA;color:#9A3412">D = 2 pts (45-49%)</span>
+            <span class="grade-pill" style="background:#FEE2E2;border-color:#FCA5A5;color:#991B1B">E = 1 pt (40-44%)</span>
+            <span class="grade-pill" style="background:#F1F5F9;border-color:#E2E8F0;color:#475569">F = 0 pts (0-39%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Result card (hidden until calculated) -->
+      <div class="result-card" id="resultCard">
+        <div class="gpa-number" id="gpaDisplay">—</div>
+        <div class="gpa-label">Grade Point Average (5.0 scale)</div>
+        <div class="class-badge" id="classBadge">—</div>
+        <div class="result-meta" id="resultMeta"></div>
+
+        <!-- Breakdown table -->
+        <div style="text-align:left">
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px">Course Breakdown</div>
+          <div style="overflow-x:auto">
+            <table class="breakdown-table" id="breakdownTable">
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Grade</th>
+                  <th>Points</th>
+                  <th>Units</th>
+                  <th>Weighted</th>
+                </tr>
+              </thead>
+              <tbody id="breakdownBody"></tbody>
+              <tfoot id="breakdownFoot"></tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: What-if simulator -->
+      <div class="card" id="whatifSection" style="display:none">
+        <div class="section-title">What-If Simulator</div>
+        <p class="section-subtitle">Change grades below to see how they affect your GPA in real-time</p>
+
+        <div style="overflow-x:auto">
+          <table class="whatif-table">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Units</th>
+                <th>Grade</th>
+                <th>Impact of upgrading</th>
+              </tr>
+            </thead>
+            <tbody id="whatifBody"></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:14px;padding:12px 14px;background:var(--accent-light);border-radius:10px;border:1px solid #C8D9EE">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Simulated GPA</div>
+          <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--accent)" id="simGpaDisplay">—</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:2px" id="simClassDisplay"></div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: Goal tracker -->
+      <div class="card" id="goalSection" style="display:none">
+        <div class="section-title">Goal Tracker</div>
+        <p class="section-subtitle">Set a CGPA target and see what it takes to get there</p>
+
+        <div class="goal-section">
+          <div class="goal-input-row">
+            <label for="goalInput">My target CGPA:</label>
+            <input type="number" id="goalInput" min="1.0" max="5.0" step="0.01"
+                   value="4.50" oninput="updateGoal()" style="width:100px;text-align:center;font-size:18px;font-weight:700" />
+            <span style="font-size:14px;color:var(--muted)">/ 5.00</span>
+          </div>
+          <div class="goal-result" id="goalResult">
+            <div class="goal-stat" id="goalStat">—</div>
+            <div class="goal-msg"  id="goalMsg">Enter your courses and calculate first.</div>
+            <div class="goal-moti" id="goalMoti"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+const token = localStorage.getItem('cm_token');
+const user   = (() => { try { return JSON.parse(localStorage.getItem('cm_user') || 'null'); } catch { return null; } })();
+if (!token) { window.location.href = '/login.html'; }
+
+function signOut() {
+  localStorage.removeItem('cm_token');
+  localStorage.removeItem('cm_user');
+  window.location.href = '/login.html';
+}
+
+// ── Sidebar user info ─────────────────────────────────────────────────────────
+(function initUser() {
+  if (!user) return;
+  const initials = (user.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userName').textContent   = user.name || 'Student';
+  document.getElementById('userUni').textContent    = user.university || 'Set up profile';
+})();
+
+// ── Sidebar mobile ────────────────────────────────────────────────────────────
+function openSidebar()  { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('open'); }
+
+// ── Grade system ──────────────────────────────────────────────────────────────
+const GRADE_POINTS = { A: 5, B: 4, C: 3, D: 2, E: 1, F: 0 };
+const GRADE_COLORS = {
+  A: 'grade-A', B: 'grade-B', C: 'grade-C',
+  D: 'grade-D', E: 'grade-E', F: 'grade-F'
+};
+
+function getClassification(gpa) {
+  if (gpa >= 4.50) return { label: 'First Class Honours',        css: 'class-first' };
+  if (gpa >= 3.50) return { label: 'Second Class Upper (2:1)',   css: 'class-upper' };
+  if (gpa >= 2.40) return { label: 'Second Class Lower (2:2)',   css: 'class-lower' };
+  if (gpa >= 1.50) return { label: 'Third Class',                css: 'class-third' };
+  if (gpa >= 1.00) return { label: 'Pass',                       css: 'class-pass'  };
+  return             { label: 'Fail',                            css: 'class-fail'  };
+}
+
+// ── Demo courses ──────────────────────────────────────────────────────────────
+const DEMO_COURSES = [
+  { name: 'MTH201', grade: 'B', units: 3 },
+  { name: 'COS102', grade: 'C', units: 3 },
+  { name: 'PHY107', grade: 'D', units: 3 },
+  { name: 'GST101', grade: 'A', units: 2 },
+  { name: 'CSC225', grade: 'E', units: 3 },
+];
+
+// ── Course rows ───────────────────────────────────────────────────────────────
+let rowId = 0;
+
+function buildRow(name = '', grade = 'B', units = 3) {
+  const id = ++rowId;
+  const opts = ['A','B','C','D','E','F'].map(g =>
+    `<option value="${g}" ${grade === g ? 'selected' : ''}>${g}</option>`
+  ).join('');
+  return `
+    <tr id="row-${id}" class="course-row">
+      <td><input type="text" class="inp-name" placeholder="e.g. MTH201" value="${escHtml(name)}" /></td>
+      <td class="grade-cell">
+        <select class="sel-grade">${opts}</select>
+      </td>
+      <td><input type="number" class="inp-units" min="1" max="6" value="${units}" /></td>
+      <td style="text-align:center">
+        <button class="btn-danger-sm" onclick="removeRow(${id})" title="Remove">×</button>
+      </td>
+    </tr>`;
+}
+
+function addCourseRow(name, grade, units) {
+  document.getElementById('courseRows').insertAdjacentHTML('beforeend', buildRow(name, grade, units));
+}
+
+function removeRow(id) {
+  const row = document.getElementById('row-' + id);
+  if (row) row.remove();
+}
+
+function resetAll() {
+  document.getElementById('courseRows').innerHTML = '';
+  rowId = 0;
+  DEMO_COURSES.forEach(c => addCourseRow(c.name, c.grade, c.units));
+  document.getElementById('resultCard').classList.remove('visible');
+  document.getElementById('whatifSection').style.display = 'none';
+  document.getElementById('goalSection').style.display   = 'none';
+  lastCalculated = null;
+}
+
+// ── Read current rows ─────────────────────────────────────────────────────────
+function readCourses() {
+  const rows = document.querySelectorAll('#courseRows .course-row');
+  const courses = [];
+  rows.forEach(row => {
+    const name  = row.querySelector('.inp-name').value.trim();
+    const grade = row.querySelector('.sel-grade').value;
+    const units = parseInt(row.querySelector('.inp-units').value, 10) || 0;
+    if (name || units > 0) {
+      courses.push({ name: name || '—', grade, units: Math.max(1, Math.min(6, units)) });
+    }
+  });
+  return courses;
+}
+
+// ── Core GPA calculation ──────────────────────────────────────────────────────
+function computeGPA(courses) {
+  let totalUnits = 0, totalPoints = 0;
+  courses.forEach(c => {
+    const pts = GRADE_POINTS[c.grade] ?? 0;
+    totalPoints += pts * c.units;
+    totalUnits  += c.units;
+  });
+  if (totalUnits === 0) return { gpa: 0, totalUnits: 0, totalPoints: 0 };
+  const gpa = totalPoints / totalUnits;
+  return { gpa: parseFloat(gpa.toFixed(2)), totalUnits, totalPoints };
+}
+
+// ── Calculate ─────────────────────────────────────────────────────────────────
+let lastCalculated = null;
+
+function calculate() {
+  const courses = readCourses();
+  if (!courses.length) {
+    showToast('Please add at least one course');
+    return;
+  }
+
+  const { gpa, totalUnits, totalPoints } = computeGPA(courses);
+  const cls = getClassification(gpa);
+  lastCalculated = { courses, gpa, totalUnits, totalPoints };
+
+  // Result card
+  document.getElementById('gpaDisplay').textContent = gpa.toFixed(2);
+  const badge = document.getElementById('classBadge');
+  badge.textContent = cls.label;
+  badge.className   = 'class-badge ' + cls.css;
+  document.getElementById('resultMeta').textContent =
+    `Total Credit Units: ${totalUnits}  ·  Total Quality Points: ${totalPoints}`;
+
+  // Breakdown table
+  document.getElementById('breakdownBody').innerHTML = courses.map(c => {
+    const pts      = GRADE_POINTS[c.grade] ?? 0;
+    const weighted = pts * c.units;
+    return `<tr>
+      <td style="font-weight:600">${escHtml(c.name)}</td>
+      <td class="${GRADE_COLORS[c.grade] || ''}">${escHtml(c.grade)}</td>
+      <td>${pts}</td>
+      <td>${c.units}</td>
+      <td style="font-weight:600">${weighted}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('breakdownFoot').innerHTML = `
+    <tr style="border-top:2px solid var(--border)">
+      <td colspan="3" style="padding-top:10px;font-weight:700;color:var(--text)">Total</td>
+      <td style="padding-top:10px;font-weight:700">${totalUnits}</td>
+      <td style="padding-top:10px;font-weight:700">${totalPoints}</td>
+    </tr>`;
+
+  document.getElementById('resultCard').classList.add('visible');
+
+  // Render what-if and goal
+  renderWhatIf(courses);
+  document.getElementById('whatifSection').style.display = 'block';
+  document.getElementById('goalSection').style.display   = 'block';
+  updateGoal();
+
+  // Scroll result into view
+  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── What-if simulator ─────────────────────────────────────────────────────────
+function renderWhatIf(courses) {
+  const tbody = document.getElementById('whatifBody');
+  tbody.innerHTML = courses.map((c, i) => {
+    const pts     = GRADE_POINTS[c.grade] ?? 0;
+    const maxGain = (5 - pts) * c.units; // max possible improvement in quality points
+    const { gpa: baseGpa } = computeGPA(courses);
+    const isWeak  = pts <= 2; // D, E, or F — highlight these
+
+    const opts = ['A','B','C','D','E','F'].map(g =>
+      `<option value="${g}" ${c.grade === g ? 'selected' : ''}>${g}</option>`
+    ).join('');
+
+    return `<tr class="${isWeak ? 'highlight-row' : ''}" id="wi-row-${i}">
+      <td style="font-weight:600;font-size:13px">${escHtml(c.name)}${isWeak ? ' <span style="font-size:10px;color:var(--med);font-weight:700">↑ boost</span>' : ''}</td>
+      <td style="color:var(--muted);font-size:13px">${c.units}</td>
+      <td>
+        <select class="sel-grade" data-idx="${i}" onchange="onWhatIfChange(${i}, this.value)">${opts}</select>
+      </td>
+      <td>
+        <div class="impact-bar-wrap" id="wi-impact-${i}">
+          <div class="impact-bar" style="width:${Math.min(100, maxGain * 8)}px"></div>
+          <span class="impact-text">+${(maxGain / (courses.reduce((s,x) => s+x.units,0)) || 0).toFixed(2)} max</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  updateSimGpa(courses);
+}
+
+// Stores simulator state separately from main course list
+let simCourses = null;
+
+function onWhatIfChange(idx, newGrade) {
+  if (!lastCalculated) return;
+  if (!simCourses) simCourses = lastCalculated.courses.map(c => ({ ...c }));
+  simCourses[idx].grade = newGrade;
+  updateSimGpa(simCourses);
+}
+
+function updateSimGpa(courses) {
+  const src = simCourses || courses;
+  const { gpa } = computeGPA(src);
+  const cls = getClassification(gpa);
+  document.getElementById('simGpaDisplay').textContent = gpa.toFixed(2);
+  const simCls = document.getElementById('simClassDisplay');
+  simCls.textContent = cls.label;
+  simCls.style.color = gpa >= 4.5 ? 'var(--low)' : gpa >= 3.5 ? 'var(--accent)' : gpa >= 2.4 ? 'var(--med)' : 'var(--high)';
+}
+
+// ── Goal tracker ──────────────────────────────────────────────────────────────
+function updateGoal() {
+  if (!lastCalculated) return;
+
+  const raw = parseFloat(document.getElementById('goalInput').value);
+  if (isNaN(raw) || raw < 1.0 || raw > 5.0) {
+    document.getElementById('goalStat').textContent = '—';
+    document.getElementById('goalMsg').textContent  = 'Enter a valid target between 1.0 and 5.0';
+    document.getElementById('goalMoti').textContent = '';
+    return;
+  }
+  const target = Math.min(5, Math.max(1, raw));
+  const { gpa, totalUnits, totalPoints } = lastCalculated;
+
+  const diff = +(target - gpa).toFixed(2);
+  const pointsNeeded = +(diff * totalUnits).toFixed(1);
+  const goalEl   = document.getElementById('goalStat');
+  const msgEl    = document.getElementById('goalMsg');
+  const motiEl   = document.getElementById('goalMoti');
+  const resultEl = document.getElementById('goalResult');
+
+  if (diff <= 0) {
+    goalEl.textContent  = 'Goal Achieved! 🎉';
+    goalEl.style.color  = 'var(--low)';
+    msgEl.textContent   = `Your current GPA of ${gpa.toFixed(2)} already meets or exceeds your target of ${target.toFixed(2)}.`;
+    motiEl.textContent  = 'Keep it up — you\'re crushing it!';
+    resultEl.style.borderColor = '#BBF7D0';
+    return;
+  }
+
+  goalEl.textContent  = `+${diff.toFixed(2)} GPA needed`;
+  goalEl.style.color  = diff > 1 ? 'var(--high)' : diff > 0.5 ? 'var(--med)' : 'var(--accent)';
+  msgEl.textContent   = `You need ${pointsNeeded > 0 ? '+' + pointsNeeded : pointsNeeded} more quality points across your ${totalUnits} credit units to reach a ${target.toFixed(2)} GPA. Focus on upgrading your lowest-grade courses first.`;
+  resultEl.style.borderColor = '#C8D9EE';
+
+  const MOTIS = [
+    'Every grade upgrade counts. Start with your weakest course.',
+    'Consistency beats cramming. Small improvements add up.',
+    'You\'re closer than you think — keep pushing.',
+    'One grade up per course can change everything.',
+    'Your future self will thank you for the effort you put in today.',
+  ];
+  motiEl.textContent = MOTIS[Math.floor(diff * 3) % MOTIS.length];
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type = 'error') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.borderLeftColor = type === 'success' ? 'var(--low)' : 'var(--high)';
+  el.style.display = 'block';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.display = 'none'; }, 3500);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+DEMO_COURSES.forEach(c => addCourseRow(c.name, c.grade, c.units));
+</script>
+</body>
+</html>

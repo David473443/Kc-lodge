@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — ClassMind AI</title>
+  <meta name="description" content="Sign in to your ClassMind AI account and continue your studies." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #1B3F6E;
+      --navy-dark: #15335A;
+      --navy-light: #EBF0F7;
+      --bg: #F6F6F3;
+      --white: #FFFFFF;
+      --text: #141414;
+      --muted: #6B7280;
+      --border: #E2E2DC;
+      --danger: #B91C1C;
+      --danger-bg: #FEF2F2;
+      --danger-border: #FECACA;
+      --shadow: 0 2px 8px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.08);
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--navy);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .logo-badge {
+      display: inline-block;
+      background: var(--navy);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .top-bar-right {
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .top-bar-right a {
+      color: var(--navy);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .top-bar-right a:hover { text-decoration: underline; }
+
+    /* ── MAIN ── */
+    .page-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    /* ── CARD ── */
+    .auth-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .card-logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .card-logo .logo {
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .card-heading {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .card-sub {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    /* ── FORM ── */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 7px;
+      letter-spacing: 0.1px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .form-group input:focus {
+      border-color: var(--navy);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(27,63,110,0.08);
+    }
+    .form-group input::placeholder { color: #ADADAD; }
+    .form-group input.error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(185,28,28,0.08);
+    }
+
+    /* password field wrapper */
+    .pw-wrap { position: relative; }
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      color: var(--muted);
+      font-size: 16px;
+      transition: color 0.15s;
+      line-height: 1;
+    }
+    .pw-toggle:hover { color: var(--navy); }
+
+    /* forgot password */
+    .forgot-wrap {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -12px;
+      margin-bottom: 20px;
+    }
+    .forgot-link {
+      font-size: 13px;
+      color: var(--navy);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* ── ERROR ALERT ── */
+    .error-alert {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .error-alert.show { display: flex; }
+    .error-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── SUBMIT BTN ── */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(27,63,110,0.25);
+      letter-spacing: 0.1px;
+      margin-bottom: 20px;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background: var(--navy-dark);
+      box-shadow: 0 4px 16px rgba(27,63,110,0.35);
+      transform: translateY(-1px);
+    }
+    .submit-btn:active:not(:disabled) { transform: scale(0.98); }
+    .submit-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── FOOTER LINK ── */
+    .auth-footer {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .auth-footer a {
+      color: var(--navy);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .auth-footer a:hover { text-decoration: underline; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── PAGE FOOTER ── */
+    .page-footer {
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .page-footer a { color: var(--muted); text-decoration: none; }
+    .page-footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 520px) {
+      .auth-card { padding: 36px 24px; border-radius: 16px; }
+      .top-bar { padding: 14px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="top-bar">
+  <a href="/" class="logo">ClassMind<span class="logo-badge">AI</span></a>
+  <div class="top-bar-right">
+    Don't have an account? <a href="/signup.html">Sign up free</a>
+  </div>
+</div>
+
+<!-- Centered card -->
+<div class="page-center">
+  <div class="auth-card">
+
+    <div class="card-logo">
+      <a href="/" class="logo">ClassMind<span class="logo-badge">AI</span></a>
+    </div>
+
+    <h1 class="card-heading">Welcome back</h1>
+    <p class="card-sub">Sign in to continue studying smarter</p>
+
+    <!-- Error message -->
+    <div class="error-alert" id="errorAlert" role="alert">
+      <span class="error-icon">⚠</span>
+      <span id="errorText">Invalid email or password. Please try again.</span>
+    </div>
+
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="you@university.edu.ng"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="pw-wrap">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          />
+          <button type="button" class="pw-toggle" onclick="togglePassword('password', this)" title="Show/hide password">👁</button>
+        </div>
+      </div>
+
+      <div class="forgot-wrap">
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">Sign In</button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="/signup.html">Sign up free</a>
+    </div>
+
+  </div>
+</div>
+
+<div class="page-footer">
+  <a href="/">ClassMind AI</a> &nbsp;&middot;&nbsp;
+  <a href="#">Privacy</a> &nbsp;&middot;&nbsp;
+  <a href="#">Terms</a>
+</div>
+
+<script>
+  // ── Redirect if already logged in ──
+  (function() {
+    const token = localStorage.getItem('cm_token');
+    const userStr = localStorage.getItem('cm_user');
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.onboarded == 1) {
+          window.location.replace('/dashboard.html');
+        } else {
+          window.location.replace('/onboarding.html');
+        }
+      } catch (e) { /* invalid JSON — continue */ }
+    }
+  })();
+
+  // ── Prefill email from URL (e.g. from landing page CTA) ──
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get('email');
+    if (email) {
+      document.getElementById('email').value = decodeURIComponent(email);
+    }
+  })();
+
+  // ── Toggle password visibility ──
+  function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+      btn.title = 'Hide password';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+      btn.title = 'Show password';
+    }
+  }
+
+  // ── Show/hide error ──
+  function showError(msg) {
+    const alert = document.getElementById('errorAlert');
+    document.getElementById('errorText').textContent = msg;
+    alert.classList.add('show');
+    alert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function hideError() {
+    document.getElementById('errorAlert').classList.remove('show');
+  }
+
+  // ── Set loading state ──
+  function setLoading(loading) {
+    const btn = document.getElementById('submitBtn');
+    if (loading) {
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  }
+
+  // ── Form submit ──
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideError();
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    // Basic client-side validation
+    if (!email) {
+      showError('Please enter your email address.');
+      document.getElementById('email').focus();
+      return;
+    }
+    if (!password) {
+      showError('Please enter your password.');
+      document.getElementById('password').focus();
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error('Unexpected server response. Please try again.');
+      }
+
+      if (!res.ok) {
+        throw new Error(data.message || data.error || 'Invalid email or password. Please try again.');
+      }
+
+      // Store auth data
+      localStorage.setItem('cm_token', data.token);
+      localStorage.setItem('cm_user', JSON.stringify(data.user));
+
+      // Redirect based on onboarding status
+      if (data.user && data.user.onboarded == 1) {
+        window.location.href = '/dashboard.html';
+      } else {
+        window.location.href = '/onboarding.html';
+      }
+
+    } catch (err) {
+      setLoading(false);
+      showError(err.message || 'Something went wrong. Please check your connection and try again.');
+
+      // Shake the email/password fields on auth error
+      const emailInput = document.getElementById('email');
+      const pwInput = document.getElementById('password');
+      emailInput.classList.add('error');
+      pwInput.classList.add('error');
+      setTimeout(() => {
+        emailInput.classList.remove('error');
+        pwInput.classList.remove('error');
+      }, 2000);
+    }
+  });
+
+  // ── Clear error on input ──
+  document.getElementById('email').addEventListener('input', hideError);
+  document.getElementById('password').addEventListener('input', hideError);
+</script>
+</body>
+</html>
