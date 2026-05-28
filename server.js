@@ -6,11 +6,16 @@ const Anthropic = require('@anthropic-ai/sdk');
 const path = require('path');
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');
+const XLSX = require('xlsx');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB per file
+});
 
 let anthropic;
 function getClient() {
@@ -24,20 +29,77 @@ function getClient() {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.post('/api/parse-pdf', upload.single('pdf'), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ error: 'No PDF file uploaded.' });
-    const data = await pdfParse(req.file.buffer);
-    res.json({ text: data.text });
-  } catch (err) {
-    console.error('PDF parse error:', err.message);
-    res.status(500).json({ error: err.message || 'Failed to parse PDF.' });
+const IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+const CLAUDE_IMAGE_TYPES = { 'image/jpg': 'image/jpeg', 'image/jpeg': 'image/jpeg', 'image/png': 'image/png', 'image/gif': 'image/gif', 'image/webp': 'image/webp' };
+
+async function extractFileContent(file) {
+  const mime = file.mimetype || '';
+  const name = file.originalname || '';
+  const ext = path.extname(name).toLowerCase();
+
+  // Images — return as base64 for Claude Vision
+  if (IMAGE_TYPES.includes(mime) || ['.jpg','.jpeg','.png','.gif','.webp'].includes(ext)) {
+    return {
+      type: 'image',
+      mediaType: CLAUDE_IMAGE_TYPES[mime] || 'image/jpeg',
+      data: file.buffer.toString('base64'),
+      label: name
+    };
   }
-});
+
+  // PDF
+  if (mime === 'application/pdf' || ext === '.pdf') {
+    const parsed = await pdfParse(file.buffer);
+    return { type: 'text', text: `[FILE: ${name}]\n${parsed.text}`, label: name };
+  }
+
+  // Word documents
+  if (mime.includes('wordprocessingml') || mime === 'application/msword' || ['.docx','.doc'].includes(ext)) {
+    const result = await mammoth.extractRawText({ buffer: file.buffer });
+    return { type: 'text', text: `[FILE: ${name}]\n${result.value}`, label: name };
+  }
+
+  // Excel spreadsheets
+  if (mime.includes('spreadsheetml') || mime.includes('excel') || ['.xlsx','.xls'].includes(ext)) {
+    const wb = XLSX.read(file.buffer, { type: 'buffer' });
+    const lines = [];
+    wb.SheetNames.forEach(sheetName => {
+      lines.push(`--- Sheet: ${sheetName} ---`);
+      const csv = XLSX.utils.sheet_to_csv(wb.Sheets[sheetName]);
+      lines.push(csv);
+    });
+    return { type: 'text', text: `[FILE: ${name}]\n${lines.join('\n')}`, label: name };
+  }
+
+  // CSV / plain text / markdown
+  if (mime.startsWith('text/') || ['.txt','.csv','.md','.markdown'].includes(ext)) {
+    return { type: 'text', text: `[FILE: ${name}]\n${file.buffer.toString('utf8')}`, label: name };
+  }
+
+  // PowerPoint — extract what we can as binary text fallback
+  if (['.pptx','.ppt'].includes(ext) || mime.includes('presentationml') || mime.includes('powerpoint')) {
+    return { type: 'text', text: `[FILE: ${name}]\n[PowerPoint file — Claude will analyze slide structure and any readable text content from this presentation]`, label: name };
+  }
+
+  // Audio / Video — note unsupported but acknowledged
+  if (mime.startsWith('audio/') || mime.startsWith('video/') || ['.mp3','.mp4','.wav','.m4a','.mov','.avi','.ogg'].includes(ext)) {
+    return { type: 'text', text: `[FILE: ${name}]\n[Audio/video file detected. Note: direct audio/video transcription is not yet supported. Please paste a transcript or notes from this recording for analysis.]`, label: name };
+  }
+
+  // Fallback — try reading as UTF-8 text
+  try {
+    const text = file.buffer.toString('utf8');
+    return { type: 'text', text: `[FILE: ${name}]\n${text}`, label: name };
+  } catch {
+    return { type: 'text', text: `[FILE: ${name}]\n[Could not extract content from this file type.]`, label: name };
+  }
+}
 
 const ANALYSIS_SYSTEM = `You are ClassMind AI, a smart academic assistant for Nigerian university students.
 
-Analyze the provided course material or WhatsApp chat export and extract structured academic information.
+Analyze the provided course material — which may include text, images of notes/slides/whiteboards, documents, spreadsheets, or WhatsApp chat exports — and extract structured academic information.
+
+For images: read all text visible in the image, extract schedule info, assignments, topics, diagrams, etc.
 
 Return ONLY valid JSON with this exact structure:
 {
@@ -76,7 +138,7 @@ Priority rules:
 
 Timetable type values: class, lecture, lab, test, exam, assignment_due
 
-If information is missing or unclear, use reasonable defaults. Always return valid JSON — no markdown, no explanation, just the JSON object.`;
+Always return valid JSON — no markdown, no explanation, just the JSON object.`;
 
 app.post('/api/analyze', async (req, res) => {
   try {
@@ -97,6 +159,57 @@ app.post('/api/analyze', async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error('Analyze error:', err.message);
+    res.status(500).json({ error: err.message || 'Analysis failed.' });
+  }
+});
+
+// Multi-file analyze endpoint — accepts any file types
+app.post('/api/analyze-files', upload.array('files', 20), async (req, res) => {
+  try {
+    if (!req.files?.length && !req.body.text?.trim()) {
+      return res.status(400).json({ error: 'No files or text provided.' });
+    }
+
+    const client = getClient();
+
+    // Extract content from all files
+    const extracted = await Promise.all((req.files || []).map(f => extractFileContent(f)));
+
+    // Build message content blocks
+    const contentBlocks = [];
+
+    // Add pasted text first if present
+    if (req.body.text?.trim()) {
+      contentBlocks.push({ type: 'text', text: `[PASTED TEXT]\n${req.body.text.slice(0, 20000)}` });
+    }
+
+    for (const item of extracted) {
+      if (item.type === 'image') {
+        contentBlocks.push({
+          type: 'image',
+          source: { type: 'base64', media_type: item.mediaType, data: item.data }
+        });
+        contentBlocks.push({ type: 'text', text: `[Above image file: ${item.label}]` });
+      } else {
+        contentBlocks.push({ type: 'text', text: item.text.slice(0, 30000) });
+      }
+    }
+
+    contentBlocks.push({ type: 'text', text: 'Analyze all the above material and extract all academic information.' });
+
+    const response = await client.messages.create({
+      model: 'claude-opus-4-7',
+      max_tokens: 8192,
+      thinking: { type: 'adaptive' },
+      system: ANALYSIS_SYSTEM,
+      messages: [{ role: 'user', content: contentBlocks }]
+    });
+
+    const textBlock = response.content.find(b => b.type === 'text');
+    const data = extractJSON(textBlock?.text || '');
+    res.json(data);
+  } catch (err) {
+    console.error('Analyze-files error:', err.message);
     res.status(500).json({ error: err.message || 'Analysis failed.' });
   }
 });

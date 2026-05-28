@@ -452,6 +452,33 @@
     }
     .empty-icon { font-size: 40px; margin-bottom: 12px; }
 
+    /* ── File chips ── */
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text);
+      max-width: 220px;
+    }
+    .file-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-chip-remove {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1;
+      flex-shrink: 0;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+    .file-chip-remove:hover { color: var(--high); }
+    .file-chip-icon { flex-shrink: 0; }
+
     /* ── Error toast ── */
     #toast {
       position: fixed;
@@ -489,21 +516,24 @@
   <div class="upload-section" id="uploadSection">
     <div class="upload-box" id="dropZone">
       <div class="upload-icon">📚</div>
-      <div class="upload-title">Drop your class chat or course material here</div>
-      <div class="upload-sub">WhatsApp chat export (.txt) or paste your notes, course outline, or timetable</div>
+      <div class="upload-title">Drop any files here — or click to browse</div>
+      <div class="upload-sub">Images · PDFs · Word · Excel · PowerPoint · CSV · TXT · MP3 · MP4 · and more</div>
       <div class="upload-actions">
-        <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()">📂 Upload File (.txt or PDF)</button>
+        <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()">📂 Upload Files (any type)</button>
         <button class="btn btn-demo" onclick="loadDemo()">✨ Try Demo</button>
       </div>
-      <input type="file" id="fileInput" accept=".txt,.pdf" style="display:none" />
+      <input type="file" id="fileInput" accept="*" multiple style="display:none" />
     </div>
 
-    <textarea id="pasteArea" placeholder="Or paste your WhatsApp chat export, class notes, or timetable here...&#10;&#10;Example: Group chat messages, course schedules, assignment announcements, lecture notes, etc."></textarea>
+    <!-- File chips -->
+    <div id="fileChips" style="display:none; flex-wrap:wrap; gap:8px; margin-top:14px;"></div>
+
+    <textarea id="pasteArea" placeholder="Or paste your WhatsApp chat export, class notes, or timetable here...&#10;&#10;You can also combine files + pasted text — ClassMind will analyze everything together."></textarea>
 
     <div class="analyze-btn-wrap">
       <button class="btn btn-primary" onclick="analyze()">🔍 Analyze with AI</button>
-      <button class="btn btn-outline btn-sm" onclick="clearAll()">Clear</button>
-      <span class="char-count" id="charCount">0 characters</span>
+      <button class="btn btn-outline btn-sm" onclick="clearAll()">Clear All</button>
+      <span class="char-count" id="charCount">0 chars</span>
     </div>
   </div>
 
@@ -589,49 +619,74 @@
   const dropZone = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
   const pasteArea = document.getElementById('pasteArea');
+  let attachedFiles = []; // store File objects for multi-file upload
+
+  const FILE_ICONS = {
+    pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊', csv: '📊',
+    ppt: '📑', pptx: '📑', txt: '📃', md: '📃',
+    jpg: '🖼️', jpeg: '🖼️', png: '🖼️', gif: '🖼️', webp: '🖼️',
+    mp3: '🎵', wav: '🎵', m4a: '🎵', ogg: '🎵',
+    mp4: '🎬', mov: '🎬', avi: '🎬'
+  };
+
+  function getFileIcon(name) {
+    const ext = name.split('.').pop().toLowerCase();
+    return FILE_ICONS[ext] || '📎';
+  }
+
+  function addFiles(files) {
+    const newFiles = Array.from(files);
+    newFiles.forEach(f => {
+      if (!attachedFiles.find(x => x.name === f.name && x.size === f.size)) {
+        attachedFiles.push(f);
+      }
+    });
+    renderChips();
+    updateCharCount();
+    if (newFiles.length > 0) showToast(`${newFiles.length} file${newFiles.length > 1 ? 's' : ''} added. Click "Analyze with AI" to continue.`, 'success');
+  }
+
+  function removeFile(idx) {
+    attachedFiles.splice(idx, 1);
+    renderChips();
+    updateCharCount();
+  }
+
+  function renderChips() {
+    const container = document.getElementById('fileChips');
+    if (!attachedFiles.length) { container.style.display = 'none'; return; }
+    container.style.display = 'flex';
+    container.innerHTML = attachedFiles.map((f, i) => `
+      <div class="file-chip">
+        <span class="file-chip-icon">${getFileIcon(f.name)}</span>
+        <span class="file-chip-name" title="${escHtml(f.name)}">${escHtml(f.name)}</span>
+        <button class="file-chip-remove" onclick="removeFile(${i})" title="Remove">×</button>
+      </div>
+    `).join('');
+  }
+
+  function updateCharCount() {
+    const chars = pasteArea.value.length;
+    const files = attachedFiles.length;
+    let label = chars ? `${chars.toLocaleString()} chars` : '';
+    if (files) label += (label ? ' + ' : '') + `${files} file${files > 1 ? 's' : ''}`;
+    document.getElementById('charCount').textContent = label || '0 chars';
+  }
 
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
   dropZone.addEventListener('drop', e => {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) readFile(file);
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
   });
 
   fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) readFile(fileInput.files[0]);
+    if (fileInput.files.length) addFiles(fileInput.files);
+    fileInput.value = ''; // reset so same file can be re-added
   });
 
-  pasteArea.addEventListener('input', () => {
-    document.getElementById('charCount').textContent = pasteArea.value.length.toLocaleString() + ' characters';
-  });
-
-  async function readFile(file) {
-    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    if (isPdf) {
-      showToast('Reading PDF...', 'success');
-      try {
-        const formData = new FormData();
-        formData.append('pdf', file);
-        const res = await fetch('/api/parse-pdf', { method: 'POST', body: formData });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        pasteArea.value = data.text;
-        pasteArea.dispatchEvent(new Event('input'));
-        showToast('PDF loaded! Click "Analyze with AI" to continue.', 'success');
-      } catch (err) {
-        showToast('Failed to read PDF: ' + err.message);
-      }
-    } else {
-      const reader = new FileReader();
-      reader.onload = e => {
-        pasteArea.value = e.target.result;
-        pasteArea.dispatchEvent(new Event('input'));
-      };
-      reader.readAsText(file);
-    }
-  }
+  pasteArea.addEventListener('input', updateCharCount);
 
   // ── Demo data ──
   function loadDemo() {
@@ -675,18 +730,33 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
   // ── Analysis ──
   async function analyze() {
     const content = pasteArea.value.trim();
-    if (!content) { showToast('Please paste some content or upload a file first.'); return; }
+    if (!content && !attachedFiles.length) {
+      showToast('Please paste some content or upload files first.');
+      return;
+    }
 
     document.getElementById('uploadSection').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
     document.getElementById('results').style.display = 'none';
 
     try {
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content })
-      });
+      let res;
+
+      if (attachedFiles.length > 0) {
+        // Use multi-file endpoint when files are attached
+        const formData = new FormData();
+        attachedFiles.forEach(f => formData.append('files', f));
+        if (content) formData.append('text', content);
+
+        res = await fetch('/api/analyze-files', { method: 'POST', body: formData });
+      } else {
+        // Text-only: use fast JSON endpoint
+        res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+      }
 
       if (!res.ok) {
         const err = await res.json();
@@ -708,7 +778,9 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
 
   function clearAll() {
     pasteArea.value = '';
-    pasteArea.dispatchEvent(new Event('input'));
+    attachedFiles = [];
+    renderChips();
+    updateCharCount();
     studyContext = null;
     chatHistory = [];
     document.getElementById('results').style.display = 'none';
