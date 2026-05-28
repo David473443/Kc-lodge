@@ -48,6 +48,17 @@ function renderNav(activePage) {
   const sidebarHTML = `
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-logo">
+        <svg width="26" height="26" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="flex-shrink:0;vertical-align:middle">
+          <rect width="48" height="48" rx="11" fill="#1B3F6E"/>
+          <path d="M8 34V18C8 16.34 9.34 15 11 15H23V34Q16 32 11 32C9.34 32 8 33.34 8 35Z" fill="white" opacity="0.92"/>
+          <path d="M40 34V18C40 16.34 38.66 15 37 15H25V34Q32 32 37 32C38.66 32 40 33.34 40 35Z" fill="white" opacity="0.7"/>
+          <line x1="24" y1="15" x2="24" y2="34" stroke="rgba(255,255,255,0.28)" stroke-width="1.5"/>
+          <circle cx="24" cy="8.5" r="3" fill="#C4933F"/>
+          <circle cx="14.5" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/>
+          <circle cx="33.5" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/>
+          <line x1="14.5" y1="12" x2="24" y2="8.5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+          <line x1="33.5" y1="12" x2="24" y2="8.5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+        </svg>
         <span class="sidebar-logo-text">ClassMind</span><span class="sidebar-logo-badge">AI</span>
       </div>
       <ul class="sidebar-nav">
@@ -89,16 +100,17 @@ function renderNav(activePage) {
         z-index: 200; overflow-y: auto;
       }
       .sidebar-logo {
-        padding: 22px 20px 18px;
+        padding: 18px 16px 15px;
         font-family: 'Playfair Display', Georgia, serif;
-        font-size: 18px; font-weight: 700; color: #1B3F6E;
+        font-size: 17px; font-weight: 700; color: #1B3F6E;
         border-bottom: 1px solid #E2E2DC;
+        display: flex; align-items: center; gap: 9px;
       }
       .sidebar-logo-badge {
-        display: inline-block; background: #1B3F6E; color: #fff;
+        display: inline-block; background: #C4933F; color: #fff;
         font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700;
-        letter-spacing: 1px; padding: 2px 6px; border-radius: 4px;
-        margin-left: 5px; vertical-align: middle; position: relative; top: -2px;
+        letter-spacing: 1.5px; padding: 2px 7px; border-radius: 4px;
+        margin-left: 4px; vertical-align: middle; position: relative; top: -2px;
       }
       .sidebar-nav { list-style: none; padding: 12px 0; flex: 1; }
       .sidebar-nav li { margin: 2px 8px; }

@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ClassMind AI — Turn your WhatsApp group into a study powerhouse</title>
-  <meta name="description" content="ClassMind AI helps Nigerian university students extract assignments, timetables, and study topics from WhatsApp chats and documents. Powered by AI." />
+  <title>ClassMind AI — Academic Study Assistant for Nigerian University Students</title>
+  <meta name="description" content="ClassMind AI transforms your WhatsApp group chats, PDFs and lecture notes into structured study plans. Built for Nigerian university students." />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#1B3F6E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -21,12 +23,14 @@
       --text: #141414;
       --muted: #6B7280;
       --border: #E2E2DC;
+      --gold: #C4933F;
+      --gold-dark: #A67B30;
+      --gold-light: #FDF3E3;
       --shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.04);
-      --shadow-lg: 0 4px 24px rgba(0,0,0,0.1), 0 20px 60px rgba(0,0,0,0.06);
+      --shadow-lg: 0 4px 24px rgba(0,0,0,0.10), 0 20px 60px rgba(0,0,0,0.06);
     }
 
     html { scroll-behavior: smooth; }
-
     body {
       background: var(--bg);
       color: var(--text);
@@ -37,959 +41,437 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── UTILITIES ── */
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
-    .serif { font-family: 'Playfair Display', Georgia, serif; }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 26px;
-      border-radius: 8px;
-      border: none;
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.18s ease;
-      letter-spacing: -0.1px;
-      white-space: nowrap;
-    }
-    .btn-primary {
+    /* ════════════════ SPLASH ════════════════ */
+    #splash {
+      position: fixed; inset: 0;
       background: var(--navy);
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(27,63,110,0.3);
+      z-index: 9999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 18px;
+      transition: opacity 0.55s ease, transform 0.55s ease;
     }
-    .btn-primary:hover { background: var(--navy-dark); box-shadow: 0 4px 16px rgba(27,63,110,0.4); transform: translateY(-1px); }
-    .btn-outline {
-      background: transparent;
-      color: var(--navy);
-      border: 2px solid var(--navy);
+    #splash.hiding { opacity: 0; transform: translateY(-14px); pointer-events: none; }
+    #splash.hidden { display: none; }
+
+    .splash-mark { animation: splashIn 0.65s cubic-bezier(.34,1.56,.64,1) both; }
+    .splash-wordmark {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 30px; font-weight: 700; color: #fff;
+      display: flex; align-items: center; gap: 9px;
+      animation: splashIn 0.65s 0.12s cubic-bezier(.34,1.56,.64,1) both;
     }
+    .splash-ai-badge {
+      background: var(--gold); color: #fff;
+      font-family: 'Inter', sans-serif; font-size: 11px;
+      font-weight: 700; letter-spacing: 1.5px;
+      padding: 3px 10px; border-radius: 6px;
+    }
+    .splash-tagline {
+      font-size: 11px; color: rgba(255,255,255,0.42);
+      letter-spacing: 2.5px; text-transform: uppercase;
+      animation: splashIn 0.5s 0.22s ease both;
+    }
+    .splash-bar {
+      width: 110px; height: 2px;
+      background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;
+      animation: splashIn 0.4s 0.28s ease both;
+    }
+    .splash-bar-fill { height: 100%; background: var(--gold); border-radius: 2px; animation: loadBar 1.15s 0.38s ease-out both; }
+
+    @keyframes splashIn { from { opacity:0; transform:scale(0.84) translateY(12px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    @keyframes loadBar  { from { width:0; } to { width:100%; } }
+
+    /* ════════════════ UTILITIES ════════════════ */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ════════════════ LOGO MARK SVG ════════════════ */
+    /* Inline SVG reused at multiple sizes — see HTML */
+
+    /* ════════════════ BUTTONS ════════════════ */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 26px; border-radius: 8px; border: none;
+      font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.18s ease; white-space: nowrap;
+    }
+    .btn-primary { background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(27,63,110,.3); }
+    .btn-primary:hover { background: var(--navy-dark); box-shadow: 0 4px 16px rgba(27,63,110,.4); transform: translateY(-1px); }
+    .btn-gold { background: var(--gold); color: #fff; box-shadow: 0 2px 8px rgba(196,147,63,.35); }
+    .btn-gold:hover { background: var(--gold-dark); transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: var(--navy); border: 2px solid var(--navy); }
     .btn-outline:hover { background: var(--navy-light); transform: translateY(-1px); }
-    .btn-ghost {
-      background: transparent;
-      color: var(--text);
-    }
+    .btn-ghost { background: transparent; color: var(--text); }
     .btn-ghost:hover { background: var(--border); }
     .btn-lg { padding: 16px 34px; font-size: 16px; border-radius: 10px; }
     .btn-sm { padding: 8px 18px; font-size: 13px; }
 
-    /* ── NAV ── */
+    /* ════════════════ NAV ════════════════ */
     nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(246, 246, 243, 0.95);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(246,246,243,0.96);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      height: 68px;
-      gap: 12px;
-    }
+    .nav-inner { display: flex; align-items: center; height: 68px; gap: 12px; }
     .logo {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--navy);
-      letter-spacing: -0.3px;
+      font-size: 20px; font-weight: 700; color: var(--navy);
       text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      display: flex; align-items: center; gap: 9px;
     }
-    .logo-badge {
-      display: inline-block;
-      background: var(--navy);
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      padding: 2px 7px;
-      border-radius: 4px;
-      position: relative;
-      top: -1px;
+    .logo-ai-badge {
+      display: inline-block; background: var(--gold); color: #fff;
+      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700;
+      letter-spacing: 1.5px; padding: 2px 7px; border-radius: 4px;
+      margin-left: 4px; vertical-align: middle; position: relative; top: -2px;
     }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-left: 40px;
-      list-style: none;
-    }
+    .nav-links { display: flex; align-items: center; gap: 4px; margin-left: 40px; list-style: none; }
     .nav-links a {
-      text-decoration: none;
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 500;
-      padding: 6px 14px;
-      border-radius: 6px;
+      text-decoration: none; color: var(--muted); font-size: 14px;
+      font-weight: 500; padding: 6px 14px; border-radius: 6px;
       transition: color 0.15s, background 0.15s;
     }
     .nav-links a:hover { color: var(--navy); background: var(--navy-light); }
     .nav-ctas { display: flex; align-items: center; gap: 8px; margin-left: auto; }
     .nav-mobile-toggle {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      padding: 8px;
-      margin-left: auto;
-      background: none;
-      border: none;
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 8px; margin-left: auto; background: none; border: none;
     }
-    .nav-mobile-toggle span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--text);
-      border-radius: 2px;
-      transition: all 0.2s;
-    }
+    .nav-mobile-toggle span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; }
 
-    /* ── HERO ── */
+    /* ════════════════ HERO ════════════════ */
     .hero {
-      padding: 100px 0 80px;
-      background: linear-gradient(160deg, #F6F6F3 0%, #EBF0F7 60%, #dce7f5 100%);
-      overflow: hidden;
-      position: relative;
+      padding: 92px 0 80px;
+      background:
+        radial-gradient(ellipse 600px 400px at 82% 28%, rgba(196,147,63,.06) 0%, transparent 100%),
+        radial-gradient(ellipse 400px 300px at 15% 72%, rgba(27,63,110,.05) 0%, transparent 100%),
+        repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(27,63,110,.033) 31px, rgba(27,63,110,.033) 32px),
+        linear-gradient(155deg, #F5F6F1 0%, #E9EFF8 58%, #D8E6F4 100%);
+      overflow: hidden; position: relative;
     }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -100px;
-      right: -100px;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(27,63,110,0.06) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
-      align-items: center;
-    }
+    .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+
     .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--navy-light);
-      border: 1px solid #C8D9EE;
-      color: var(--navy);
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 16px;
-      border-radius: 100px;
-      margin-bottom: 24px;
-      letter-spacing: 0.3px;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--navy-light); border: 1px solid #C8D9EE; color: var(--navy);
+      font-size: 12.5px; font-weight: 600; padding: 6px 16px;
+      border-radius: 100px; margin-bottom: 22px; letter-spacing: 0.2px;
     }
-    .hero-eyebrow-dot {
-      width: 6px;
-      height: 6px;
-      background: var(--navy);
-      border-radius: 50%;
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.4); }
-    }
+    .hero-eyebrow-dot { width: 7px; height: 7px; background: var(--gold); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.45)} }
+
     .hero h1 {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: clamp(36px, 5vw, 56px);
-      font-weight: 700;
-      color: var(--navy);
-      line-height: 1.12;
-      letter-spacing: -0.5px;
-      margin-bottom: 24px;
+      font-size: clamp(34px, 4.6vw, 56px); font-weight: 900;
+      color: var(--navy); line-height: 1.1; letter-spacing: -.5px; margin-bottom: 22px;
     }
-    .hero h1 em {
-      font-style: normal;
-      position: relative;
-      display: inline;
+    .hero h1 .hl {
+      position: relative; display: inline;
     }
-    .hero h1 em::after {
-      content: '';
-      position: absolute;
-      bottom: 2px;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--navy), #4A90D9);
-      border-radius: 2px;
-      opacity: 0.35;
+    .hero h1 .hl::after {
+      content: ''; position: absolute;
+      bottom: 3px; left: 0; right: 0; height: 5px;
+      background: linear-gradient(90deg, var(--gold), rgba(196,147,63,.25));
+      border-radius: 3px;
     }
-    .hero-sub {
-      font-size: 18px;
-      color: var(--muted);
-      line-height: 1.7;
-      margin-bottom: 36px;
-      max-width: 480px;
-    }
-    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 36px; }
-    .hero-social-proof {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 13px;
-      color: var(--muted);
-    }
+    .hero-sub { font-size: 17px; color: var(--muted); line-height: 1.75; margin-bottom: 34px; max-width: 450px; }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 34px; }
+    .hero-social-proof { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
     .avatar-stack { display: flex; }
-    .avatar {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      border: 2px solid var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
-      color: #fff;
-      margin-left: -8px;
-    }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; margin-left: -8px; }
     .avatar:first-child { margin-left: 0; }
 
-    /* ── MOCK UI CARD ── */
-    .hero-visual { position: relative; }
-    .mock-app {
-      background: var(--white);
-      border-radius: 20px;
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-      border: 1px solid var(--border);
-      transform: perspective(800px) rotateY(-4deg) rotateX(2deg);
-      transition: transform 0.3s ease;
-    }
-    .mock-app:hover { transform: perspective(800px) rotateY(-1deg) rotateX(1deg); }
-    .mock-header {
-      background: var(--navy);
-      padding: 14px 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .mock-dots { display: flex; gap: 5px; }
-    .mock-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .mock-logo { color: #fff; font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; margin-left: 8px; }
-    .mock-body { padding: 16px; }
+    /* ════════════════ PHONES SCENE ════════════════ */
+    .hero-visual { position: relative; display: flex; align-items: center; justify-content: center; }
+    .phones-scene { position: relative; width: 390px; height: 480px; }
 
-    .mock-tabs {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 14px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 8px;
-    }
-    .mock-tab {
-      padding: 4px 10px;
-      border-radius: 5px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted);
-    }
-    .mock-tab.active { background: var(--navy-light); color: var(--navy); }
+    .phone-wrap { position: absolute; transition: filter 0.3s; }
+    .phone-wrap:hover { filter: brightness(1.06) drop-shadow(0 12px 32px rgba(0,0,0,.18)); }
 
-    .mock-section-label {
-      font-size: 10px;
-      color: var(--muted);
-      font-weight: 600;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .mock-assignment {
-      background: var(--bg);
-      border-radius: 10px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      border-left: 3px solid #B91C1C;
-    }
-    .mock-assignment.medium { border-left-color: #B45309; }
-    .mock-assignment.low { border-left-color: #15803D; }
-    .mock-a-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-    .mock-a-meta { font-size: 10px; color: var(--muted); }
-    .mock-badge {
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      white-space: nowrap;
-      margin-left: auto;
-      flex-shrink: 0;
-    }
-    .badge-r { background: #FEE2E2; color: #991B1B; }
-    .badge-y { background: #FEF3C7; color: #92400E; }
-    .badge-g { background: #DCFCE7; color: #166534; }
-
-    .mock-divider { height: 1px; background: var(--border); margin: 12px 0; }
-
-    .mock-timetable-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 7px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 11px;
-    }
-    .mock-time { color: var(--muted); min-width: 60px; font-weight: 600; }
-    .mock-subject { font-weight: 700; color: var(--text); flex: 1; }
-    .mock-venue { color: var(--muted); font-size: 10px; }
-
-    .mock-stat-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .mock-stat {
-      flex: 1;
-      background: var(--navy-light);
-      border-radius: 8px;
-      padding: 8px;
-      text-align: center;
-    }
-    .mock-stat-num { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--navy); }
-    .mock-stat-label { font-size: 9px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-
-    /* floating badge */
-    .mock-float-badge {
-      position: absolute;
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 14px;
-      box-shadow: var(--shadow);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .mock-float-badge.top-right {
-      top: -20px;
-      right: -20px;
-    }
-    .mock-float-badge.bottom-left {
-      bottom: 20px;
-      left: -30px;
-    }
-
-    /* ── UNIVERSITIES TRUST STRIP ── */
-    .unis-section {
-      padding: 36px 0;
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-      border-top: 1px solid var(--border);
-    }
-    .unis-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      text-align: center;
-      margin-bottom: 22px;
-    }
-    .unis-scroll {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 12px 24px;
-    }
-    .uni-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--navy);
-      background: var(--bg);
-      white-space: nowrap;
-    }
-    .uni-chip-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--navy);
-      opacity: 0.4;
-      flex-shrink: 0;
-    }
-
-    /* ── RESEARCH STATS ── */
-    .stats-section {
-      padding: 80px 0;
-      background: var(--navy);
-      position: relative;
-      overflow: hidden;
-    }
-    .stats-section::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0L80 12v2L54 40h-2zm4 0L80 16v2L58 40h-2zm4 0L80 20v2L62 40h-2zm4 0L80 24v2L66 40h-2zm4 0L80 28v2L70 40h-2zm4 0L80 32v2L74 40h-2zm4 0L80 36v2L78 40h-2zm4 0L80 40v-2h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0;
-      position: relative;
-      z-index: 1;
-    }
-    .stat-item {
-      text-align: center;
-      padding: 16px 24px;
-      border-right: 1px solid rgba(255,255,255,0.1);
-    }
-    .stat-item:last-child { border-right: none; }
-    .stat-number {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 48px;
-      font-weight: 700;
-      color: #fff;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-    .stat-desc {
-      font-size: 14px;
-      color: rgba(255,255,255,0.6);
-      line-height: 1.5;
-    }
-    .stat-desc strong { color: rgba(255,255,255,0.9); display: block; font-size: 15px; margin-bottom: 2px; }
-
-    /* ── ACADEMIC METHODOLOGY ── */
-    .research-section {
-      padding: 96px 0;
-      background: var(--bg);
-    }
-    .research-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-    }
-    .research-visual {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 32px;
-      box-shadow: var(--shadow);
-    }
-    .research-visual-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .rv-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: var(--navy-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-    }
-    .rv-title {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--navy);
-    }
-    .rv-sub { font-size: 12px; color: var(--muted); }
-    .ref-list { list-style: none; }
-    .ref-item {
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-    }
-    .ref-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .ref-num {
-      min-width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: var(--navy);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .ref-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
-    .ref-text strong { color: var(--text); font-weight: 600; }
-    .ref-text em { font-style: italic; }
-    .research-points { list-style: none; }
-    .research-point {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .research-point:last-child { border-bottom: none; }
-    .rp-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: var(--navy-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-    .rp-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .rp-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
-
-    @media (max-width: 900px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
-      .stat-item:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.1); }
-      .stat-item:last-child { border-bottom: none; }
-      .research-grid { grid-template-columns: 1fr; gap: 40px; }
-    }
-
-    /* ── HOW IT WORKS ── */
-    .how-section {
-      padding: 96px 0;
-      background: var(--white);
-    }
-    .section-eyebrow {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--navy);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-    }
-    .section-heading {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: clamp(28px, 4vw, 42px);
-      font-weight: 700;
-      color: var(--navy);
-      line-height: 1.2;
-      margin-bottom: 16px;
-    }
-    .section-sub {
-      font-size: 17px;
-      color: var(--muted);
-      max-width: 540px;
-      line-height: 1.7;
-    }
-    .section-header { margin-bottom: 64px; }
-    .section-header.centered { text-align: center; }
-    .section-header.centered .section-sub { margin: 0 auto; }
-
-    .steps-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 40px;
-      position: relative;
-    }
-    .steps-grid::before {
-      content: '';
-      position: absolute;
-      top: 44px;
-      left: calc(16.66% + 24px);
-      right: calc(16.66% + 24px);
-      height: 2px;
-      background: linear-gradient(90deg, var(--navy-light), var(--navy), var(--navy-light));
-      opacity: 0.4;
-      pointer-events: none;
-    }
-    .step { text-align: center; position: relative; }
-    .step-number {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: var(--navy);
-      color: #fff;
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 28px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 24px;
-      position: relative;
-      z-index: 1;
-      box-shadow: 0 4px 20px rgba(27,63,110,0.25);
-    }
-    .step-icon {
-      font-size: 28px;
-      margin-bottom: 10px;
-    }
-    .step h3 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 10px;
-    }
-    .step p { font-size: 15px; color: var(--muted); line-height: 1.7; }
-
-    /* ── FEATURES ── */
-    .features-section {
-      padding: 96px 0;
-      background: var(--bg);
-    }
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    .feature-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px;
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .feature-card:hover {
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-3px);
-    }
-    .feature-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 12px;
-      background: var(--navy-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 18px;
-    }
-    .feature-card h3 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 10px;
-    }
-    .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
-    .feature-tag {
-      display: inline-block;
-      margin-top: 14px;
-      padding: 3px 10px;
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 600;
-      background: var(--navy-light);
-      color: var(--navy);
-    }
-
-    /* ── TESTIMONIALS ── */
-    .testimonials-section {
-      padding: 96px 0;
-      background: var(--navy);
-      position: relative;
-      overflow: hidden;
-    }
-    .testimonials-section::before {
-      content: '';
-      position: absolute;
-      top: -120px;
-      right: -120px;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .testimonials-section .section-heading { color: #fff; }
-    .testimonials-section .section-sub { color: rgba(255,255,255,0.6); }
-    .testimonials-section .section-eyebrow { color: rgba(255,255,255,0.5); }
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    .testimonial-card {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 28px;
-      transition: background 0.2s;
-    }
-    .testimonial-card:hover { background: rgba(255,255,255,0.12); }
-    .stars { color: #F59E0B; font-size: 16px; margin-bottom: 14px; letter-spacing: 2px; }
-    .testimonial-text {
-      font-size: 15px;
-      color: rgba(255,255,255,0.85);
-      line-height: 1.75;
-      font-style: italic;
-      margin-bottom: 22px;
-    }
-    .testimonial-author { display: flex; align-items: center; gap: 12px; }
-    .author-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 15px;
-      color: #fff;
-      flex-shrink: 0;
-    }
-    .author-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px; }
-    .author-school { font-size: 12px; color: rgba(255,255,255,0.5); }
-
-    /* ── PRICING ── */
-    .pricing-section {
-      padding: 96px 0;
-      background: var(--white);
-    }
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      align-items: start;
-    }
-    .pricing-card {
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      padding: 32px 28px;
-      background: var(--white);
-      transition: box-shadow 0.2s, transform 0.2s;
-      position: relative;
-    }
-    .pricing-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
-    .pricing-card.popular {
-      border-color: var(--navy);
-      box-shadow: 0 4px 24px rgba(27,63,110,0.15);
-      transform: scale(1.03);
-    }
-    .pricing-card.popular:hover { transform: scale(1.03) translateY(-3px); }
-    .popular-badge {
-      position: absolute;
-      top: -14px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--navy);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 16px;
-      border-radius: 100px;
-      letter-spacing: 0.5px;
-    }
-    .plan-name {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 6px;
-    }
-    .plan-tagline { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
-    .plan-price {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 42px;
-      font-weight: 700;
-      color: var(--navy);
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-    .plan-price sup { font-size: 20px; vertical-align: super; }
-    .plan-price sub { font-size: 15px; font-family: 'Inter', sans-serif; font-weight: 500; color: var(--muted); }
-    .plan-period { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
-    .plan-features { list-style: none; margin-bottom: 28px; }
-    .plan-features li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 8px 0;
-      font-size: 14px;
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
-    }
-    .plan-features li:last-child { border-bottom: none; }
-    .plan-features li .check { color: #15803D; font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-    .plan-features li .cross { color: #D1D5DB; font-size: 15px; flex-shrink: 0; }
-
-    /* ── CTA SECTION ── */
-    .cta-section {
-      padding: 96px 0;
-      background: linear-gradient(135deg, #1B3F6E 0%, #2B5499 100%);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .cta-section::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none;
-    }
-    .cta-section h2 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: clamp(32px, 5vw, 52px);
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 16px;
-      line-height: 1.15;
-    }
-    .cta-section p {
-      font-size: 18px;
-      color: rgba(255,255,255,0.75);
-      margin-bottom: 44px;
-      max-width: 520px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.7;
-    }
-    .cta-form {
-      display: flex;
-      gap: 12px;
-      max-width: 460px;
-      margin: 0 auto 20px;
-    }
-    .cta-input {
-      flex: 1;
-      padding: 14px 18px;
-      border-radius: 10px;
-      border: none;
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-      outline: none;
-      border: 1.5px solid rgba(255,255,255,0.2);
-      transition: border-color 0.2s;
-    }
-    .cta-input::placeholder { color: rgba(255,255,255,0.5); }
-    .cta-input:focus { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.2); }
-    .btn-white {
+    .phone-frame {
+      width: 155px; border-radius: 28px;
+      border: 2.5px solid #18181f;
       background: #fff;
-      color: var(--navy);
-      font-weight: 700;
-      padding: 14px 26px;
-      border-radius: 10px;
-      border: none;
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      cursor: pointer;
-      transition: all 0.18s;
-      white-space: nowrap;
-      text-decoration: none;
+      box-shadow: 0 20px 56px rgba(0,0,0,.22), 0 4px 12px rgba(0,0,0,.12);
+      overflow: hidden;
     }
-    .btn-white:hover { background: #F0F4FA; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
-    .cta-note { font-size: 13px; color: rgba(255,255,255,0.5); }
+    .phone-notch { height: 20px; background: #18181f; display: flex; align-items: center; justify-content: center; }
+    .phone-notch-pill { width: 44px; height: 9px; background: #0b0b14; border-radius: 5px; }
+    .phone-screen { background: var(--bg); }
 
-    /* ── FOOTER ── */
-    footer {
-      background: var(--navy);
-      color: rgba(255,255,255,0.6);
-      padding: 56px 0 36px;
-    }
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 1.8fr 1fr 1fr 1fr;
-      gap: 48px;
-      margin-bottom: 48px;
-    }
-    .footer-logo {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-    }
-    .footer-logo .logo-badge { background: rgba(255,255,255,0.2); }
-    .footer-tagline { font-size: 14px; line-height: 1.65; max-width: 240px; }
-    .footer-col h4 {
-      font-size: 12px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.4);
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-    .footer-col ul { list-style: none; }
-    .footer-col li { margin-bottom: 10px; }
-    .footer-col a {
-      text-decoration: none;
-      color: rgba(255,255,255,0.6);
-      font-size: 14px;
-      transition: color 0.15s;
-    }
-    .footer-col a:hover { color: #fff; }
-    .footer-bottom {
-      border-top: 1px solid rgba(255,255,255,0.1);
-      padding-top: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 13px;
-    }
-    .footer-bottom a { color: rgba(255,255,255,0.5); text-decoration: none; }
-    .footer-bottom a:hover { color: rgba(255,255,255,0.8); }
+    /* p1 — Dashboard, back-left */
+    .phone-wrap.p1 { top: 55px; left: 8px; transform: rotate(-14deg); z-index: 1; opacity: .8; }
+    /* p2 — Study Hub, centre/main */
+    .phone-wrap.p2 { top: 14px; left: 106px; transform: rotate(-3deg); z-index: 3; }
+    /* p3 — Task Board, front-right */
+    .phone-wrap.p3 { top: 68px; left: 222px; transform: rotate(10deg); z-index: 2; opacity: .86; }
 
-    /* ── MOBILE ── */
+    /* Phone screen elements */
+    .ps-hdr { background: var(--navy); padding: 7px 10px; color: #fff; font-size: 9px; font-weight: 700; font-family: 'Inter',sans-serif; display: flex; align-items: center; gap: 6px; }
+    .ps-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+    .ps-body { padding: 9px 10px; }
+    .ps-greet { font-size: 9px; font-weight: 700; color: var(--navy); margin-bottom: 7px; font-family: 'Playfair Display',serif; }
+    .ps-stats { display: flex; gap: 4px; margin-bottom: 8px; }
+    .ps-stat { flex:1; background: var(--navy-light); border-radius: 6px; padding: 5px 3px; text-align: center; }
+    .ps-stat-n { font-size: 13px; font-weight: 700; color: var(--navy); font-family: 'Playfair Display',serif; line-height: 1; }
+    .ps-stat-l { font-size: 6.5px; color: var(--muted); margin-top: 2px; }
+    .ps-task { background: #fff; border-radius: 6px; padding: 6px 7px; border-left: 3px solid #B91C1C; margin-bottom: 5px; }
+    .ps-task-t { font-size: 7.5px; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .ps-task-m { font-size: 6.5px; color: var(--muted); margin-top: 2px; }
+
+    /* Chat screen (p2) */
+    .ps-chat { padding: 8px 9px; }
+    .chat-lbl { font-size: 6.5px; color: var(--muted); margin-bottom: 3px; }
+    .chat-lbl.right { text-align: right; }
+    .chat-bubble { border-radius: 9px; padding: 6px 8px; font-size: 7.5px; line-height: 1.45; margin-bottom: 6px; max-width: 92%; }
+    .chat-user { background: var(--navy); color: #fff; margin-left: auto; border-bottom-right-radius: 3px; }
+    .chat-ai { background: #fff; color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 3px; }
+    .chat-ai-tag { font-size: 6.5px; color: var(--gold); font-weight: 700; display: block; margin-bottom: 3px; }
+    .chat-input-mock { display: flex; gap: 3px; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 7px; padding: 5px 7px; margin-top: 6px; }
+    .chat-input-line { flex:1; height: 5px; background: var(--bg); border-radius: 3px; }
+    .chat-send { width: 18px; height: 18px; border-radius: 50%; background: var(--navy); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .chat-send-arrow { width: 0; height: 0; border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent; border-left: 6px solid #fff; margin-left: 1px; }
+
+    /* Kanban screen (p3) */
+    .ps-kanban { padding: 8px 9px; }
+    .ps-col-lbl { font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 4px; }
+    .ps-card { background: #fff; border-radius: 6px; padding: 6px 7px; margin-bottom: 4px; border: 1px solid var(--border); }
+    .ps-card-t { font-size: 7.5px; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .ps-chip { font-size: 6px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-top: 3px; display: inline-block; }
+
+    /* Floating badges */
+    .float-badge {
+      position: absolute; background: var(--white); border: 1px solid var(--border);
+      border-radius: 12px; padding: 8px 13px;
+      box-shadow: var(--shadow); display: flex; align-items: center;
+      gap: 8px; font-size: 12px; font-weight: 600; color: var(--text);
+      white-space: nowrap; z-index: 10;
+    }
+    .float-badge-icon { font-size: 16px; }
+    .float-badge.fb1 { top: 4px; right: -8px; }
+    .float-badge.fb2 { bottom: 16px; left: -12px; }
+
+    /* ════════════════ UNIVERSITIES STRIP ════════════════ */
+    .unis-section { padding: 30px 0; background: var(--white); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .unis-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; text-align: center; margin-bottom: 16px; }
+    .unis-scroll { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 9px 16px; }
+    .uni-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 100px;
+      font-size: 12px; font-weight: 600; color: var(--navy); background: var(--bg);
+      white-space: nowrap; transition: border-color .15s, background .15s;
+    }
+    .uni-chip:hover { border-color: var(--navy); background: var(--navy-light); }
+    .uni-shield { display: inline-block; width: 13px; height: 15px; }
+
+    /* ════════════════ STATS ════════════════ */
+    .stats-section { padding: 68px 0; background: var(--navy); position: relative; overflow: hidden; border-top: 4px solid var(--gold); }
+    .stats-section::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); position:relative; z-index:1; }
+    .stat-item { text-align:center; padding: 14px 18px; border-right: 1px solid rgba(255,255,255,.1); }
+    .stat-item:last-child { border-right: none; }
+    .stat-number { font-family:'Playfair Display',Georgia,serif; font-size: 46px; font-weight:700; color:#fff; line-height:1; margin-bottom:8px; }
+    .stat-desc { font-size: 13px; color: rgba(255,255,255,.55); line-height:1.5; }
+    .stat-desc strong { color:rgba(255,255,255,.9); display:block; font-size:14px; margin-bottom:2px; }
+
+    /* ════════════════ SECTION COMMONS ════════════════ */
+    .section-eyebrow { font-size: 11px; font-weight:700; color:var(--gold); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+    .section-heading { font-family:'Playfair Display',Georgia,serif; font-size:clamp(27px,3.8vw,42px); font-weight:700; color:var(--navy); line-height:1.2; margin-bottom:14px; }
+    .section-sub { font-size: 17px; color:var(--muted); max-width:540px; line-height:1.72; }
+    .section-header { margin-bottom:58px; }
+    .section-header.centered { text-align:center; }
+    .section-header.centered .section-sub { margin:0 auto; }
+
+    /* ════════════════ RESEARCH ════════════════ */
+    .research-section { padding: 96px 0; background: var(--bg); }
+    .research-grid { display:grid; grid-template-columns:1fr 1fr; gap:76px; align-items:start; }
+    .research-visual { background:var(--white); border:1px solid var(--border); border-radius:20px; padding:30px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
+    .research-visual::before { content:'\201C'; position:absolute; top:-14px; left:18px; font-family:'Playfair Display',serif; font-size:110px; color:var(--navy-light); line-height:1; pointer-events:none; }
+    .research-visual-header { display:flex; align-items:center; gap:12px; margin-bottom:22px; padding-bottom:14px; border-bottom:1px solid var(--border); position:relative; z-index:1; }
+    .rv-icon { width:42px; height:42px; border-radius:10px; background:var(--navy-light); display:flex; align-items:center; justify-content:center; font-size:20px; }
+    .rv-title { font-family:'Playfair Display',Georgia,serif; font-size:16px; font-weight:700; color:var(--navy); }
+    .rv-sub { font-size:11.5px; color:var(--muted); }
+    .ref-list { list-style:none; position:relative; z-index:1; }
+    .ref-item { padding:12px 0; border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:flex-start; }
+    .ref-item:last-child { border-bottom:none; padding-bottom:0; }
+    .ref-num { min-width:22px; height:22px; border-radius:50%; background:var(--navy); color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+    .ref-text { font-size:12.5px; color:var(--muted); line-height:1.6; }
+    .ref-text strong { color:var(--text); font-weight:600; }
+    .ref-text em { font-style:italic; }
+    .research-points { list-style:none; }
+    .research-point { display:flex; align-items:flex-start; gap:16px; padding:15px 0; border-bottom:1px solid var(--border); }
+    .research-point:last-child { border-bottom:none; }
+    .rp-icon { width:42px; height:42px; border-radius:10px; background:var(--navy-light); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .rp-title { font-size:14.5px; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .rp-desc { font-size:13.5px; color:var(--muted); line-height:1.65; }
+
+    /* ════════════════ HOW IT WORKS ════════════════ */
+    .how-section { padding: 96px 0; background:var(--white); }
+    .steps-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:40px; position:relative; }
+    .steps-grid::before { content:''; position:absolute; top:44px; left:calc(16.66% + 24px); right:calc(16.66% + 24px); height:2px; background:linear-gradient(90deg,var(--gold-light),var(--gold),var(--gold-light)); opacity:.55; pointer-events:none; }
+    .step { text-align:center; position:relative; }
+    .step-number { width:72px; height:72px; border-radius:50%; background:var(--navy); color:#fff; font-family:'Playfair Display',Georgia,serif; font-size:28px; font-weight:700; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; position:relative; z-index:1; box-shadow:0 4px 20px rgba(27,63,110,.25); }
+    .step-number::after { content:''; position:absolute; inset:-5px; border-radius:50%; border:2px solid rgba(196,147,63,.28); }
+    .step h3 { font-family:'Playfair Display',Georgia,serif; font-size:20px; font-weight:700; color:var(--navy); margin-bottom:10px; }
+    .step p { font-size:14.5px; color:var(--muted); line-height:1.72; }
+
+    /* ════════════════ FEATURES ════════════════ */
+    .features-section { padding: 96px 0; background:var(--bg); }
+    .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    .feature-card { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:28px; transition:box-shadow .2s,transform .2s,border-color .2s; }
+    .feature-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-3px); border-color:rgba(196,147,63,.38); }
+    .feature-icon { width:52px; height:52px; border-radius:12px; background:var(--navy-light); display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:18px; }
+    .feature-card h3 { font-family:'Playfair Display',Georgia,serif; font-size:18px; font-weight:700; color:var(--navy); margin-bottom:10px; }
+    .feature-card p { font-size:14px; color:var(--muted); line-height:1.7; }
+    .feature-tag { display:inline-block; margin-top:14px; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:600; background:var(--gold-light); color:var(--gold-dark); }
+
+    /* ════════════════ TESTIMONIALS ════════════════ */
+    .testimonials-section { padding:96px 0; background:var(--navy); position:relative; overflow:hidden; }
+    .testimonials-section::before { content:''; position:absolute; top:-120px; right:-120px; width:400px; height:400px; background:radial-gradient(circle,rgba(196,147,63,.08) 0%,transparent 70%); pointer-events:none; }
+    .testimonials-section .section-heading { color:#fff; }
+    .testimonials-section .section-sub { color:rgba(255,255,255,.6); }
+    .testimonials-section .section-eyebrow { color:var(--gold); }
+    .testimonials-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    .testimonial-card { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:28px; transition:background .2s; }
+    .testimonial-card:hover { background:rgba(255,255,255,.11); }
+    .stars { color:var(--gold); font-size:15px; margin-bottom:14px; letter-spacing:2px; }
+    .testimonial-text { font-size:14.5px; color:rgba(255,255,255,.83); line-height:1.75; font-style:italic; margin-bottom:22px; }
+    .testimonial-author { display:flex; align-items:center; gap:12px; }
+    .author-avatar { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; color:#fff; flex-shrink:0; }
+    .author-name { font-size:14px; font-weight:700; color:#fff; margin-bottom:2px; }
+    .author-school { font-size:11.5px; color:rgba(255,255,255,.5); }
+
+    /* ════════════════ PRICING ════════════════ */
+    .pricing-section { padding:96px 0; background:var(--white); }
+    .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; align-items:start; }
+    .pricing-card { border:2px solid var(--border); border-radius:20px; padding:32px 28px; background:var(--white); transition:box-shadow .2s,transform .2s; position:relative; }
+    .pricing-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-3px); }
+    .pricing-card.popular { border-color:var(--navy); box-shadow:0 4px 24px rgba(27,63,110,.15); transform:scale(1.03); }
+    .pricing-card.popular:hover { transform:scale(1.03) translateY(-3px); }
+    .popular-badge { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:var(--gold); color:#fff; font-size:11px; font-weight:700; padding:4px 16px; border-radius:100px; letter-spacing:.5px; white-space:nowrap; }
+    .plan-name { font-family:'Playfair Display',Georgia,serif; font-size:22px; font-weight:700; color:var(--navy); margin-bottom:6px; }
+    .plan-tagline { font-size:13px; color:var(--muted); margin-bottom:22px; }
+    .plan-price { font-family:'Playfair Display',Georgia,serif; font-size:42px; font-weight:700; color:var(--navy); line-height:1; margin-bottom:4px; }
+    .plan-price sup { font-size:20px; vertical-align:super; }
+    .plan-price sub { font-size:15px; font-family:'Inter',sans-serif; font-weight:500; color:var(--muted); }
+    .plan-period { font-size:13px; color:var(--muted); margin-bottom:28px; }
+    .plan-features { list-style:none; margin-bottom:28px; }
+    .plan-features li { display:flex; align-items:flex-start; gap:10px; padding:8px 0; font-size:14px; color:var(--text); border-bottom:1px solid var(--border); }
+    .plan-features li:last-child { border-bottom:none; }
+    .plan-features .check { color:#15803D; font-size:15px; flex-shrink:0; margin-top:1px; }
+    .plan-features .cross { color:#D1D5DB; font-size:15px; flex-shrink:0; }
+
+    /* ════════════════ CTA ════════════════ */
+    .cta-section { padding:96px 0; background:linear-gradient(135deg,#1B3F6E 0%,#2B5499 100%); text-align:center; position:relative; overflow:hidden; }
+    .cta-seal { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:360px; height:360px; opacity:.055; pointer-events:none; }
+    .cta-section::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
+    .cta-inner { position:relative; z-index:1; }
+    .cta-section h2 { font-family:'Playfair Display',Georgia,serif; font-size:clamp(30px,5vw,52px); font-weight:700; color:#fff; margin-bottom:16px; line-height:1.15; }
+    .cta-section p { font-size:17px; color:rgba(255,255,255,.75); margin-bottom:40px; max-width:510px; margin-left:auto; margin-right:auto; line-height:1.72; }
+    .cta-form { display:flex; gap:12px; max-width:450px; margin:0 auto 20px; }
+    .cta-input { flex:1; padding:14px 18px; border-radius:10px; font-family:'Inter',sans-serif; font-size:15px; background:rgba(255,255,255,.15); color:#fff; outline:none; border:1.5px solid rgba(255,255,255,.2); transition:border-color .2s; }
+    .cta-input::placeholder { color:rgba(255,255,255,.48); }
+    .cta-input:focus { border-color:rgba(255,255,255,.5); background:rgba(255,255,255,.2); }
+    .btn-white { background:#fff; color:var(--navy); font-weight:700; padding:14px 26px; border-radius:10px; border:none; font-family:'Inter',sans-serif; font-size:15px; cursor:pointer; transition:all .18s; white-space:nowrap; text-decoration:none; }
+    .btn-white:hover { background:#EDF2FB; box-shadow:0 4px 16px rgba(0,0,0,.15); }
+    .cta-note { font-size:13px; color:rgba(255,255,255,.48); }
+
+    /* ════════════════ FOOTER ════════════════ */
+    footer { background:var(--navy); color:rgba(255,255,255,.6); padding:60px 0 36px; }
+    .footer-grid { display:grid; grid-template-columns:1.8fr 1fr 1fr 1fr; gap:48px; margin-bottom:48px; }
+    .footer-logo { font-family:'Playfair Display',Georgia,serif; font-size:20px; font-weight:700; color:#fff; margin-bottom:12px; display:flex; align-items:center; gap:9px; text-decoration:none; }
+    .footer-ai-badge { background:var(--gold); }
+    .footer-tagline { font-size:13.5px; line-height:1.7; max-width:230px; margin-bottom:22px; }
+    .footer-seal { display:block; width:86px; height:86px; opacity:.45; }
+    .footer-col h4 { font-size:11px; font-weight:700; color:rgba(255,255,255,.35); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:16px; }
+    .footer-col ul { list-style:none; }
+    .footer-col li { margin-bottom:10px; }
+    .footer-col a { text-decoration:none; color:rgba(255,255,255,.6); font-size:14px; transition:color .15s; }
+    .footer-col a:hover { color:#fff; }
+    .footer-bottom { border-top:1px solid rgba(255,255,255,.1); padding-top:24px; display:flex; align-items:center; justify-content:space-between; font-size:13px; }
+    .footer-bottom a { color:rgba(255,255,255,.5); text-decoration:none; }
+    .footer-bottom a:hover { color:rgba(255,255,255,.8); }
+
+    /* ════════════════ RESPONSIVE ════════════════ */
+    @media (max-width: 960px) {
+      .hero-grid { grid-template-columns:1fr; gap:40px; }
+      .hero-visual { display:none; }
+      .hero { padding:64px 0 56px; }
+      .hero h1 { font-size:clamp(30px,8vw,46px); }
+      .hero-sub { max-width:100%; }
+    }
     @media (max-width: 900px) {
-      .hero-grid { grid-template-columns: 1fr; gap: 48px; }
-      .hero-visual { display: none; }
-      .hero { padding: 64px 0 60px; }
-      .steps-grid { grid-template-columns: 1fr; gap: 32px; }
-      .steps-grid::before { display: none; }
-      .features-grid { grid-template-columns: repeat(2, 1fr); }
-      .testimonials-grid { grid-template-columns: 1fr; gap: 16px; }
-      .pricing-grid { grid-template-columns: 1fr; gap: 20px; }
-      .pricing-card.popular { transform: none; }
-      .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
-      .footer-col:first-child { grid-column: 1 / -1; }
-      .nav-links { display: none; }
-      .nav-mobile-toggle { display: flex; }
-      .nav-ctas .btn-ghost { display: none; }
+      .stats-grid { grid-template-columns:repeat(2,1fr); }
+      .stat-item { border-right:none; border-bottom:1px solid rgba(255,255,255,.1); }
+      .stat-item:nth-child(2) { border-right:none; }
+      .stat-item:last-child { border-bottom:none; }
+      .research-grid { grid-template-columns:1fr; gap:40px; }
+      .steps-grid { grid-template-columns:1fr; gap:28px; }
+      .steps-grid::before { display:none; }
+      .features-grid { grid-template-columns:repeat(2,1fr); }
+      .testimonials-grid { grid-template-columns:1fr; gap:14px; }
+      .pricing-grid { grid-template-columns:1fr; gap:18px; }
+      .pricing-card.popular { transform:none; }
+      .footer-grid { grid-template-columns:1fr 1fr; gap:28px; }
+      .footer-col:first-child { grid-column:1/-1; }
+      .nav-links { display:none; }
+      .nav-mobile-toggle { display:flex; }
+      .nav-ctas .btn-ghost { display:none; }
     }
     @media (max-width: 600px) {
-      .features-grid { grid-template-columns: 1fr; }
-      .hero-ctas { flex-direction: column; }
-      .cta-form { flex-direction: column; }
-      .footer-grid { grid-template-columns: 1fr; }
-      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+      .features-grid { grid-template-columns:1fr; }
+      .hero-ctas { flex-direction:column; }
+      .cta-form { flex-direction:column; }
+      .footer-grid { grid-template-columns:1fr; }
+      .footer-bottom { flex-direction:column; gap:8px; text-align:center; }
+      .unis-scroll { gap:8px 10px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════ NAV ═══════════════════ -->
+<!-- ══════════════════ SPLASH ══════════════════ -->
+<div id="splash">
+  <div class="splash-mark">
+    <svg width="80" height="80" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="48" height="48" rx="11" fill="rgba(255,255,255,0.1)"/>
+      <path d="M8 34V18C8 16.34 9.34 15 11 15H23V34Q16 32 11 32C9.34 32 8 33.34 8 35Z" fill="white" opacity="0.92"/>
+      <path d="M40 34V18C40 16.34 38.66 15 37 15H25V34Q32 32 37 32C38.66 32 40 33.34 40 35Z" fill="white" opacity="0.7"/>
+      <line x1="24" y1="15" x2="24" y2="34" stroke="rgba(255,255,255,0.28)" stroke-width="1.5"/>
+      <circle cx="24" cy="8.5" r="3" fill="#C4933F"/>
+      <circle cx="14.5" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/>
+      <circle cx="33.5" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/>
+      <line x1="14.5" y1="12" x2="24" y2="8.5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+      <line x1="33.5" y1="12" x2="24" y2="8.5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+      <line x1="14.5" y1="12" x2="24" y2="15" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+      <line x1="33.5" y1="12" x2="24" y2="15" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+    </svg>
+  </div>
+  <div class="splash-wordmark">ClassMind<span class="splash-ai-badge">AI</span></div>
+  <div class="splash-tagline">Academic Study Assistant</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- ══════════════════ NAV ══════════════════ -->
 <nav>
   <div class="container">
     <div class="nav-inner">
-      <a href="/" class="logo">ClassMind<span class="logo-badge">AI</span></a>
+      <a href="/" class="logo" aria-label="ClassMind AI Home">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="48" height="48" rx="11" fill="#1B3F6E"/>
+          <path d="M8 34V18C8 16.34 9.34 15 11 15H23V34Q16 32 11 32C9.34 32 8 33.34 8 35Z" fill="white" opacity="0.92"/>
+          <path d="M40 34V18C40 16.34 38.66 15 37 15H25V34Q32 32 37 32C38.66 32 40 33.34 40 35Z" fill="white" opacity="0.7"/>
+          <line x1="24" y1="15" x2="24" y2="34" stroke="rgba(255,255,255,0.28)" stroke-width="1.5"/>
+          <circle cx="24" cy="8.5" r="3" fill="#C4933F"/>
+          <circle cx="14.5" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/>
+          <circle cx="33.5" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/>
+          <line x1="14.5" y1="12" x2="24" y2="8.5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+          <line x1="33.5" y1="12" x2="24" y2="8.5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+        </svg>
+        ClassMind<span class="logo-ai-badge">AI</span>
+      </a>
       <ul class="nav-links">
         <li><a href="#features">Features</a></li>
         <li><a href="#how-it-works">How it works</a></li>
@@ -1000,30 +482,31 @@
         <a href="/login.html" class="btn btn-ghost btn-sm">Sign In</a>
         <a href="/signup.html" class="btn btn-primary btn-sm">Get Started Free</a>
       </div>
-      <button class="nav-mobile-toggle" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')==='true'?'false':'true')" aria-label="Menu">
+      <button class="nav-mobile-toggle" aria-label="Open menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
 </nav>
 
-<!-- ═══════════════════ HERO ═══════════════════ -->
+<!-- ══════════════════ HERO ══════════════════ -->
 <section class="hero">
   <div class="container">
     <div class="hero-grid">
+
+      <!-- LEFT — Text content -->
       <div class="hero-content">
         <div class="hero-eyebrow">
           <span class="hero-eyebrow-dot"></span>
-          Built for Nigerian university students
+          🎓 Academic AI Assistant · Built for Nigerian Universities
         </div>
-        <h1>Turn your class <em>WhatsApp group</em> into a personal study powerhouse</h1>
+        <h1>Study smarter with your personal <span class="hl">academic AI</span></h1>
         <p class="hero-sub">
-          Upload your WhatsApp chats, PDFs, or class notes — ClassMind AI extracts every assignment,
-          timetable entry, and key topic, then helps you study smarter with an AI tutor that speaks your language.
+          Upload your WhatsApp group chat, PDF lecture notes, or timetable — ClassMind AI extracts every deadline, organises your schedule, and tutors you in the style you learn best.
         </p>
         <div class="hero-ctas">
           <a href="/signup.html" class="btn btn-primary btn-lg">Get Started Free</a>
-          <a href="/login.html" class="btn btn-outline btn-lg">Try Demo</a>
+          <a href="/login.html" class="btn btn-outline btn-lg">Sign In</a>
         </div>
         <div class="hero-social-proof">
           <div class="avatar-stack">
@@ -1033,115 +516,164 @@
             <div class="avatar" style="background:#B45309">T</div>
             <div class="avatar" style="background:#15803D">A</div>
           </div>
-          <span>Loved by <strong>2,000+</strong> Nigerian students</span>
+          <span>Loved by <strong>2,400+</strong> Nigerian university students</span>
         </div>
       </div>
 
+      <!-- RIGHT — 3 Phone mockups -->
       <div class="hero-visual">
-        <div class="mock-float-badge top-right">
-          <span>📋</span> 4 assignments detected
-        </div>
-        <div class="mock-app">
-          <div class="mock-header">
-            <div class="mock-dots">
-              <div class="mock-dot" style="background:#FF5F57"></div>
-              <div class="mock-dot" style="background:#FFBD2E"></div>
-              <div class="mock-dot" style="background:#28CA41"></div>
-            </div>
-            <div class="mock-logo">ClassMind <span style="font-size:10px;background:rgba(255,255,255,0.2);padding:1px 5px;border-radius:3px;font-family:Inter,sans-serif;font-weight:700;letter-spacing:1px;">AI</span></div>
-          </div>
-          <div class="mock-body">
-            <div class="mock-tabs">
-              <div class="mock-tab active">Assignments</div>
-              <div class="mock-tab">Schedule</div>
-              <div class="mock-tab">AI Chat</div>
-            </div>
+        <div class="phones-scene">
 
-            <div class="mock-section-label">This week's tasks</div>
-
-            <div class="mock-assignment">
-              <div style="flex:1">
-                <div class="mock-a-title">MTH201 Test – Differentiation &amp; Integration</div>
-                <div class="mock-a-meta">Due: Next Friday 10:00 AM &nbsp;·&nbsp; LT4</div>
-              </div>
-              <div class="mock-badge badge-r">HIGH</div>
-            </div>
-
-            <div class="mock-assignment medium">
-              <div style="flex:1">
-                <div class="mock-a-title">CSC102 – Bubble Sort Program in C</div>
-                <div class="mock-a-meta">Due: Thursday 5:00 PM &nbsp;·&nbsp; Submit hardcopy</div>
-              </div>
-              <div class="mock-badge badge-y">MED</div>
-            </div>
-
-            <div class="mock-assignment low">
-              <div style="flex:1">
-                <div class="mock-a-title">CSC227 – OS Scheduling Essay (500 words)</div>
-                <div class="mock-a-meta">Due: Next Monday &nbsp;·&nbsp; 500 words min</div>
-              </div>
-              <div class="mock-badge badge-g">LOW</div>
-            </div>
-
-            <div class="mock-divider"></div>
-
-            <div class="mock-section-label">Today's timetable</div>
-
-            <div class="mock-timetable-row">
-              <div class="mock-time">8:00 AM</div>
-              <div class="mock-subject">MTH201</div>
-              <div class="mock-venue">LT2</div>
-            </div>
-            <div class="mock-timetable-row">
-              <div class="mock-time">12:00 PM</div>
-              <div class="mock-subject">CSC221</div>
-              <div class="mock-venue">LT5</div>
-            </div>
-
-            <div class="mock-stat-row">
-              <div class="mock-stat">
-                <div class="mock-stat-num">4</div>
-                <div class="mock-stat-label">Tasks</div>
-              </div>
-              <div class="mock-stat">
-                <div class="mock-stat-num" style="color:#B91C1C">1</div>
-                <div class="mock-stat-label">Urgent</div>
-              </div>
-              <div class="mock-stat">
-                <div class="mock-stat-num">5</div>
-                <div class="mock-stat-label">Subjects</div>
+          <!-- Phone 1: Dashboard (back-left) -->
+          <div class="phone-wrap p1">
+            <div class="phone-frame">
+              <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+              <div class="phone-screen">
+                <div class="ps-hdr"><div class="ps-dot"></div>ClassMind AI</div>
+                <div class="ps-body">
+                  <div class="ps-greet">Good morning, Chidi</div>
+                  <div class="ps-stats">
+                    <div class="ps-stat"><div class="ps-stat-n">4</div><div class="ps-stat-l">Tasks</div></div>
+                    <div class="ps-stat"><div class="ps-stat-n" style="color:#B91C1C">2</div><div class="ps-stat-l">Urgent</div></div>
+                    <div class="ps-stat"><div class="ps-stat-n">3.8</div><div class="ps-stat-l">CGPA</div></div>
+                  </div>
+                  <div class="ps-task">
+                    <div class="ps-task-t">MTH201 Test — Differentiation</div>
+                    <div class="ps-task-m">Due Friday 10:00 AM · LT4</div>
+                  </div>
+                  <div class="ps-task" style="border-left-color:#B45309">
+                    <div class="ps-task-t">CSC102 Lab Report (C Program)</div>
+                    <div class="ps-task-m">Due Thursday · Submit hardcopy</div>
+                  </div>
+                  <div class="ps-task" style="border-left-color:#15803D">
+                    <div class="ps-task-t">CSC227 OS Essay · 500 words</div>
+                    <div class="ps-task-m">Due Monday next week</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="mock-float-badge bottom-left">
-          <span>🤖</span> AI Tutor ready
+
+          <!-- Phone 2: Study Hub — AI Chat (centre/main) -->
+          <div class="phone-wrap p2">
+            <div class="phone-frame">
+              <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+              <div class="phone-screen">
+                <div class="ps-hdr"><div class="ps-dot"></div>Study Hub · AI Chat</div>
+                <div class="ps-chat">
+                  <div class="chat-lbl right">You</div>
+                  <div class="chat-bubble chat-user">Explain the 1st Law of Thermodynamics for my CHM201 exam</div>
+                  <span class="chat-ai-tag">ClassMind AI</span>
+                  <div class="chat-bubble chat-ai">The First Law states energy cannot be created or destroyed — only converted. For CHM201 exam questions, identify system vs surroundings, then apply ΔU = Q − W. Internal energy is a state function — always key in MCQs.</div>
+                  <div class="chat-lbl right" style="margin-top:4px">You</div>
+                  <div class="chat-bubble chat-user">Give me 3 likely exam questions on this</div>
+                  <div class="chat-input-mock">
+                    <div class="chat-input-line"></div>
+                    <div class="chat-send"><div class="chat-send-arrow"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phone 3: Task Board (front-right) -->
+          <div class="phone-wrap p3">
+            <div class="phone-frame">
+              <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+              <div class="phone-screen">
+                <div class="ps-hdr"><div class="ps-dot"></div>Task Board</div>
+                <div class="ps-kanban">
+                  <div class="ps-col-lbl" style="color:#1B3F6E">To Do</div>
+                  <div class="ps-card">
+                    <div class="ps-card-t">MTH201 Assignment — Integration</div>
+                    <span class="ps-chip" style="background:#FEE2E2;color:#991B1B">HIGH</span>
+                  </div>
+                  <div class="ps-card">
+                    <div class="ps-card-t">CSC227 OS Scheduling Essay</div>
+                    <span class="ps-chip" style="background:#FEF3C7;color:#92400E">MED</span>
+                  </div>
+                  <div class="ps-col-lbl" style="color:#B45309;margin-top:7px">In Progress</div>
+                  <div class="ps-card">
+                    <div class="ps-card-t">BIO201 Lab Report Write-up</div>
+                    <span class="ps-chip" style="background:#DCFCE7;color:#166534">LOW</span>
+                  </div>
+                  <div class="ps-col-lbl" style="color:#15803D;margin-top:7px">Done</div>
+                  <div class="ps-card" style="opacity:.55">
+                    <div class="ps-card-t">PHY101 Practical Report</div>
+                    <span class="ps-chip" style="background:#F3F4F6;color:#6B7280">DONE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating badges -->
+          <div class="float-badge fb1">
+            <span class="float-badge-icon">📋</span>
+            <span>6 deadlines detected</span>
+          </div>
+          <div class="float-badge fb2">
+            <span class="float-badge-icon">🎓</span>
+            <span>AI Tutor active</span>
+          </div>
+
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════ UNIVERSITIES TRUST STRIP ═══════════════════ -->
+<!-- ══════════════════ UNIVERSITIES STRIP ══════════════════ -->
 <section class="unis-section">
   <div class="container">
-    <div class="unis-label">Trusted by students at leading Nigerian universities</div>
+    <div class="unis-label">Trusted by students at Nigeria's leading universities</div>
     <div class="unis-scroll">
-      <div class="uni-chip"><span class="uni-chip-dot"></span>UNILAG</div>
-      <div class="uni-chip"><span class="uni-chip-dot"></span>UNIPORT</div>
-      <div class="uni-chip"><span class="uni-chip-dot"></span>UI (Ibadan)</div>
-      <div class="uni-chip"><span class="uni-chip-dot"></span>OAU (Ile-Ife)</div>
-      <div class="uni-chip"><span class="uni-chip-dot"></span>ABU (Zaria)</div>
-      <div class="uni-chip"><span class="uni-chip-dot"></span>UNIBEN</div>
-      <div class="uni-chip"><span class="uni-chip-dot"></span>UNN</div>
-      <div class="uni-chip"><span class="uni-chip-dot"></span>FUTA</div>
-      <div class="uni-chip"><span class="uni-chip-dot"></span>LASU</div>
-      <div class="uni-chip"><span class="uni-chip-dot"></span>FUOYE</div>
+      <div class="uni-chip">
+        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
+        UNILAG
+      </div>
+      <div class="uni-chip">
+        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
+        UNIPORT
+      </div>
+      <div class="uni-chip">
+        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
+        UI (Ibadan)
+      </div>
+      <div class="uni-chip">
+        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
+        OAU (Ile-Ife)
+      </div>
+      <div class="uni-chip">
+        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
+        ABU (Zaria)
+      </div>
+      <div class="uni-chip">
+        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
+        UNIBEN
+      </div>
+      <div class="uni-chip">
+        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
+        UNN
+      </div>
+      <div class="uni-chip">
+        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
+        FUTA
+      </div>
+      <div class="uni-chip">
+        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
+        LASU
+      </div>
+      <div class="uni-chip">
+        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
+        FUOYE
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════ STATS ═══════════════════ -->
+<!-- ══════════════════ STATS ══════════════════ -->
 <section class="stats-section">
   <div class="container">
     <div class="stats-grid">
@@ -1159,19 +691,19 @@
       </div>
       <div class="stat-item">
         <div class="stat-number">3 min</div>
-        <div class="stat-desc"><strong>Average setup time</strong>from signup to first analysis</div>
+        <div class="stat-desc"><strong>Average setup time</strong>from sign-up to first analysis</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════ RESEARCH ═══════════════════ -->
+<!-- ══════════════════ RESEARCH ══════════════════ -->
 <section class="research-section" id="research">
   <div class="container">
     <div class="research-grid">
       <div>
         <div class="section-eyebrow">Research-Backed</div>
-        <h2 class="section-heading">Built on evidence, not guesswork</h2>
+        <h2 class="section-heading">Built on evidence,<br>not guesswork</h2>
         <p class="section-sub" style="margin-bottom:32px">ClassMind AI applies established learning-science principles and is designed around the documented challenges of Nigerian higher education.</p>
         <ul class="research-points">
           <li class="research-point">
@@ -1192,14 +724,14 @@
             <div class="rp-icon">🌍</div>
             <div>
               <div class="rp-title">Culturally Adaptive Pedagogy</div>
-              <div class="rp-desc">Teaching-style modes (including Naija Mode) reflect research showing that culturally contextualised instruction improves comprehension for African learners.</div>
+              <div class="rp-desc">Teaching-style modes (including Naija Mode) reflect research showing culturally contextualised instruction improves comprehension for African learners.</div>
             </div>
           </li>
           <li class="research-point">
             <div class="rp-icon">📊</div>
             <div>
               <div class="rp-title">Formative Assessment Design</div>
-              <div class="rp-desc">The task board and CGPA tracker implement ongoing self-monitoring — a technique consistently linked to higher academic performance in undergraduate research.</div>
+              <div class="rp-desc">The task board and CGPA tracker implement ongoing self-monitoring — consistently linked to higher academic performance in undergraduate research.</div>
             </div>
           </li>
         </ul>
@@ -1223,7 +755,7 @@
           </li>
           <li class="ref-item">
             <div class="ref-num">3</div>
-            <div class="ref-text"><strong>Adeyemi, T.O. (2008)</strong> — <em>Teachers' teaching experience and students' learning outcomes in secondary schools in Ondo State, Nigeria.</em> Asian Journal of Information Technology, 7(5), 201–209.</div>
+            <div class="ref-text"><strong>Adeyemi, T.O. (2008)</strong> — <em>Teachers' teaching experience and students' learning outcomes in secondary schools in Ondo State.</em> Asian Journal of Information Technology, 7(5), 201–209.</div>
           </li>
           <li class="ref-item">
             <div class="ref-num">4</div>
@@ -1231,7 +763,7 @@
           </li>
           <li class="ref-item">
             <div class="ref-num">5</div>
-            <div class="ref-text"><strong>NUC (2023)</strong> — <em>Nigerian University Commission: State of tertiary education report.</em> Abuja: Federal Government of Nigeria.</div>
+            <div class="ref-text"><strong>NUC (2023)</strong> — <em>State of tertiary education report.</em> National Universities Commission, Abuja: Federal Government of Nigeria.</div>
           </li>
         </ul>
       </div>
@@ -1239,30 +771,30 @@
   </div>
 </section>
 
-<!-- ═══════════════════ HOW IT WORKS ═══════════════════ -->
+<!-- ══════════════════ HOW IT WORKS ══════════════════ -->
 <section class="how-section" id="how-it-works">
   <div class="container">
     <div class="section-header centered">
       <div class="section-eyebrow">How it works</div>
       <h2 class="section-heading">From WhatsApp group to study plan<br>in 3 simple steps</h2>
-      <p class="section-sub">No manual data entry. No missed deadlines. Just paste, analyze, and conquer your semester.</p>
+      <p class="section-sub">No manual entry. No missed deadlines. Just upload, analyse, and conquer your semester.</p>
     </div>
     <div class="steps-grid">
       <div class="step">
         <div class="step-number">1</div>
-        <div class="step-icon">📤</div>
+        <div style="font-size:28px;margin-bottom:10px">📤</div>
         <h3>Upload Your Material</h3>
         <p>Paste your WhatsApp group chat export, drag in a PDF, upload lecture notes, or share a timetable photo. Any format works.</p>
       </div>
       <div class="step">
         <div class="step-number">2</div>
-        <div class="step-icon">🧠</div>
-        <h3>AI Analyzes Everything</h3>
+        <div style="font-size:28px;margin-bottom:10px">🧠</div>
+        <h3>AI Analyses Everything</h3>
         <p>ClassMind scans your content, extracts every assignment with its deadline, builds your class schedule, and maps out key exam topics.</p>
       </div>
       <div class="step">
         <div class="step-number">3</div>
-        <div class="step-icon">🚀</div>
+        <div style="font-size:28px;margin-bottom:10px">🚀</div>
         <h3>Study Smarter</h3>
         <p>Chat with your AI tutor, get countdown timers on every deadline, generate past questions, and track your CGPA — all in one place.</p>
       </div>
@@ -1270,7 +802,7 @@
   </div>
 </section>
 
-<!-- ═══════════════════ FEATURES ═══════════════════ -->
+<!-- ══════════════════ FEATURES ══════════════════ -->
 <section class="features-section" id="features">
   <div class="container">
     <div class="section-header">
@@ -1319,11 +851,11 @@
   </div>
 </section>
 
-<!-- ═══════════════════ TESTIMONIALS ═══════════════════ -->
+<!-- ══════════════════ TESTIMONIALS ══════════════════ -->
 <section class="testimonials-section" id="testimonials">
   <div class="container">
     <div class="section-header centered">
-      <div class="section-eyebrow">Student stories</div>
+      <div class="section-eyebrow">Student Stories</div>
       <h2 class="section-heading">Real students, real results</h2>
       <p class="section-sub">From Port Harcourt to Ibadan, ClassMind AI is helping students survive and thrive.</p>
     </div>
@@ -1332,7 +864,7 @@
         <div class="stars">★★★★★</div>
         <p class="testimonial-text">"I used to miss assignment deadlines all the time because our CSC group chat moves so fast. I pasted the chat into ClassMind and it found 6 deadlines I had completely missed. Wrote two of the assignments with the AI tutor the same night. Submitted everything on time. This app is a lifesaver."</p>
         <div class="testimonial-author">
-          <div class="author-avatar" style="background: #2B5499;">C</div>
+          <div class="author-avatar" style="background:#2B5499">C</div>
           <div>
             <div class="author-name">Chidinma Okafor</div>
             <div class="author-school">CSC 300L · University of Lagos (UNILAG)</div>
@@ -1343,18 +875,18 @@
         <div class="stars">★★★★★</div>
         <p class="testimonial-text">"I failed my first year because I didn't know how to study for Nigerian university exams. Second year I found ClassMind. The Naija Mode tutor explains things the way my seniors would — not like a foreign textbook. My GPA went from 2.7 to 3.9 in one semester. I'm not joking."</p>
         <div class="testimonial-author">
-          <div class="author-avatar" style="background:#6D28D9;">E</div>
+          <div class="author-avatar" style="background:#6D28D9">E</div>
           <div>
             <div class="author-name">Emeka Nwachukwu</div>
-            <div class="author-school">MEE 200L · University of Port Harcourt (UNIPORT)</div>
+            <div class="author-school">MEE 200L · University of Port Harcourt</div>
           </div>
         </div>
       </div>
       <div class="testimonial-card">
         <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"As a medical student our timetable changes every week and we have a million things to keep track of. I just forward everything to ClassMind — group chats, scan of notice boards, PDF handouts — and it organizes everything for me. The countdown timers for exams are chef's kiss."</p>
+        <p class="testimonial-text">"As a medical student our timetable changes every week and we have a million things to keep track of. I just forward everything to ClassMind — group chats, scan of notice boards, PDF handouts — and it organises everything for me. The countdown timers for exams are chef's kiss."</p>
         <div class="testimonial-author">
-          <div class="author-avatar" style="background:#B45309;">F</div>
+          <div class="author-avatar" style="background:#B45309">F</div>
           <div>
             <div class="author-name">Fatimah Al-Amin</div>
             <div class="author-school">MBBS 400L · Ahmadu Bello University (ABU)</div>
@@ -1365,7 +897,7 @@
   </div>
 </section>
 
-<!-- ═══════════════════ PRICING ═══════════════════ -->
+<!-- ══════════════════ PRICING ══════════════════ -->
 <section class="pricing-section" id="pricing">
   <div class="container">
     <div class="section-header centered">
@@ -1374,8 +906,6 @@
       <p class="section-sub">Start free. Upgrade when you're ready. Cancel anytime — no wahala.</p>
     </div>
     <div class="pricing-grid">
-
-      <!-- Free -->
       <div class="pricing-card">
         <div class="plan-name">Free</div>
         <div class="plan-tagline">Try before you buy</div>
@@ -1383,17 +913,15 @@
         <div class="plan-period">forever</div>
         <ul class="plan-features">
           <li><span class="check">✓</span> 3 AI analyses per month</li>
-          <li><span class="check">✓</span> Assignment & deadline extraction</li>
+          <li><span class="check">✓</span> Assignment &amp; deadline extraction</li>
           <li><span class="check">✓</span> Timetable builder</li>
           <li><span class="check">✓</span> Simple + Naija AI styles</li>
           <li><span class="cross">✗</span> <span style="color:#9CA3AF">Unlimited AI chat</span></li>
           <li><span class="cross">✗</span> <span style="color:#9CA3AF">Past questions generator</span></li>
           <li><span class="cross">✗</span> <span style="color:#9CA3AF">Document scanner (OCR)</span></li>
         </ul>
-        <a href="/signup.html" class="btn btn-outline" style="width:100%;justify-content:center;">Get Started Free</a>
+        <a href="/signup.html" class="btn btn-outline" style="width:100%;justify-content:center">Get Started Free</a>
       </div>
-
-      <!-- Scholar -->
       <div class="pricing-card popular">
         <div class="popular-badge">Most Popular</div>
         <div class="plan-name">Scholar</div>
@@ -1402,17 +930,15 @@
         <div class="plan-period">billed monthly</div>
         <ul class="plan-features">
           <li><span class="check">✓</span> <strong>Unlimited</strong> AI analyses</li>
-          <li><span class="check">✓</span> Assignment & deadline extraction</li>
+          <li><span class="check">✓</span> Assignment &amp; deadline extraction</li>
           <li><span class="check">✓</span> Timetable builder</li>
           <li><span class="check">✓</span> <strong>All 6</strong> AI teaching styles</li>
           <li><span class="check">✓</span> Unlimited AI chat sessions</li>
           <li><span class="check">✓</span> Past questions generator</li>
           <li><span class="cross">✗</span> <span style="color:#9CA3AF">Document scanner (OCR)</span></li>
         </ul>
-        <a href="/signup.html" class="btn btn-primary" style="width:100%;justify-content:center;">Get Scholar</a>
+        <a href="/signup.html" class="btn btn-primary" style="width:100%;justify-content:center">Get Scholar</a>
       </div>
-
-      <!-- Pro -->
       <div class="pricing-card">
         <div class="plan-name">Pro</div>
         <div class="plan-tagline">For the overachiever</div>
@@ -1427,17 +953,37 @@
           <li><span class="check">✓</span> Export to PDF</li>
           <li><span class="check">✓</span> Priority support</li>
         </ul>
-        <a href="/signup.html" class="btn btn-outline" style="width:100%;justify-content:center;">Get Pro</a>
+        <a href="/signup.html" class="btn btn-outline" style="width:100%;justify-content:center">Get Pro</a>
       </div>
-
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════ CTA ═══════════════════ -->
+<!-- ══════════════════ CTA ══════════════════ -->
 <section class="cta-section">
-  <div class="container" style="position:relative;z-index:1">
-    <h2>Ready to stop failing?</h2>
+  <!-- Academic seal watermark -->
+  <svg class="cta-seal" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <path id="ct" d="M90,90 m-70,0 a70,70 0 0,1 140,0"/>
+      <path id="cb" d="M90,90 m-70,0 a70,70 0 0,0 140,0"/>
+    </defs>
+    <circle cx="90" cy="90" r="82" stroke="white" stroke-width="1" fill="none"/>
+    <circle cx="90" cy="90" r="71" stroke="white" stroke-width="0.6" fill="none"/>
+    <circle cx="90" cy="90" r="56" stroke="white" stroke-width="0.5" fill="none"/>
+    <text x="90" y="16" text-anchor="middle" fill="white" font-size="9" font-family="Inter,sans-serif">★</text>
+    <text x="164" y="95" text-anchor="middle" fill="white" font-size="9" font-family="Inter,sans-serif">★</text>
+    <text x="90" y="177" text-anchor="middle" fill="white" font-size="9" font-family="Inter,sans-serif">★</text>
+    <text x="16" y="95" text-anchor="middle" fill="white" font-size="9" font-family="Inter,sans-serif">★</text>
+    <text font-size="9.5" font-family="Inter,sans-serif" font-weight="700" letter-spacing="4" fill="white"><textPath href="#ct" startOffset="2%">CLASSMIND AI  ·  ACADEMIC EXCELLENCE  ·  NG</textPath></text>
+    <text font-size="9.5" font-family="Inter,sans-serif" font-weight="700" letter-spacing="4" fill="white"><textPath href="#cb" startOffset="5%">EST. 2024  ·  NIGERIAN UNIVERSITIES  ·  📚</textPath></text>
+    <!-- Centre book mark -->
+    <path d="M76 104V88C76 86.9 76.9 86 78 86H89V104Q83 102.5 79 102.5C77 102.5 76 103.2 76 104Z" fill="white" opacity="0.7"/>
+    <path d="M104 104V88C104 86.9 103.1 86 102 86H91V104Q97 102.5 101 102.5C103 102.5 104 103.2 104 104Z" fill="white" opacity="0.5"/>
+    <line x1="90" y1="86" x2="90" y2="104" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <circle cx="90" cy="81.5" r="3.5" fill="#C4933F" opacity="0.8"/>
+  </svg>
+  <div class="cta-inner">
+    <h2>Ready to study smarter?</h2>
     <p>Join thousands of Nigerian students who never miss a deadline, always know what to study, and actually understand their coursework.</p>
     <form class="cta-form" onsubmit="handleCtaSubmit(event)">
       <input type="email" class="cta-input" placeholder="Enter your university email" required autocomplete="email" id="ctaEmail" />
@@ -1447,21 +993,50 @@
   </div>
 </section>
 
-<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<!-- ══════════════════ FOOTER ══════════════════ -->
 <footer>
   <div class="container">
     <div class="footer-grid">
       <div>
-        <a href="/" class="footer-logo">ClassMind<span class="logo-badge">AI</span></a>
-        <p class="footer-tagline">The smart study assistant built for Nigerian university students. Extract, organize, and conquer your semester.</p>
+        <a href="/" class="footer-logo">
+          <svg width="28" height="28" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="48" height="48" rx="11" fill="rgba(255,255,255,0.12)"/>
+            <path d="M8 34V18C8 16.34 9.34 15 11 15H23V34Q16 32 11 32C9.34 32 8 33.34 8 35Z" fill="white" opacity="0.9"/>
+            <path d="M40 34V18C40 16.34 38.66 15 37 15H25V34Q32 32 37 32C38.66 32 40 33.34 40 35Z" fill="white" opacity="0.65"/>
+            <line x1="24" y1="15" x2="24" y2="34" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+            <circle cx="24" cy="8.5" r="3" fill="#C4933F"/>
+          </svg>
+          ClassMind<span class="logo-ai-badge footer-ai-badge">AI</span>
+        </a>
+        <p class="footer-tagline">The smart academic assistant built for Nigerian university students. Extract, organise, and conquer your semester.</p>
+        <!-- Academic seal -->
+        <svg class="footer-seal" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <path id="ft" d="M90,90 m-70,0 a70,70 0 0,1 140,0"/>
+            <path id="fb2" d="M90,90 m-70,0 a70,70 0 0,0 140,0"/>
+          </defs>
+          <circle cx="90" cy="90" r="82" stroke="white" stroke-width="1" fill="none"/>
+          <circle cx="90" cy="90" r="70" stroke="white" stroke-width="0.6" fill="none"/>
+          <circle cx="90" cy="90" r="55" stroke="white" stroke-width="0.4" fill="none"/>
+          <text x="90" y="16" text-anchor="middle" fill="white" font-size="8" font-family="Inter,sans-serif">★</text>
+          <text x="164" y="95" text-anchor="middle" fill="white" font-size="8" font-family="Inter,sans-serif">★</text>
+          <text x="90" y="177" text-anchor="middle" fill="white" font-size="8" font-family="Inter,sans-serif">★</text>
+          <text x="16" y="95" text-anchor="middle" fill="white" font-size="8" font-family="Inter,sans-serif">★</text>
+          <text font-size="9" font-family="Inter,sans-serif" font-weight="700" letter-spacing="3.8" fill="white"><textPath href="#ft" startOffset="2%">CLASSMIND AI  ·  ACADEMIC EXCELLENCE</textPath></text>
+          <text font-size="9" font-family="Inter,sans-serif" font-weight="700" letter-spacing="3.8" fill="white"><textPath href="#fb2" startOffset="7%">EST. 2024  ·  NIGERIAN UNIVERSITIES</textPath></text>
+          <path d="M76 104V88C76 86.9 76.9 86 78 86H89V104Q83 102.5 79 102.5C77 102.5 76 103.2 76 104Z" fill="white" opacity="0.65"/>
+          <path d="M104 104V88C104 86.9 103.1 86 102 86H91V104Q97 102.5 101 102.5C103 102.5 104 103.2 104 104Z" fill="white" opacity="0.45"/>
+          <line x1="90" y1="86" x2="90" y2="104" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          <circle cx="90" cy="81.5" r="3" fill="#C4933F" opacity="0.75"/>
+        </svg>
       </div>
       <div class="footer-col">
         <h4>Product</h4>
         <ul>
           <li><a href="#features">Features</a></li>
           <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#research">Research</a></li>
           <li><a href="#pricing">Pricing</a></li>
-          <li><a href="/login.html">Dashboard</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -1469,7 +1044,7 @@
         <ul>
           <li><a href="/signup.html">Sign Up Free</a></li>
           <li><a href="/login.html">Sign In</a></li>
-          <li><a href="#">Forgot Password</a></li>
+          <li><a href="/dashboard.html">Dashboard</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -1490,19 +1065,32 @@
 </footer>
 
 <script>
+  // ── Splash screen ──
+  (function() {
+    if (sessionStorage.getItem('cm_splash_shown')) {
+      document.getElementById('splash').classList.add('hidden');
+      return;
+    }
+    sessionStorage.setItem('cm_splash_shown', '1');
+    setTimeout(function() {
+      var s = document.getElementById('splash');
+      s.classList.add('hiding');
+      setTimeout(function() { s.classList.add('hidden'); }, 580);
+    }, 1500);
+  })();
+
+  // ── CTA email form ──
   function handleCtaSubmit(e) {
     e.preventDefault();
-    const email = document.getElementById('ctaEmail').value.trim();
-    if (email) {
-      window.location.href = '/signup.html?email=' + encodeURIComponent(email);
-    }
+    var email = document.getElementById('ctaEmail').value.trim();
+    if (email) window.location.href = '/signup.html?email=' + encodeURIComponent(email);
   }
 
-  // Prefill signup from nav CTA if email present in URL
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('ref')) {
-    document.querySelectorAll('a[href="/signup.html"]').forEach(a => {
-      a.href = '/signup.html?ref=' + encodeURIComponent(urlParams.get('ref'));
+  // ── Pass ref param to signup links ──
+  var ref = new URLSearchParams(window.location.search).get('ref');
+  if (ref) {
+    document.querySelectorAll('a[href="/signup.html"]').forEach(function(a) {
+      a.href = '/signup.html?ref=' + encodeURIComponent(ref);
     });
   }
 </script>
