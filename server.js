@@ -17,6 +17,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { Resend } = require('resend');
+const cron = require('node-cron');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -40,6 +41,32 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 async function sendEmail(to, subject, html) {
   if (!resend) return; // Email silently skipped if not configured
   try { await resend.emails.send({ from: FROM_EMAIL, to, subject, html }); } catch (e) { console.error('Email error:', e.message); }
+}
+
+// ── Web search (Tavily) ──
+const TAVILY_KEY = process.env.TAVILY_API_KEY;
+
+async function deepSearch(query, maxResults = 5, depth = 'basic') {
+  if (!TAVILY_KEY) return null;
+  try {
+    const res = await fetch('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: TAVILY_KEY,
+        query,
+        search_depth: depth,
+        max_results: maxResults,
+        include_answer: true,
+        include_raw_content: false
+      })
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) {
+    console.error('Search error:', e.message);
+    return null;
+  }
 }
 
 // ── Database setup ──
@@ -120,6 +147,34 @@ db.exec(`
     rating INTEGER,
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+  );
+  CREATE TABLE IF NOT EXISTS projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    subject TEXT DEFAULT '',
+    project_type TEXT DEFAULT 'research',
+    description TEXT DEFAULT '',
+    style_profile TEXT DEFAULT '',
+    status TEXT DEFAULT 'draft',
+    research_notes TEXT DEFAULT '',
+    content TEXT DEFAULT '{}',
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS course_updates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    summary TEXT DEFAULT '',
+    url TEXT DEFAULT '',
+    source TEXT DEFAULT '',
+    course_tag TEXT DEFAULT '',
+    read_flag INTEGER DEFAULT 0,
+    week_of TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 `);
 
@@ -547,6 +602,260 @@ app.get('/api/feedback', auth, (req, res) => {
 });
 
 // ────────────────────────────────────────────
+// COURSE UPDATES
+// ────────────────────────────────────────────
+
+app.get('/api/updates', auth, (req, res) => {
+  const rows = db.prepare('SELECT * FROM course_updates WHERE user_id=? ORDER BY created_at DESC LIMIT 50').all(req.user.id);
+  res.json(rows);
+});
+
+app.put('/api/updates/:id/read', auth, (req, res) => {
+  db.prepare('UPDATE course_updates SET read_flag=1 WHERE id=? AND user_id=?').run(req.params.id, req.user.id);
+  res.json({ ok: true });
+});
+
+app.delete('/api/updates/:id', auth, (req, res) => {
+  db.prepare('DELETE FROM course_updates WHERE id=? AND user_id=?').run(req.params.id, req.user.id);
+  res.json({ ok: true });
+});
+
+// Manual refresh: fetch fresh updates right now for the logged-in user
+app.post('/api/updates/refresh', auth, async (req, res) => {
+  try {
+    const user = db.prepare('SELECT * FROM users WHERE id=?').get(req.user.id);
+    if (!TAVILY_KEY) return res.status(503).json({ error: 'Web search not configured on this server.' });
+    let courses = [];
+    try { courses = JSON.parse(user.courses || '[]'); } catch {}
+    const weekOf = new Date().toISOString().split('T')[0];
+    const queries = [];
+    if (user.university) queries.push(`${user.university} students academic news announcements`);
+    for (const c of courses.slice(0, 4)) queries.push(`${c} university course study tips resources Nigeria`);
+    let inserted = 0;
+    for (const q of queries) {
+      const result = await deepSearch(q, 3);
+      if (!result?.results) continue;
+      for (const r of result.results.slice(0, 2)) {
+        if (!r.title || !r.url) continue;
+        const exists = db.prepare('SELECT id FROM course_updates WHERE user_id=? AND url=?').get(req.user.id, r.url);
+        if (exists) continue;
+        db.prepare('INSERT INTO course_updates (user_id, title, summary, url, source, course_tag, week_of) VALUES (?,?,?,?,?,?,?)')
+          .run(user.id, r.title, (r.content || '').slice(0, 600), r.url, new URL(r.url).hostname, q.split(' ')[0], weekOf);
+        inserted++;
+      }
+    }
+    res.json({ ok: true, inserted });
+  } catch (err) { apiErr(res, err); }
+});
+
+// ────────────────────────────────────────────
+// PROJECTS
+// ────────────────────────────────────────────
+
+app.get('/api/projects', auth, (req, res) => {
+  const rows = db.prepare('SELECT id,title,subject,project_type,status,created_at,updated_at FROM projects WHERE user_id=? ORDER BY updated_at DESC').all(req.user.id);
+  res.json(rows);
+});
+
+app.post('/api/projects', auth, (req, res) => {
+  try {
+    const { title, subject, project_type, description } = req.body;
+    if (!title?.trim()) return res.status(400).json({ error: 'Title is required.' });
+    const result = db.prepare('INSERT INTO projects (user_id,title,subject,project_type,description) VALUES (?,?,?,?,?)')
+      .run(req.user.id, title.trim(), subject || '', project_type || 'research', description || '');
+    res.json(db.prepare('SELECT * FROM projects WHERE id=?').get(result.lastInsertRowid));
+  } catch (err) { apiErr(res, err); }
+});
+
+app.get('/api/projects/:id', auth, (req, res) => {
+  const p = db.prepare('SELECT * FROM projects WHERE id=? AND user_id=?').get(req.params.id, req.user.id);
+  if (!p) return res.status(404).json({ error: 'Not found.' });
+  res.json(p);
+});
+
+app.put('/api/projects/:id', auth, (req, res) => {
+  try {
+    const p = db.prepare('SELECT * FROM projects WHERE id=? AND user_id=?').get(req.params.id, req.user.id);
+    if (!p) return res.status(404).json({ error: 'Not found.' });
+    const { title, subject, project_type, description, status, research_notes, content, style_profile } = req.body;
+    db.prepare(`UPDATE projects SET title=?,subject=?,project_type=?,description=?,status=?,research_notes=?,content=?,style_profile=?,updated_at=datetime('now') WHERE id=? AND user_id=?`)
+      .run(title??p.title, subject??p.subject, project_type??p.project_type, description??p.description,
+           status??p.status, research_notes??p.research_notes, content??p.content, style_profile??p.style_profile,
+           req.params.id, req.user.id);
+    res.json(db.prepare('SELECT * FROM projects WHERE id=?').get(req.params.id));
+  } catch (err) { apiErr(res, err); }
+});
+
+app.delete('/api/projects/:id', auth, (req, res) => {
+  db.prepare('DELETE FROM projects WHERE id=? AND user_id=?').run(req.params.id, req.user.id);
+  res.json({ ok: true });
+});
+
+// Analyse an uploaded style sample and return a writing style profile
+app.post('/api/projects/:id/style-sample', upload.single('file'), auth, async (req, res) => {
+  try {
+    const p = db.prepare('SELECT * FROM projects WHERE id=? AND user_id=?').get(req.params.id, req.user.id);
+    if (!p) return res.status(404).json({ error: 'Not found.' });
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
+
+    let text = '';
+    const mime = req.file.mimetype;
+    if (mime === 'application/pdf') {
+      const parsed = await pdfParse(req.file.buffer);
+      text = parsed.text.slice(0, 8000);
+    } else if (mime.includes('wordprocessingml') || mime.includes('msword')) {
+      const r = await mammoth.extractRawText({ buffer: req.file.buffer });
+      text = r.value.slice(0, 8000);
+    } else if (mime === 'text/plain') {
+      text = req.file.buffer.toString('utf8').slice(0, 8000);
+    } else {
+      return res.status(400).json({ error: 'Upload a PDF, Word document, or plain text file.' });
+    }
+
+    const completion = await anthropic.messages.create({
+      model: 'claude-haiku-4-5',
+      max_tokens: 800,
+      messages: [{
+        role: 'user',
+        content: `Analyse the writing style of this Nigerian university project document excerpt. Describe: tone (formal/academic level), sentence length and complexity, paragraph structure, use of headings, citation style, vocabulary register, and any distinctive stylistic features. Keep the analysis concise (under 400 words) — it will be used as instructions for replicating this style.\n\nDocument excerpt:\n${text}`
+      }]
+    });
+    const styleProfile = completion.content[0].text;
+    db.prepare(`UPDATE projects SET style_profile=?,updated_at=datetime('now') WHERE id=?`).run(styleProfile, p.id);
+    res.json({ ok: true, style_profile: styleProfile });
+  } catch (err) { apiErr(res, err); }
+});
+
+// Deep research: search the web for project-relevant sources
+app.post('/api/projects/:id/research', auth, aiLimiter, async (req, res) => {
+  try {
+    const p = db.prepare('SELECT * FROM projects WHERE id=? AND user_id=?').get(req.params.id, req.user.id);
+    if (!p) return res.status(404).json({ error: 'Not found.' });
+    const { query } = req.body;
+    if (!query?.trim()) return res.status(400).json({ error: 'Query is required.' });
+
+    const sources = [];
+
+    if (TAVILY_KEY) {
+      // Fan out: topic search + Nigerian university context + academic sources
+      const queries = [
+        query.trim(),
+        `${query.trim()} Nigeria university`,
+        `${query.trim()} academic research methodology`,
+        `${query.trim()} literature review sources`
+      ];
+      for (const q of queries) {
+        const result = await deepSearch(q, 4, 'advanced');
+        if (!result?.results) continue;
+        for (const r of result.results) {
+          if (!sources.find(s => s.url === r.url)) {
+            sources.push({ title: r.title, url: r.url, snippet: (r.content || '').slice(0, 500), score: r.score });
+          }
+        }
+      }
+      sources.sort((a, b) => (b.score || 0) - (a.score || 0));
+    }
+
+    // Synthesise with Claude regardless of whether we have web results
+    const sourceContext = sources.length > 0
+      ? `Web search results:\n${sources.slice(0, 8).map((s, i) => `[${i+1}] ${s.title}\n${s.snippet}`).join('\n\n')}`
+      : 'No web search results available. Draw on general academic knowledge.';
+
+    const synthesis = await anthropic.messages.create({
+      model: 'claude-haiku-4-5',
+      max_tokens: 1200,
+      messages: [{
+        role: 'user',
+        content: `You are helping a Nigerian university student research for their project titled "${p.title}" (Subject: ${p.subject || 'General'}).
+
+${sourceContext}
+
+Based on the above, write a research summary (500–700 words) covering:
+1. Key concepts and definitions
+2. Current state of knowledge / major themes
+3. Nigerian/African context where relevant
+4. Suggested angles for the literature review
+5. Notable sources to explore
+
+Be academic and cite the numbered sources where used.`
+      }]
+    });
+    const summary = synthesis.content[0].text;
+
+    // Append to project's research notes
+    const existing = p.research_notes || '';
+    const timestamp = new Date().toLocaleString('en-NG', { timeZone: 'Africa/Lagos' });
+    const newNotes = existing + (existing ? '\n\n---\n\n' : '') + `## Research: "${query}" (${timestamp})\n\n${summary}`;
+    db.prepare(`UPDATE projects SET research_notes=?,updated_at=datetime('now') WHERE id=?`).run(newNotes.slice(0, 50000), p.id);
+
+    res.json({ summary, sources: sources.slice(0, 10) });
+  } catch (err) { apiErr(res, err); }
+});
+
+// Generate a chapter / section for the project
+const CHAPTER_TITLES = {
+  title_page: 'Title Page',
+  declaration: 'Declaration',
+  abstract: 'Abstract',
+  chapter1: 'Chapter One: Introduction',
+  chapter2: 'Chapter Two: Literature Review',
+  chapter3: 'Chapter Three: Research Methodology',
+  chapter4: 'Chapter Four: Data Presentation and Analysis',
+  chapter5: 'Chapter Five: Summary, Conclusions and Recommendations',
+  references: 'References / Bibliography'
+};
+
+app.post('/api/projects/:id/generate', auth, aiLimiter, async (req, res) => {
+  try {
+    const p = db.prepare('SELECT * FROM projects WHERE id=? AND user_id=?').get(req.params.id, req.user.id);
+    if (!p) return res.status(404).json({ error: 'Not found.' });
+    const { section, extra_instructions } = req.body;
+    if (!section) return res.status(400).json({ error: 'section is required.' });
+
+    let content = {};
+    try { content = JSON.parse(p.content || '{}'); } catch {}
+
+    const sectionTitle = CHAPTER_TITLES[section] || section;
+    const styleInstr = p.style_profile ? `\nWriting style to follow:\n${p.style_profile}\n` : '';
+    const researchInstr = p.research_notes ? `\nResearch notes to draw from:\n${p.research_notes.slice(0, 3000)}\n` : '';
+    const extraInstr = extra_instructions ? `\nAdditional instructions: ${extra_instructions}\n` : '';
+
+    const sectionPrompts = {
+      title_page: `Generate a formatted title page for a Nigerian university final year project. Include placeholder lines for: Project Title, Student Name, Matric Number, Department, Faculty, University, Supervisor Name, Submission Date. Format it properly as it would appear in a real project document.`,
+      declaration: `Write a Declaration page for this Nigerian university project. The student declares the work is original. Keep it formal and brief (under 150 words).`,
+      abstract: `Write an Abstract (250–350 words) for this Nigerian university project. Summarise: the problem, objectives, methodology, key findings (use likely findings if not known), and conclusion. End with 5–7 keywords.`,
+      chapter1: `Write Chapter One: Introduction. Include all standard sections: 1.1 Background to the Study, 1.2 Statement of the Problem, 1.3 Objectives of the Study, 1.4 Research Questions, 1.5 Significance of the Study, 1.6 Scope and Limitations, 1.7 Definition of Terms. Target 900–1200 words total.`,
+      chapter2: `Write Chapter Two: Literature Review. Structure it thematically with section headings. Review existing academic works related to the topic. Include at least 8–12 in-text citations (format: Author, Year). End with a conceptual framework paragraph. Target 1000–1400 words.`,
+      chapter3: `Write Chapter Three: Research Methodology. Sections: 3.1 Research Design, 3.2 Area of Study / Population, 3.3 Sample and Sampling Technique, 3.4 Instrument for Data Collection, 3.5 Validity and Reliability, 3.6 Method of Data Analysis. Target 700–900 words.`,
+      chapter4: `Write Chapter Four: Data Presentation and Analysis. Present hypothetical but realistic findings in a structured way with tables/figures referenced (label as Table 4.1 etc.), interpret each result, and discuss findings against the literature. Target 900–1200 words.`,
+      chapter5: `Write Chapter Five: Summary, Conclusions and Recommendations. Sections: 5.1 Summary of Findings, 5.2 Conclusion, 5.3 Recommendations, 5.4 Contribution to Knowledge, 5.5 Suggestions for Further Studies. Target 600–800 words.`,
+      references: `Generate a References/Bibliography page with 15–20 realistic academic references related to this project topic. Format using APA 7th edition. Include journal articles, textbooks, and Nigerian university theses where appropriate.`
+    };
+
+    const prompt = `You are writing a section of a Nigerian university final year project document.
+
+Project Title: ${p.title}
+Subject / Course: ${p.subject || 'General'}
+Project Type: ${p.project_type || 'Research'}
+Project Description: ${p.description || 'Not specified'}
+${styleInstr}${researchInstr}${extraInstr}
+Task: ${sectionPrompts[section] || `Write the section titled "${sectionTitle}" in proper Nigerian university academic style.`}
+
+Write in formal Nigerian academic English. Be thorough and professional.`;
+
+    const completion = await anthropic.messages.create({
+      model: 'claude-haiku-4-5',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }]
+    });
+    const generated = completion.content[0].text;
+    content[section] = generated;
+    db.prepare(`UPDATE projects SET content=?,updated_at=datetime('now') WHERE id=?`).run(JSON.stringify(content), p.id);
+    res.json({ section, content: generated });
+  } catch (err) { apiErr(res, err); }
+});
+
+// ────────────────────────────────────────────
 // CGPA CALCULATOR
 // ────────────────────────────────────────────
 
@@ -720,6 +1029,41 @@ app.get('/{*path}', (req, res) => res.sendFile(path.join(__dirname, 'public', 'i
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.status || 500).json({ error: IS_PROD ? 'Server error.' : err.message });
+});
+
+// ── Weekly course updates scheduler ──
+// Runs every Sunday at 7 PM UTC (8 PM Nigerian time / WAT)
+cron.schedule('0 19 * * 0', async () => {
+  if (!TAVILY_KEY) return;
+  console.log('[Scheduler] Fetching weekly course updates…');
+  try {
+    const users = db.prepare('SELECT id,name,email,university,courses FROM users WHERE email_verified=1 AND onboarded=1').all();
+    const weekOf = new Date().toISOString().split('T')[0];
+    for (const user of users) {
+      let courses = [];
+      try { courses = JSON.parse(user.courses || '[]'); } catch {}
+      if (!user.university && courses.length === 0) continue;
+      const queries = [];
+      if (user.university) queries.push(`${user.university} academic announcements news`);
+      for (const c of courses.slice(0, 3)) queries.push(`${c} Nigerian university study resources`);
+      for (const q of queries) {
+        const result = await deepSearch(q, 3);
+        if (!result?.results) continue;
+        for (const r of result.results.slice(0, 2)) {
+          if (!r.title || !r.url) continue;
+          const exists = db.prepare('SELECT id FROM course_updates WHERE user_id=? AND url=?').get(user.id, r.url);
+          if (exists) continue;
+          let hostname = r.url;
+          try { hostname = new URL(r.url).hostname; } catch {}
+          db.prepare('INSERT INTO course_updates (user_id, title, summary, url, source, course_tag, week_of) VALUES (?,?,?,?,?,?,?)')
+            .run(user.id, r.title, (r.content || '').slice(0, 600), r.url, hostname, q.split(' ')[0], weekOf);
+        }
+      }
+    }
+    console.log('[Scheduler] Weekly updates done');
+  } catch (e) {
+    console.error('[Scheduler] Error:', e.message);
+  }
 });
 
 // ── Graceful shutdown ──

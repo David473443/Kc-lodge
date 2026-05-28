@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects — ClassMind AI</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#1B3F6E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F6F6F3; --card: #FFFFFF; --card2: #F2F2EF; --border: #E2E2DC;
+      --accent: #1B3F6E; --accent-light: #EBF0F7; --accent-hover: #15335A;
+      --gold: #C4933F; --text: #141414; --muted: #747474;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+    h1,h2,h3 { font-family: 'Playfair Display', Georgia, serif; }
+    .app-layout { display: flex; min-height: 100vh; }
+    .page-main { margin-left: 220px; flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    @media (max-width: 700px) { .page-main { margin-left: 0; } }
+
+    /* ── Top bar ── */
+    .topbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .topbar h1 { font-size: 20px; color: var(--accent); flex: 1; }
+    .btn { padding: 8px 18px; border-radius: 8px; border: none; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-danger { background: #FEF2F2; color: #B91C1C; border: 1.5px solid #FECACA; }
+    .btn-danger:hover { background: #B91C1C; color: #fff; }
+    .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+    /* ── Two-panel layout ── */
+    .workspace { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Left: project list ── */
+    .proj-list { width: 280px; flex-shrink: 0; border-right: 1px solid var(--border); background: var(--card); display: flex; flex-direction: column; overflow: hidden; }
+    .proj-list-head { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .8px; text-transform: uppercase; }
+    .proj-items { flex: 1; overflow-y: auto; }
+    .proj-item { padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s; }
+    .proj-item:hover { background: var(--accent-light); }
+    .proj-item.active { background: var(--accent-light); border-left: 3px solid var(--accent); }
+    .proj-item-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .proj-item-meta { font-size: 11px; color: var(--muted); }
+    .proj-empty { padding: 32px 16px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+    /* ── Right: editor ── */
+    .editor { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .editor-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); text-align: center; padding: 40px; }
+    .editor-empty .big-icon { font-size: 56px; margin-bottom: 16px; }
+    .editor-empty p { font-size: 14px; line-height: 1.6; max-width: 320px; }
+
+    /* ── Editor tabs ── */
+    .editor-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--card); flex-shrink: 0; overflow-x: auto; }
+    .tab { padding: 12px 18px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); white-space: nowrap; border-bottom: 2px solid transparent; transition: all .15s; }
+    .tab:hover { color: var(--accent); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 700; }
+    .tab-panel { flex: 1; overflow-y: auto; padding: 24px; display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Project header card ── */
+    .proj-header-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+    .proj-header-card h2 { font-size: 20px; color: var(--accent); margin-bottom: 6px; }
+    .proj-meta-row { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+    .proj-meta-row span { display: flex; align-items: center; gap: 4px; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-draft { background: #FEF3C7; color: #92400E; }
+    .badge-in-progress { background: #EBF0F7; color: #1B3F6E; }
+    .badge-complete { background: #F0FDF4; color: #15803D; }
+
+    /* ── Research tab ── */
+    .research-search { display: flex; gap: 10px; margin-bottom: 20px; }
+    .research-search input { flex: 1; border: 1.5px solid var(--border); border-radius: 9px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); outline: none; transition: border-color .2s; }
+    .research-search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,63,110,0.08); }
+    .research-notes-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .research-notes-wrap h3 { font-size: 15px; color: var(--accent); margin-bottom: 12px; }
+    .research-notes-content { font-size: 13px; color: var(--text); line-height: 1.7; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+    .sources-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .source-card { background: var(--card2); border-radius: 9px; padding: 12px 14px; border: 1px solid var(--border); }
+    .source-card a { font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; }
+    .source-card a:hover { text-decoration: underline; }
+    .source-card .snippet { font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+    .source-card .src-host { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* ── Style sample tab ── */
+    .style-upload-area { border: 2px dashed var(--border); border-radius: 12px; padding: 32px; text-align: center; cursor: pointer; transition: border-color .2s; margin-bottom: 20px; }
+    .style-upload-area:hover { border-color: var(--accent); }
+    .style-upload-area input[type=file] { display: none; }
+    .style-profile-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; font-size: 13px; color: var(--text); line-height: 1.7; white-space: pre-wrap; }
+
+    /* ── Chapters tab ── */
+    .chapters-grid { display: flex; flex-direction: column; gap: 12px; }
+    .chapter-row { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+    .chapter-row-head { display: flex; align-items: center; padding: 14px 18px; cursor: pointer; gap: 10px; }
+    .chapter-row-head:hover { background: var(--accent-light); }
+    .chapter-title { font-size: 14px; font-weight: 600; flex: 1; }
+    .chapter-status { font-size: 11px; color: var(--muted); }
+    .chapter-status.done { color: #15803D; }
+    .chapter-actions { display: flex; gap: 8px; }
+    .chapter-body { padding: 0 18px 18px; display: none; }
+    .chapter-body.open { display: block; }
+    .chapter-body textarea { width: 100%; min-height: 280px; border: 1.5px solid var(--border); border-radius: 9px; padding: 12px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text); line-height: 1.7; resize: vertical; outline: none; transition: border-color .2s; }
+    .chapter-body textarea:focus { border-color: var(--accent); }
+    .chapter-extra-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .chapter-extra-row input { flex: 1; border: 1.5px solid var(--border); border-radius: 9px; padding: 8px 12px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; }
+
+    /* ── Export tab ── */
+    .export-preview { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 32px 40px; font-size: 14px; line-height: 1.8; color: var(--text); max-width: 680px; margin: 0 auto 20px; }
+    .export-preview h1 { font-size: 22px; text-align: center; margin-bottom: 8px; }
+    .export-preview h2 { font-size: 17px; margin: 28px 0 10px; }
+    .export-preview p { margin-bottom: 12px; }
+    .export-actions { display: flex; gap: 12px; margin-bottom: 24px; }
+
+    /* ── Info card ── */
+    .info-card { background: var(--accent-light); border: 1px solid #C5D3E8; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #1B3F6E; margin-bottom: 16px; display: flex; gap: 10px; align-items: flex-start; }
+    .info-card .icon { flex-shrink: 0; }
+
+    /* ── Spinner ── */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 4px; }
+    .spinner-dark { border-color: rgba(0,0,0,0.15); border-top-color: var(--accent); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Modal ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; visibility: hidden; opacity: 0; transition: opacity .2s; }
+    .modal-overlay.open { visibility: visible; opacity: 1; }
+    .modal { background: var(--card); border-radius: 14px; padding: 28px; width: min(460px,100%); box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
+    .modal h2 { font-size: 18px; color: var(--accent); margin-bottom: 18px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    input, select, textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 9px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); outline: none; transition: border-color .2s; background: #fff; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,63,110,0.08); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+    .alert-error { background: #FEF2F2; color: #B91C1C; border: 1.5px solid #FECACA; border-radius: 9px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; display: none; }
+
+    /* ── Toast ── */
+    #toast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-msg { background: #141414; color: #fff; padding: 10px 18px; border-radius: 9px; font-size: 13px; font-weight: 500; animation: slideUp .2s; }
+    .toast-msg.success { background: #15803D; }
+    @keyframes slideUp { from { opacity:0; transform: translateY(8px); } }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="page-main" id="pageMain">
+    <div class="topbar">
+      <h1>Projects</h1>
+      <button class="btn btn-ghost btn-sm" onclick="openUpdatesPanel()" id="updatesBtn">📡 Updates</button>
+      <button class="btn btn-primary" onclick="openCreateModal()">+ New Project</button>
+    </div>
+
+    <div class="workspace">
+      <!-- Left panel: project list -->
+      <div class="proj-list">
+        <div class="proj-list-head">My Projects</div>
+        <div class="proj-items" id="projList">
+          <div class="proj-empty">No projects yet.<br>Click <strong>+ New Project</strong> to start.</div>
+        </div>
+      </div>
+
+      <!-- Right panel: editor -->
+      <div class="editor" id="editor">
+        <div class="editor-empty" id="editorEmpty">
+          <div class="big-icon">📄</div>
+          <h3 style="color:var(--accent);margin-bottom:8px">Select or create a project</h3>
+          <p>ClassMind AI helps you research, structure, and write your university project — with deep web research and Nigerian university formatting.</p>
+        </div>
+
+        <div id="editorContent" style="display:none;flex:1;display:none;flex-direction:column;overflow:hidden">
+          <div class="editor-tabs" id="editorTabs">
+            <div class="tab active" data-tab="overview" onclick="switchTab('overview')">Overview</div>
+            <div class="tab" data-tab="research" onclick="switchTab('research')">🔍 Research</div>
+            <div class="tab" data-tab="style" onclick="switchTab('style')">✍️ Style</div>
+            <div class="tab" data-tab="chapters" onclick="switchTab('chapters')">📖 Chapters</div>
+            <div class="tab" data-tab="export" onclick="switchTab('export')">📤 Export</div>
+          </div>
+
+          <!-- Overview -->
+          <div class="tab-panel active" id="panel-overview">
+            <div class="proj-header-card" id="projHeaderCard"></div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+              <button class="btn btn-ghost btn-sm" onclick="editProject()">✏️ Edit Details</button>
+              <button class="btn btn-ghost btn-sm" onclick="switchTab('research')">🔍 Start Research</button>
+              <button class="btn btn-ghost btn-sm" onclick="switchTab('chapters')">📖 Write Chapters</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteProject()">🗑 Delete</button>
+            </div>
+            <div class="info-card">
+              <span class="icon">💡</span>
+              <div>
+                <strong>How to use:</strong> (1) Go to <em>Research</em> to search for sources and build your knowledge base. (2) Upload a sample project in <em>Style</em> to replicate its writing format. (3) Go to <em>Chapters</em> to generate and edit each section. (4) Export your finished document.
+              </div>
+            </div>
+            <div id="progressSummary"></div>
+          </div>
+
+          <!-- Research -->
+          <div class="tab-panel" id="panel-research">
+            <div class="info-card" id="noSearchInfo" style="display:none">
+              <span class="icon">ℹ️</span>
+              <div>Web search is not configured on this server. Research summaries will be generated from Claude's knowledge only. To enable live web search, set the <code>TAVILY_API_KEY</code> environment variable.</div>
+            </div>
+            <div class="research-search">
+              <input id="searchQuery" type="text" placeholder="Enter a research query e.g. 'impact of mobile banking in Nigeria'" onkeydown="if(event.key==='Enter') doResearch()" />
+              <button class="btn btn-primary" onclick="doResearch()" id="searchBtn">Search</button>
+            </div>
+            <div id="searchSources" class="sources-grid" style="display:none"></div>
+            <div id="researchNotesWrap" class="research-notes-wrap" style="display:none">
+              <h3>📚 Research Notes</h3>
+              <div class="research-notes-content" id="researchNotesContent"></div>
+              <div style="margin-top:12px;display:flex;gap:8px">
+                <button class="btn btn-ghost btn-sm" onclick="clearResearch()">Clear all notes</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Style -->
+          <div class="tab-panel" id="panel-style">
+            <div class="info-card">
+              <span class="icon">✍️</span>
+              <div>Upload a previous project document (PDF or Word) and ClassMind AI will analyse its writing style — tone, sentence structure, citation format, academic register — and replicate it when generating your chapters.</div>
+            </div>
+            <div class="style-upload-area" onclick="document.getElementById('styleFileInput').click()">
+              <input type="file" id="styleFileInput" accept=".pdf,.doc,.docx,.txt" onchange="uploadStyleSample(this)" />
+              <div style="font-size:32px;margin-bottom:10px">📂</div>
+              <div style="font-size:14px;font-weight:600;color:var(--accent)">Click to upload a sample project</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px">PDF, Word (.docx), or plain text — max 25 MB</div>
+            </div>
+            <div id="styleProfileWrap" style="display:none">
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--accent)">Detected writing style:</div>
+              <div class="style-profile-box" id="styleProfileText"></div>
+              <div style="margin-top:10px">
+                <button class="btn btn-ghost btn-sm" onclick="clearStyle()">Remove style sample</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chapters -->
+          <div class="tab-panel" id="panel-chapters">
+            <div class="info-card" style="margin-bottom:16px">
+              <span class="icon">📖</span>
+              <div>Click <strong>Generate</strong> on any section to have ClassMind AI write it. You can add extra instructions or edit the text directly after generation. Save each chapter when done.</div>
+            </div>
+            <div class="chapters-grid" id="chaptersGrid"></div>
+          </div>
+
+          <!-- Export -->
+          <div class="tab-panel" id="panel-export">
+            <div class="export-actions">
+              <button class="btn btn-primary" onclick="printDocument()">🖨️ Print / Save as PDF</button>
+              <button class="btn btn-ghost" onclick="copyAllText()">📋 Copy all text</button>
+            </div>
+            <div class="export-preview" id="exportPreview"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit project modal -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal">
+    <h2 id="modalTitle">New Project</h2>
+    <div class="alert-error" id="modalErr"></div>
+    <div class="form-group">
+      <label for="projTitle">Project Title *</label>
+      <input type="text" id="projTitle" placeholder="e.g. Impact of E-Learning on Student Performance in Nigerian Universities" />
+    </div>
+    <div class="form-group">
+      <label for="projSubject">Subject / Course Code</label>
+      <input type="text" id="projSubject" placeholder="e.g. Education Technology (EDU 415)" />
+    </div>
+    <div class="form-group">
+      <label for="projType">Project Type</label>
+      <select id="projType">
+        <option value="research">Research Project</option>
+        <option value="final_year">Final Year Project</option>
+        <option value="seminar">Seminar Paper</option>
+        <option value="term_paper">Term Paper</option>
+        <option value="thesis">Thesis / Dissertation</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="projDesc">Brief Description</label>
+      <textarea id="projDesc" rows="3" placeholder="Describe what this project is about, the problem it addresses, your department context…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('projectModal')">Cancel</button>
+      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveProject()">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Updates side panel overlay -->
+<div class="modal-overlay" id="updatesModal">
+  <div class="modal" style="width:min(560px,100%);max-height:80vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;margin-bottom:16px">
+      <h2 style="flex:1;margin:0">📡 Weekly Course Updates</h2>
+      <button class="btn btn-ghost btn-sm" onclick="refreshUpdates()" id="refreshUpdatesBtn">Refresh</button>
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Automatically fetched every week based on your university and courses.</div>
+    <div id="updatesList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px"></div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('updatesModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/shared.js"></script>
+<script>
+  'use strict';
+  Auth.requireAuth();
+  renderNav('projects.html');
+
+  const HEADERS = () => ({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + Auth.getToken() });
+  const CHAPTER_LIST = [
+    { key: 'title_page',  label: 'Title Page' },
+    { key: 'declaration', label: 'Declaration' },
+    { key: 'abstract',    label: 'Abstract' },
+    { key: 'chapter1',    label: 'Chapter One: Introduction' },
+    { key: 'chapter2',    label: 'Chapter Two: Literature Review' },
+    { key: 'chapter3',    label: 'Chapter Three: Research Methodology' },
+    { key: 'chapter4',    label: 'Chapter Four: Data Presentation and Analysis' },
+    { key: 'chapter5',    label: 'Chapter Five: Summary, Conclusions and Recommendations' },
+    { key: 'references',  label: 'References / Bibliography' }
+  ];
+
+  let projects = [];
+  let activeProject = null;
+  let editingId = null;
+
+  // ── Load projects ──
+  async function loadProjects() {
+    try {
+      const res = await fetch('/api/projects', { headers: HEADERS() });
+      if (res.status === 401) { Auth.logout(); return; }
+      projects = await res.json();
+      renderList();
+    } catch {}
+  }
+
+  function renderList() {
+    const el = document.getElementById('projList');
+    if (!projects.length) {
+      el.innerHTML = '<div class="proj-empty">No projects yet.<br>Click <strong>+ New Project</strong> to start.</div>';
+      return;
+    }
+    el.innerHTML = projects.map(p => `
+      <div class="proj-item ${activeProject?.id === p.id ? 'active' : ''}" onclick="selectProject(${p.id})">
+        <div class="proj-item-title">${esc(p.title)}</div>
+        <div class="proj-item-meta">${esc(p.subject || p.project_type)} · <span class="badge badge-${p.status}">${p.status}</span></div>
+      </div>`).join('');
+  }
+
+  async function selectProject(id) {
+    const res = await fetch(`/api/projects/${id}`, { headers: HEADERS() });
+    if (!res.ok) return;
+    activeProject = await res.json();
+    renderList();
+    renderEditor();
+    switchTab('overview');
+  }
+
+  function renderEditor() {
+    if (!activeProject) return;
+    document.getElementById('editorEmpty').style.display = 'none';
+    const ec = document.getElementById('editorContent');
+    ec.style.display = 'flex';
+    ec.style.flexDirection = 'column';
+    ec.style.overflow = 'hidden';
+    ec.style.flex = '1';
+    // Header card
+    document.getElementById('projHeaderCard').innerHTML = `
+      <h2>${esc(activeProject.title)}</h2>
+      <div class="proj-meta-row">
+        <span>📚 ${esc(activeProject.subject || '—')}</span>
+        <span>📋 ${esc(activeProject.project_type?.replace('_', ' ') || 'research')}</span>
+        <span><span class="badge badge-${activeProject.status}">${activeProject.status}</span></span>
+      </div>
+      ${activeProject.description ? `<p style="margin-top:10px;font-size:13px;color:var(--muted)">${esc(activeProject.description)}</p>` : ''}`;
+    // Progress
+    let content = {};
+    try { content = JSON.parse(activeProject.content || '{}'); } catch {}
+    const done = CHAPTER_LIST.filter(c => content[c.key]?.trim()).length;
+    document.getElementById('progressSummary').innerHTML = `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Progress: ${done} / ${CHAPTER_LIST.length} sections written</div>
+        <div style="background:var(--card2);border-radius:4px;height:8px;overflow:hidden;">
+          <div style="background:var(--accent);height:100%;width:${Math.round(done/CHAPTER_LIST.length*100)}%;transition:width .4s"></div>
+        </div>
+      </div>`;
+    // Research notes
+    const hasNotes = activeProject.research_notes?.trim();
+    if (hasNotes) {
+      document.getElementById('researchNotesWrap').style.display = 'block';
+      document.getElementById('researchNotesContent').textContent = activeProject.research_notes;
+    }
+    // Style profile
+    if (activeProject.style_profile?.trim()) {
+      document.getElementById('styleProfileWrap').style.display = 'block';
+      document.getElementById('styleProfileText').textContent = activeProject.style_profile;
+    }
+    // Chapters
+    renderChapters(content);
+    // Export
+    renderExport(content);
+  }
+
+  function renderChapters(content) {
+    if (!content) try { content = JSON.parse(activeProject.content || '{}'); } catch { content = {}; }
+    document.getElementById('chaptersGrid').innerHTML = CHAPTER_LIST.map((ch, i) => {
+      const text = content[ch.key] || '';
+      const done = text.trim().length > 0;
+      return `
+        <div class="chapter-row">
+          <div class="chapter-row-head" onclick="toggleChapter('ch-${ch.key}')">
+            <span style="font-size:16px">${done ? '✅' : '⬜'}</span>
+            <span class="chapter-title">${ch.label}</span>
+            <span class="chapter-status ${done ? 'done' : ''}">${done ? 'Written' : 'Not started'}</span>
+            <div class="chapter-actions" onclick="event.stopPropagation()">
+              <button class="btn btn-primary btn-sm" onclick="generateChapter('${ch.key}', this)">Generate</button>
+            </div>
+          </div>
+          <div class="chapter-body" id="ch-${ch.key}">
+            <div class="chapter-extra-row">
+              <input type="text" id="extra-${ch.key}" placeholder="Extra instructions (optional)…" />
+            </div>
+            <textarea id="ta-${ch.key}" placeholder="Generated content will appear here. You can edit it freely.">${esc(text)}</textarea>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn-primary btn-sm" onclick="saveChapter('${ch.key}')">Save</button>
+              <button class="btn btn-ghost btn-sm" onclick="clearChapter('${ch.key}')">Clear</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function toggleChapter(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+  }
+
+  async function generateChapter(key, btn) {
+    const extra = document.getElementById(`extra-${key}`)?.value?.trim() || '';
+    const origText = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Writing…';
+    try {
+      const res = await fetch(`/api/projects/${activeProject.id}/generate`, {
+        method: 'POST',
+        headers: HEADERS(),
+        body: JSON.stringify({ section: key, extra_instructions: extra })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Generation failed');
+      document.getElementById(`ta-${key}`).value = data.content;
+      document.getElementById(`ch-${key}`).classList.add('open');
+      activeProject = await (await fetch(`/api/projects/${activeProject.id}`, { headers: HEADERS() })).json();
+      let content = {};
+      try { content = JSON.parse(activeProject.content || '{}'); } catch {}
+      renderChapters(content);
+      document.getElementById(`ch-${key}`).classList.add('open');
+      showToast('Chapter generated!', 'success');
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  }
+
+  async function saveChapter(key) {
+    const text = document.getElementById(`ta-${key}`).value;
+    let content = {};
+    try { content = JSON.parse(activeProject.content || '{}'); } catch {}
+    content[key] = text;
+    const res = await fetch(`/api/projects/${activeProject.id}`, {
+      method: 'PUT',
+      headers: HEADERS(),
+      body: JSON.stringify({ content: JSON.stringify(content) })
+    });
+    if (res.ok) {
+      activeProject = await res.json();
+      renderEditor();
+      switchTab('chapters');
+      document.getElementById(`ch-${key}`).classList.add('open');
+      showToast('Saved', 'success');
+    }
+  }
+
+  async function clearChapter(key) {
+    document.getElementById(`ta-${key}`).value = '';
+    await saveChapter(key);
+  }
+
+  // ── Research ──
+  async function doResearch() {
+    const q = document.getElementById('searchQuery').value.trim();
+    if (!q) return;
+    const btn = document.getElementById('searchBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Researching…';
+    document.getElementById('searchSources').style.display = 'none';
+    try {
+      const res = await fetch(`/api/projects/${activeProject.id}/research`, {
+        method: 'POST',
+        headers: HEADERS(),
+        body: JSON.stringify({ query: q })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Research failed');
+      activeProject = await (await fetch(`/api/projects/${activeProject.id}`, { headers: HEADERS() })).json();
+      document.getElementById('researchNotesWrap').style.display = 'block';
+      document.getElementById('researchNotesContent').textContent = activeProject.research_notes || '';
+      if (data.sources?.length) {
+        document.getElementById('searchSources').style.display = 'flex';
+        document.getElementById('searchSources').innerHTML = `<div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">Sources Found</div>` +
+          data.sources.map(s => `
+            <div class="source-card">
+              <a href="${s.url}" target="_blank" rel="noopener">${esc(s.title)}</a>
+              <div class="snippet">${esc(s.snippet || '')}</div>
+              <div class="src-host">🔗 ${esc(s.url?.replace(/^https?:\/\//, '').split('/')[0] || s.url)}</div>
+            </div>`).join('');
+      }
+      showToast('Research complete!', 'success');
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Search';
+    }
+  }
+
+  async function clearResearch() {
+    if (!confirm('Clear all research notes for this project?')) return;
+    await fetch(`/api/projects/${activeProject.id}`, { method: 'PUT', headers: HEADERS(), body: JSON.stringify({ research_notes: '' }) });
+    activeProject.research_notes = '';
+    document.getElementById('researchNotesWrap').style.display = 'none';
+    document.getElementById('researchNotesContent').textContent = '';
+    showToast('Research notes cleared', 'success');
+  }
+
+  // ── Style sample ──
+  async function uploadStyleSample(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const area = document.querySelector('.style-upload-area');
+    area.innerHTML = '<span class="spinner spinner-dark"></span> Analysing writing style…';
+    area.style.pointerEvents = 'none';
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch(`/api/projects/${activeProject.id}/style-sample`, {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + Auth.getToken() },
+        body: fd
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      activeProject.style_profile = data.style_profile;
+      document.getElementById('styleProfileWrap').style.display = 'block';
+      document.getElementById('styleProfileText').textContent = data.style_profile;
+      showToast('Style profile extracted!', 'success');
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      area.innerHTML = `<input type="file" id="styleFileInput" accept=".pdf,.doc,.docx,.txt" onchange="uploadStyleSample(this)" />
+        <div style="font-size:32px;margin-bottom:10px">📂</div>
+        <div style="font-size:14px;font-weight:600;color:var(--accent)">Click to upload a sample project</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">PDF, Word (.docx), or plain text — max 25 MB</div>`;
+      area.style.pointerEvents = '';
+    }
+  }
+
+  async function clearStyle() {
+    await fetch(`/api/projects/${activeProject.id}`, { method: 'PUT', headers: HEADERS(), body: JSON.stringify({ style_profile: '' }) });
+    activeProject.style_profile = '';
+    document.getElementById('styleProfileWrap').style.display = 'none';
+    showToast('Style sample removed', 'success');
+  }
+
+  // ── Export ──
+  function renderExport(content) {
+    if (!content) try { content = JSON.parse(activeProject.content || '{}'); } catch { content = {}; }
+    let html = `<h1>${esc(activeProject.title)}</h1>
+<p style="text-align:center;color:var(--muted);font-size:13px">${esc(activeProject.subject || '')} · ${esc(activeProject.project_type?.replace('_',' ') || '')}</p>
+<hr style="margin:24px 0;border:none;border-top:1px solid var(--border)" />`;
+    for (const ch of CHAPTER_LIST) {
+      if (!content[ch.key]?.trim()) continue;
+      html += `<h2>${ch.label}</h2><div style="white-space:pre-wrap">${esc(content[ch.key])}</div>`;
+    }
+    document.getElementById('exportPreview').innerHTML = html;
+  }
+
+  function printDocument() {
+    const content = document.getElementById('exportPreview').innerHTML;
+    const w = window.open('', '_blank');
+    w.document.write(`<!DOCTYPE html><html><head><title>${esc(activeProject.title)}</title>
+      <style>body{font-family:Times New Roman,serif;max-width:210mm;margin:20mm auto;font-size:12pt;line-height:1.8;color:#000}
+      h1{font-size:16pt;text-align:center;margin-bottom:8pt}h2{font-size:14pt;margin:24pt 0 10pt}p{margin-bottom:10pt}
+      @media print{@page{margin:20mm}}</style></head><body>${content}</body></html>`);
+    w.document.close();
+    w.focus();
+    w.print();
+  }
+
+  function copyAllText() {
+    let content = {};
+    try { content = JSON.parse(activeProject.content || '{}'); } catch {}
+    const text = CHAPTER_LIST.filter(c => content[c.key]?.trim()).map(c => `${c.label.toUpperCase()}\n\n${content[c.key]}`).join('\n\n────────────\n\n');
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard', 'success')).catch(() => showToast('Copy failed'));
+  }
+
+  // ── Create / edit project ──
+  function openCreateModal() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'New Project';
+    document.getElementById('modalSaveBtn').textContent = 'Create Project';
+    document.getElementById('projTitle').value = '';
+    document.getElementById('projSubject').value = '';
+    document.getElementById('projType').value = 'research';
+    document.getElementById('projDesc').value = '';
+    document.getElementById('modalErr').style.display = 'none';
+    document.getElementById('projectModal').classList.add('open');
+    setTimeout(() => document.getElementById('projTitle').focus(), 50);
+  }
+
+  function editProject() {
+    if (!activeProject) return;
+    editingId = activeProject.id;
+    document.getElementById('modalTitle').textContent = 'Edit Project';
+    document.getElementById('modalSaveBtn').textContent = 'Save Changes';
+    document.getElementById('projTitle').value = activeProject.title;
+    document.getElementById('projSubject').value = activeProject.subject || '';
+    document.getElementById('projType').value = activeProject.project_type || 'research';
+    document.getElementById('projDesc').value = activeProject.description || '';
+    document.getElementById('modalErr').style.display = 'none';
+    document.getElementById('projectModal').classList.add('open');
+  }
+
+  async function saveProject() {
+    const title = document.getElementById('projTitle').value.trim();
+    const errEl = document.getElementById('modalErr');
+    if (!title) { errEl.textContent = 'Title is required.'; errEl.style.display = 'block'; return; }
+    const btn = document.getElementById('modalSaveBtn');
+    btn.disabled = true; btn.textContent = editingId ? 'Saving…' : 'Creating…';
+    const payload = {
+      title,
+      subject: document.getElementById('projSubject').value.trim(),
+      project_type: document.getElementById('projType').value,
+      description: document.getElementById('projDesc').value.trim()
+    };
+    try {
+      let res;
+      if (editingId) {
+        res = await fetch(`/api/projects/${editingId}`, { method: 'PUT', headers: HEADERS(), body: JSON.stringify(payload) });
+      } else {
+        res = await fetch('/api/projects', { method: 'POST', headers: HEADERS(), body: JSON.stringify(payload) });
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      closeModal('projectModal');
+      await loadProjects();
+      selectProject(data.id);
+      showToast(editingId ? 'Project updated' : 'Project created!', 'success');
+    } catch (err) {
+      errEl.textContent = err.message; errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = editingId ? 'Save Changes' : 'Create Project';
+    }
+  }
+
+  async function deleteProject() {
+    if (!activeProject) return;
+    if (!confirm(`Delete project "${activeProject.title}"? This cannot be undone.`)) return;
+    await fetch(`/api/projects/${activeProject.id}`, { method: 'DELETE', headers: HEADERS() });
+    activeProject = null;
+    document.getElementById('editorContent').style.display = 'none';
+    document.getElementById('editorEmpty').style.display = 'flex';
+    await loadProjects();
+    showToast('Project deleted', 'success');
+  }
+
+  // ── Updates panel ──
+  async function openUpdatesPanel() {
+    document.getElementById('updatesModal').classList.add('open');
+    await loadUpdates();
+  }
+
+  async function loadUpdates() {
+    const el = document.getElementById('updatesList');
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px">Loading…</div>';
+    try {
+      const res = await fetch('/api/updates', { headers: HEADERS() });
+      const updates = await res.json();
+      if (!updates.length) {
+        el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:24px">No updates yet. Click <strong>Refresh</strong> to fetch this week\'s updates.</div>';
+        return;
+      }
+      el.innerHTML = updates.map(u => `
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;${u.read_flag ? 'opacity:.65' : ''}">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <div style="flex:1">
+              <a href="${u.url}" target="_blank" rel="noopener" style="font-size:13px;font-weight:600;color:var(--accent);text-decoration:none;line-height:1.4;display:block">${esc(u.title)}</a>
+              ${u.summary ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5">${esc(u.summary.slice(0,200))}…</div>` : ''}
+              <div style="font-size:11px;color:var(--muted);margin-top:5px">📌 ${esc(u.course_tag)} · 🔗 ${esc(u.source)}</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="flex-shrink:0" onclick="markRead(${u.id}, this)">${u.read_flag ? '✓' : 'Mark read'}</button>
+          </div>
+        </div>`).join('');
+    } catch {
+      el.innerHTML = '<div style="color:#B91C1C;font-size:13px">Failed to load updates.</div>';
+    }
+  }
+
+  async function markRead(id, btn) {
+    await fetch(`/api/updates/${id}/read`, { method: 'PUT', headers: HEADERS() });
+    btn.textContent = '✓';
+    btn.parentElement.parentElement.style.opacity = '.65';
+  }
+
+  async function refreshUpdates() {
+    const btn = document.getElementById('refreshUpdatesBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner spinner-dark"></span>Fetching…';
+    try {
+      const res = await fetch('/api/updates/refresh', { method: 'POST', headers: HEADERS() });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      await loadUpdates();
+      showToast(`${data.inserted} new update${data.inserted !== 1 ? 's' : ''} found`, 'success');
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Refresh';
+    }
+  }
+
+  // ── Helpers ──
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${name}`));
+    if (name === 'export' && activeProject) {
+      let content = {};
+      try { content = JSON.parse(activeProject.content || '{}'); } catch {}
+      renderExport(content);
+    }
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  function showToast(msg, type) {
+    const t = document.createElement('div');
+    t.className = `toast-msg${type === 'success' ? ' success' : ''}`;
+    t.textContent = msg;
+    document.getElementById('toast').appendChild(t);
+    setTimeout(() => t.remove(), 3200);
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal('projectModal'); closeModal('updatesModal'); }
+  });
+
+  // ── Init ──
+  loadProjects();
+</script>
+</body>
+</html>
