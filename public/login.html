@@ -26,9 +26,7 @@
       --shadow: 0 2px 8px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.08);
     }
 
-    html, body {
-      height: 100%;
-    }
+    html, body { height: 100%; }
 
     body {
       background: var(--bg);
@@ -38,8 +36,75 @@
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       min-height: 100vh;
+    }
+
+    /* ── HERO PANEL ── */
+    .hero-panel {
+      flex: 0 0 55%;
+      background: url('/images/campus-grad.svg') center/cover no-repeat;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding: 52px 48px;
+      overflow: hidden;
+    }
+    .hero-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(150deg, rgba(27,63,110,0.88) 0%, rgba(21,51,90,0.62) 100%);
+    }
+    .hero-text { position: relative; z-index: 1; color: #fff; }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      margin-bottom: 16px;
+    }
+    .hero-text h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.7rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .hero-text p {
+      font-size: 1.05rem;
+      opacity: 0.85;
+      line-height: 1.65;
+      max-width: 340px;
+    }
+    .hero-dots {
+      display: flex;
+      gap: 8px;
+      margin-top: 32px;
+    }
+    .hero-dots span {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+    }
+    .hero-dots span:first-child { background: #fff; width: 24px; border-radius: 4px; }
+
+    /* ── AUTH SIDE ── */
+    .auth-side {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      overflow-y: auto;
+      min-width: 0;
+    }
+
+    @media (max-width: 768px) {
+      .hero-panel { display: none; }
+      body { flex-direction: column; }
     }
 
     /* ── TOP BAR ── */
@@ -291,6 +356,19 @@
 </head>
 <body>
 
+<!-- Hero panel -->
+<div class="hero-panel">
+  <div class="hero-text">
+    <div class="hero-badge">University of Africa</div>
+    <h1>ClassMind AI</h1>
+    <p>Your Nigerian University<br>Study Assistant. Study smarter,<br>not harder.</p>
+    <div class="hero-dots"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<!-- Auth side -->
+<div class="auth-side">
+
 <!-- Top bar -->
 <div class="top-bar">
   <a href="/" class="logo">ClassMind<span class="logo-badge">AI</span></a>
@@ -363,6 +441,8 @@
   <a href="#">Privacy</a> &nbsp;&middot;&nbsp;
   <a href="#">Terms</a>
 </div>
+
+</div><!-- /auth-side -->
 
 <script>
   // ── Redirect if already logged in ──

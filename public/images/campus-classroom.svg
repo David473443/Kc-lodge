@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1B3F6E"/>
+      <stop offset="100%" stop-color="#0d2b4e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="900" fill="url(#g1)"/>
+  <!-- Whiteboard -->
+  <g opacity="0.10" fill="#fff">
+    <rect x="350" y="80" width="700" height="220" rx="8"/>
+    <rect x="370" y="100" width="660" height="180" rx="4" fill="#1B3F6E"/>
+    <!-- Writing on board -->
+    <rect x="390" y="130" width="200" height="8" rx="4" fill="rgba(255,255,255,0.5)"/>
+    <rect x="390" y="155" width="300" height="6" rx="3" fill="rgba(255,255,255,0.3)"/>
+    <rect x="390" y="175" width="250" height="6" rx="3" fill="rgba(255,255,255,0.4)"/>
+    <rect x="390" y="195" width="180" height="6" rx="3" fill="rgba(255,255,255,0.25)"/>
+    <rect x="390" y="215" width="280" height="6" rx="3" fill="rgba(255,255,255,0.35)"/>
+  </g>
+  <!-- Desk rows -->
+  <g opacity="0.07" fill="#fff">
+    <rect x="100" y="380" width="200" height="15" rx="7"/>
+    <rect x="380" y="380" width="200" height="15" rx="7"/>
+    <rect x="660" y="380" width="200" height="15" rx="7"/>
+    <rect x="940" y="380" width="200" height="15" rx="7"/>
+    <rect x="1180" y="380" width="200" height="15" rx="7"/>
+    <rect x="100" y="500" width="200" height="15" rx="7"/>
+    <rect x="380" y="500" width="200" height="15" rx="7"/>
+    <rect x="660" y="500" width="200" height="15" rx="7"/>
+    <rect x="940" y="500" width="200" height="15" rx="7"/>
+    <rect x="1180" y="500" width="200" height="15" rx="7"/>
+    <rect x="100" y="650" width="200" height="15" rx="7"/>
+    <rect x="380" y="650" width="200" height="15" rx="7"/>
+    <rect x="660" y="650" width="200" height="15" rx="7"/>
+    <rect x="940" y="650" width="200" height="15" rx="7"/>
+    <rect x="1180" y="650" width="200" height="15" rx="7"/>
+  </g>
+  <g opacity="0.18" fill="#fff">
+    <circle cx="100" cy="60" r="2"/><circle cx="400" cy="30" r="3"/>
+    <circle cx="1000" cy="55" r="2"/><circle cx="1350" cy="40" r="3"/>
+  </g>
+</svg>

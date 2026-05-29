@@ -210,8 +210,34 @@
       .page-main { padding: 20px 16px 48px; }
     }
 
-    /* ── Greeting ── */
+    /* ── Greeting / Hero banner ── */
     .greeting-section { margin-bottom: 28px; }
+    .dash-hero {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 28px;
+      min-height: 168px;
+      background: url('/images/campus-coding.svg') center 38%/cover no-repeat var(--accent);
+    }
+    .dash-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(100deg, rgba(27,63,110,0.88) 0%, rgba(27,63,110,0.45) 65%, rgba(27,63,110,0.15) 100%);
+    }
+    .dash-hero-content {
+      position: relative;
+      z-index: 1;
+      padding: 32px 36px 28px;
+    }
+    .dash-hero .greeting-text {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .dash-hero .greeting-date { font-size: 14px; color: rgba(255,255,255,0.75); }
     .greeting-text {
       font-family: 'Playfair Display', Georgia, serif;
       font-size: 30px;
@@ -220,6 +246,11 @@
       margin-bottom: 4px;
     }
     .greeting-date { font-size: 14px; color: var(--muted); }
+    @media (max-width: 768px) {
+      .dash-hero { border-radius: 12px; min-height: 120px; }
+      .dash-hero-content { padding: 22px 20px 18px; }
+      .dash-hero .greeting-text { font-size: 22px; }
+    }
 
     /* ── Urgent alert strip ── */
     .urgent-strip {
@@ -579,10 +610,13 @@
 
     <main class="page-main">
 
-      <!-- Greeting -->
-      <div class="greeting-section">
-        <div class="greeting-text" id="greeting">Good morning, Student</div>
-        <div class="greeting-date" id="greetingDate"></div>
+      <!-- Hero banner -->
+      <div class="dash-hero">
+        <div class="dash-hero-overlay"></div>
+        <div class="dash-hero-content">
+          <div class="greeting-text" id="greeting">Good morning, Student</div>
+          <div class="greeting-date" id="greetingDate"></div>
+        </div>
       </div>
 
       <!-- Urgent alert -->

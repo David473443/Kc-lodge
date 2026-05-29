@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="60%" y2="100%">
+      <stop offset="0%" stop-color="#15335A"/>
+      <stop offset="100%" stop-color="#1B3F6E"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#2d6a9f" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#0f2440" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="900" fill="url(#g1)"/>
+  <rect width="1400" height="900" fill="url(#g2)"/>
+  <!-- Corridor perspective lines -->
+  <g opacity="0.08" stroke="#fff" stroke-width="1.5" fill="none">
+    <line x1="700" y1="300" x2="0" y2="900"/>
+    <line x1="700" y1="300" x2="1400" y2="900"/>
+    <line x1="700" y1="300" x2="200" y2="900"/>
+    <line x1="700" y1="300" x2="1200" y2="900"/>
+    <line x1="700" y1="300" x2="400" y2="900"/>
+    <line x1="700" y1="300" x2="1000" y2="900"/>
+    <line x1="700" y1="300" x2="600" y2="900"/>
+    <line x1="700" y1="300" x2="800" y2="900"/>
+    <!-- Horizontal corridor lines -->
+    <line x1="0" y1="900" x2="1400" y2="900"/>
+    <ellipse cx="700" cy="350" rx="200" ry="60"/>
+    <ellipse cx="700" cy="400" rx="320" ry="100"/>
+    <ellipse cx="700" cy="480" rx="480" ry="150"/>
+  </g>
+  <g opacity="0.2" fill="#fff">
+    <circle cx="200" cy="100" r="2"/><circle cx="500" cy="60" r="3"/>
+    <circle cx="1100" cy="90" r="2"/><circle cx="1350" cy="150" r="3"/>
+    <circle cx="80" cy="700" r="2"/><circle cx="1370" cy="800" r="2"/>
+  </g>
+</svg>
