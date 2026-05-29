@@ -176,6 +176,29 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
+  CREATE TABLE IF NOT EXISTS course_docs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    course_code TEXT NOT NULL,
+    course_name TEXT DEFAULT '',
+    doc_name TEXT NOT NULL,
+    doc_type TEXT DEFAULT 'other',
+    content TEXT NOT NULL,
+    source TEXT DEFAULT 'upload',
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS user_style_prefs (
+    user_id INTEGER PRIMARY KEY,
+    style_prompt TEXT NOT NULL DEFAULT '',
+    updated_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+  CREATE TABLE IF NOT EXISTS waitlist (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
 `);
 
 // Migrations for existing deployments
@@ -234,6 +257,7 @@ const generalLimiter = rateLimit({
 app.use('/api/auth', authLimiter);
 app.use('/api/analyze', aiLimiter);
 app.use('/api/chat', aiLimiter);
+app.use('/api/kb/chat', aiLimiter);
 app.use('/api', generalLimiter);
 
 // ── Auth middleware ──
@@ -1020,6 +1044,198 @@ app.post('/api/chat', auth, async (req, res) => {
     if (!res.headersSent) res.status(500).json({ error: IS_PROD ? 'Chat error.' : err.message });
     else { res.write(`data: ${JSON.stringify({ error: 'Stream error.' })}\n\n`); res.end(); }
   }
+});
+
+// ────────────────────────────────────────────
+// KNOWLEDGE BASE (Course RAG)
+// ────────────────────────────────────────────
+
+// List distinct courses for this user
+app.get('/api/kb/courses', auth, (req, res) => {
+  const rows = db.prepare(`
+    SELECT course_code, course_name, COUNT(*) as doc_count,
+           SUM(LENGTH(content)) as total_chars
+    FROM course_docs WHERE user_id=?
+    GROUP BY course_code ORDER BY course_code
+  `).all(req.user.id);
+  res.json(rows);
+});
+
+// Upload a document into the knowledge base
+app.post('/api/kb/upload', auth, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
+    const { course_code, course_name, doc_type } = req.body;
+    if (!course_code?.trim()) return res.status(400).json({ error: 'course_code is required.' });
+
+    let text = '';
+    const mime = req.file.mimetype;
+    const name = req.file.originalname;
+    if (mime === 'application/pdf') {
+      const parsed = await pdfParse(req.file.buffer);
+      text = parsed.text;
+    } else if (mime.includes('wordprocessingml') || mime === 'application/msword') {
+      const r = await mammoth.extractRawText({ buffer: req.file.buffer });
+      text = r.value;
+    } else if (mime.startsWith('text/')) {
+      text = req.file.buffer.toString('utf8');
+    } else {
+      return res.status(400).json({ error: 'Upload a PDF, Word document, or text file.' });
+    }
+
+    if (text.trim().length < 10) return res.status(400).json({ error: 'Could not extract text from this file.' });
+
+    const code = course_code.trim().toUpperCase();
+    const cname = (course_name || '').trim();
+
+    // Update course_name if provided and not yet set
+    if (cname) {
+      db.prepare(`UPDATE course_docs SET course_name=? WHERE user_id=? AND course_code=? AND course_name=''`)
+        .run(cname, req.user.id, code);
+    }
+
+    const { lastInsertRowid } = db.prepare(
+      `INSERT INTO course_docs (user_id, course_code, course_name, doc_name, doc_type, content, source)
+       VALUES (?,?,?,?,?,?,?)`
+    ).run(req.user.id, code, cname, name, doc_type || 'other', text, 'upload');
+
+    res.json({ id: lastInsertRowid, course_code: code, doc_name: name, chars: text.length });
+  } catch (err) { apiErr(res, err); }
+});
+
+// List docs for a course
+app.get('/api/kb/:courseCode/docs', auth, (req, res) => {
+  const rows = db.prepare(
+    `SELECT id, doc_name, doc_type, source, LENGTH(content) as chars, created_at
+     FROM course_docs WHERE user_id=? AND course_code=? ORDER BY created_at DESC`
+  ).all(req.user.id, req.params.courseCode.toUpperCase());
+  res.json(rows);
+});
+
+// Delete a doc
+app.delete('/api/kb/docs/:id', auth, (req, res) => {
+  const info = db.prepare('DELETE FROM course_docs WHERE id=? AND user_id=?').run(req.params.id, req.user.id);
+  if (info.changes === 0) return res.status(404).json({ error: 'Not found.' });
+  res.json({ ok: true });
+});
+
+// RAG Chat — answers from course knowledge base
+app.post('/api/kb/chat', auth, aiLimiter, async (req, res) => {
+  try {
+    const { course_code, message, history } = req.body;
+    if (!course_code?.trim()) return res.status(400).json({ error: 'course_code is required.' });
+    if (!message?.trim()) return res.status(400).json({ error: 'message is required.' });
+
+    const code = course_code.trim().toUpperCase();
+
+    // Get course name
+    const courseRow = db.prepare(
+      `SELECT course_name FROM course_docs WHERE user_id=? AND course_code=? LIMIT 1`
+    ).get(req.user.id, code);
+    const courseName = courseRow?.course_name || code;
+
+    // Simple keyword RAG: split message into words, search docs
+    const keywords = message.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 3);
+    let docs = [];
+
+    if (keywords.length > 0) {
+      // Try to find matching docs using LIKE on up to 3 keywords
+      const kws = keywords.slice(0, 3);
+      const likeClauses = kws.map(() => 'LOWER(content) LIKE ?').join(' OR ');
+      const likeArgs = kws.map(k => `%${k}%`);
+      docs = db.prepare(
+        `SELECT id, doc_name, doc_type, content FROM course_docs
+         WHERE user_id=? AND course_code=? AND (${likeClauses})
+         ORDER BY created_at DESC LIMIT 4`
+      ).all(req.user.id, code, ...likeArgs);
+    }
+
+    // Fallback: if no keyword matches, just take the 4 most recent docs
+    if (docs.length === 0) {
+      docs = db.prepare(
+        `SELECT id, doc_name, doc_type, content FROM course_docs
+         WHERE user_id=? AND course_code=? ORDER BY created_at DESC LIMIT 4`
+      ).all(req.user.id, code);
+    }
+
+    // Get user style preference
+    const styleRow = db.prepare('SELECT style_prompt FROM user_style_prefs WHERE user_id=?').get(req.user.id);
+    const stylePref = styleRow?.style_prompt?.trim() || 'standard Nigerian university academic style';
+
+    // Build context from retrieved docs (2000 chars each)
+    const chunks = docs.map(d =>
+      `[${d.doc_name} — ${d.doc_type}]\n${d.content.slice(0, 2000)}`
+    ).join('\n\n---\n\n');
+
+    const systemPrompt = docs.length > 0
+      ? `You are a focused study assistant for a Nigerian university student studying ${courseName} (${code}).
+
+RULES:
+1. Answer ONLY using the course materials provided below. Stay specific to this course.
+2. If the materials don't fully cover the question, say what you found and clearly state what's missing — do NOT invent information.
+3. If the question is vague, ask 1-2 short clarifying questions before answering. Be conversational.
+4. Keep answers concise and exam-focused. Do not go off-topic.
+5. Format output as: ${stylePref}
+
+COURSE MATERIALS FOR ${code}:
+${chunks}`
+      : `You are a study assistant for a Nigerian university student studying ${courseName} (${code}).
+No course materials have been uploaded yet for this course.
+Tell the student you don't have any course materials for ${code} yet, and ask them to upload their notes, past questions, or textbook excerpts using the upload button on the left. Be friendly and encouraging.
+Output style: ${stylePref}`;
+
+    // Build message history (last 10 turns)
+    const safeHistory = Array.isArray(history) ? history.slice(-10) : [];
+    const messages = [
+      ...safeHistory.map(h => ({ role: h.role, content: h.content })),
+      { role: 'user', content: message.trim() }
+    ];
+
+    const resp = await getClient().messages.create({
+      model: 'claude-haiku-4-5',
+      max_tokens: 1500,
+      system: systemPrompt,
+      messages
+    });
+
+    const reply = resp.content.find(b => b.type === 'text')?.text || '';
+    const sources = docs.map(d => d.doc_name);
+    const askedForMore = reply.trimEnd().endsWith('?');
+
+    res.json({ reply, sources, asked_for_more: askedForMore });
+  } catch (err) { apiErr(res, err); }
+});
+
+// ────────────────────────────────────────────
+// STYLE PREFERENCES
+// ────────────────────────────────────────────
+
+app.get('/api/style', auth, (req, res) => {
+  const row = db.prepare('SELECT style_prompt FROM user_style_prefs WHERE user_id=?').get(req.user.id);
+  res.json({ style_prompt: row?.style_prompt || '' });
+});
+
+app.put('/api/style', auth, (req, res) => {
+  const { style_prompt } = req.body;
+  if (typeof style_prompt !== 'string') return res.status(400).json({ error: 'style_prompt must be a string.' });
+  const trimmed = style_prompt.slice(0, 500);
+  db.prepare(`
+    INSERT INTO user_style_prefs (user_id, style_prompt, updated_at) VALUES (?,?,datetime('now'))
+    ON CONFLICT(user_id) DO UPDATE SET style_prompt=excluded.style_prompt, updated_at=excluded.updated_at
+  `).run(req.user.id, trimmed);
+  res.json({ ok: true });
+});
+
+// ────────────────────────────────────────────
+// WAITLIST
+// ────────────────────────────────────────────
+
+app.post('/api/waitlist', (req, res) => {
+  const { email } = req.body;
+  if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required.' });
+  db.prepare('INSERT INTO waitlist (email) VALUES (?)').run(email.toLowerCase().trim());
+  console.log('[Waitlist] New signup:', email);
+  res.json({ ok: true });
 });
 
 // ── Catch-all → index.html (SPA fallback) ──

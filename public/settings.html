@@ -450,7 +450,27 @@
         </div>
       </div>
 
-      <!-- ── 4. Account ── -->
+      <!-- ── 4. Plan ── -->
+      <div class="settings-card" id="planCard">
+        <div class="card-title">Your Plan</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;border:1.5px solid var(--accent)">Basic — Free</span>
+          <span style="font-size:13px;color:var(--muted)">15 AI queries/day · Manual uploads</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:20px">
+          <div style="font-size:13px">✅ Study Hub analysis</div>
+          <div style="font-size:13px">✅ Course Chat (RAG from your notes)</div>
+          <div style="font-size:13px">✅ Project document generator</div>
+          <div style="font-size:13px">✅ CGPA calculator &amp; Task board</div>
+          <div style="font-size:13px;color:var(--muted)">🔒 <em>Unlimited queries — Premium</em></div>
+          <div style="font-size:13px;color:var(--muted)">🔒 <em>WhatsApp group auto-sync — Premium</em></div>
+          <div style="font-size:13px;color:var(--muted)">🔒 <em>Unlimited projects — Premium</em></div>
+          <div style="font-size:13px;color:var(--muted)">🔒 <em>Priority AI responses — Premium</em></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openUpgradeModal()">Upgrade to Premium — ₦1,500/month</button>
+      </div>
+
+      <!-- ── 5. Account ── -->
       <div class="settings-card">
         <div class="card-title">Account</div>
         <div class="account-row">
@@ -534,6 +554,7 @@
   const NAV_ITEMS = [
     { href: '/dashboard.html', icon: '⊞', label: 'Dashboard' },
     { href: '/study.html',     icon: '📚', label: 'Study Hub' },
+    { href: '/kb.html',        icon: '🧠', label: 'Course Chat' },
     { href: '/tasks.html',     icon: '✓',  label: 'Task Board' },
     { href: '/cgpa.html',      icon: '📈', label: 'CGPA Calc' },
     { href: '/notes.html',     icon: '🗂',  label: 'Notes' },
@@ -867,6 +888,71 @@
   }
 
   init();
+
+  // ── Upgrade modal ──
+  function openUpgradeModal() {
+    document.getElementById('upgradeEmailInput').value = currentUser?.email || '';
+    document.getElementById('upgradeOverlay').classList.add('open');
+  }
+  function closeUpgradeModal() {
+    document.getElementById('upgradeOverlay').classList.remove('open');
+    document.getElementById('upgradeSuccess').style.display = 'none';
+    document.getElementById('upgradeForm').style.display = 'block';
+  }
+  async function submitWaitlist() {
+    const email = document.getElementById('upgradeEmailInput').value.trim();
+    if (!email || !email.includes('@')) { showToast('Please enter a valid email address'); return; }
+    const btn = document.getElementById('waitlistBtn');
+    btn.disabled = true; btn.textContent = 'Joining…';
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (!res.ok) throw new Error('Failed');
+      document.getElementById('upgradeForm').style.display = 'none';
+      document.getElementById('upgradeSuccess').style.display = 'block';
+    } catch {
+      showToast('Something went wrong. Please try again.');
+      btn.disabled = false; btn.textContent = "Join Waitlist";
+    }
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('upgradeOverlay').classList.contains('open')) closeUpgradeModal();
+  });
 </script>
+
+<!-- Upgrade modal -->
+<div class="confirm-overlay" id="upgradeOverlay" style="z-index:1001">
+  <div class="confirm-box" style="max-width:420px">
+    <div id="upgradeForm">
+      <div class="confirm-title" style="color:var(--accent)">Upgrade to Premium ✨</div>
+      <div class="confirm-msg" style="margin-bottom:16px">
+        <strong>₦1,500/month</strong> — coming soon! Join the waitlist and we'll notify you the moment it launches.
+        <br><br>
+        <strong>Premium includes:</strong><br>
+        • Unlimited AI queries<br>
+        • WhatsApp group auto-sync<br>
+        • Unlimited projects<br>
+        • Priority AI responses
+      </div>
+      <div class="form-group">
+        <label style="font-size:13px;font-weight:600">Your email</label>
+        <input type="email" id="upgradeEmailInput" placeholder="you@example.com" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;outline:none" />
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button class="btn btn-primary" style="flex:1" id="waitlistBtn" onclick="submitWaitlist()">Join Waitlist</button>
+        <button class="btn btn-secondary" onclick="closeUpgradeModal()">Cancel</button>
+      </div>
+    </div>
+    <div id="upgradeSuccess" style="display:none;text-align:center;padding:12px 0">
+      <div style="font-size:40px;margin-bottom:12px">🎉</div>
+      <div style="font-size:17px;font-weight:700;color:var(--accent);margin-bottom:8px">You're on the list!</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px">We'll email you the moment Premium launches.</p>
+      <button class="btn btn-primary" onclick="closeUpgradeModal()">Done</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

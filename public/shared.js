@@ -35,6 +35,7 @@ const Auth = {
 const NAV_ITEMS = [
   { href: '/dashboard.html',  icon: '⊞', label: 'Dashboard' },
   { href: '/study.html',      icon: '📚', label: 'Study Hub' },
+  { href: '/kb.html',         icon: '🧠', label: 'Course Chat' },
   { href: '/projects.html',   icon: '📄', label: 'Projects' },
   { href: '/tasks.html',      icon: '✓',  label: 'Task Board' },
   { href: '/cgpa.html',       icon: '📈', label: 'CGPA Calc' },
