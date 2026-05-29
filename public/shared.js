@@ -39,6 +39,7 @@ const NAV_ITEMS = [
   { href: '/tasks.html',      icon: '✓',  label: 'Task Board' },
   { href: '/cgpa.html',       icon: '📈', label: 'CGPA Calc' },
   { href: '/notes.html',      icon: '🗂',  label: 'Notes' },
+  { href: '/reminders.html',  icon: '🔔', label: 'Reminders', badge: true },
   { href: '/feedback.html',   icon: '💬', label: 'Feedback' },
   { href: '/settings.html',   icon: '⚙',  label: 'Settings' },
 ];
