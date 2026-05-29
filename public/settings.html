@@ -671,7 +671,8 @@
         throw new Error(err.error || err.message || 'Save failed');
       }
       const updated = await res.json().catch(() => null);
-      const newUser = { ...currentUser, ...payload, ...(updated || {}) };
+      if (updated?.token) localStorage.setItem('cm_token', updated.token);
+      const newUser = { ...currentUser, ...payload, ...(updated?.user || updated || {}) };
       currentUser = newUser;
       localStorage.setItem('cm_user', JSON.stringify(newUser));
       buildSidebar(newUser);
@@ -825,6 +826,10 @@
         body: JSON.stringify({ password: pw })
       });
       if (res.status === 401) {
+        window.location.href = '/login.html';
+        return;
+      }
+      if (res.status === 400) {
         const data = await res.json().catch(() => ({}));
         errEl.textContent = data.error || 'Incorrect password.';
         errEl.style.display = 'block';

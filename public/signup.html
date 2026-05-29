@@ -454,7 +454,7 @@
         if (user.onboarded == 1) {
           window.location.replace('/dashboard.html');
         } else {
-          window.location.replace('/onboarding.html');
+          window.location.replace('/dashboard.html');
         }
       } catch (e) { /* invalid JSON — continue */ }
     }
@@ -656,7 +656,7 @@
       localStorage.setItem('cm_user', JSON.stringify(data.user));
 
       // Always redirect to onboarding after registration
-      window.location.href = '/onboarding.html';
+      window.location.href = '/dashboard.html';
 
     } catch (err) {
       setLoading(false);

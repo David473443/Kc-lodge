@@ -375,7 +375,7 @@
         if (user.onboarded == 1) {
           window.location.replace('/dashboard.html');
         } else {
-          window.location.replace('/onboarding.html');
+          window.location.replace('/dashboard.html');
         }
       } catch (e) { /* invalid JSON — continue */ }
     }
@@ -496,7 +496,7 @@
       if (data.user && data.user.onboarded == 1) {
         window.location.href = '/dashboard.html';
       } else {
-        window.location.href = '/onboarding.html';
+        window.location.href = '/dashboard.html';
       }
 
     } catch (err) {

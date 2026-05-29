@@ -1062,6 +1062,7 @@ What do you need help with?</div>
 
 <div id="toast"></div>
 
+<script src="/shared.js"></script>
 <script>
   /* ═══════════════════════════════════════════════
      AUTH
@@ -1111,7 +1112,7 @@ What do you need help with?</div>
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
   function escAttr(s) {
-    return String(s || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+    return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   /* ═══════════════════════════════════════════════
@@ -1279,6 +1280,15 @@ Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Eac
      ANALYZE
   ═══════════════════════════════════════════════ */
   let studyContext = null;
+
+  // Restore analysis forwarded from Notes page via sessionStorage
+  (function() {
+    const stored = sessionStorage.getItem('cm_study_result');
+    if (stored) {
+      sessionStorage.removeItem('cm_study_result');
+      try { studyContext = JSON.parse(stored); renderAll(studyContext); } catch {}
+    }
+  })();
 
   async function analyze() {
     const content = pasteArea.value.trim();

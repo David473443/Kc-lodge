@@ -353,7 +353,7 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 app.get('/api/auth/me', auth, (req, res) => {
-  const u = db.prepare('SELECT id,name,email,university,level,department,courses,onboarded,email_verified FROM users WHERE id=?').get(req.user.id);
+  const u = db.prepare('SELECT id,name,email,university,level,department,courses,onboarded,email_verified,created_at FROM users WHERE id=?').get(req.user.id);
   if (!u) return res.status(404).json({ error: 'User not found.' });
   res.json({ ...u, courses: JSON.parse(u.courses || '[]') });
 });
@@ -692,7 +692,7 @@ app.delete('/api/projects/:id', auth, (req, res) => {
 });
 
 // Analyse an uploaded style sample and return a writing style profile
-app.post('/api/projects/:id/style-sample', upload.single('file'), auth, async (req, res) => {
+app.post('/api/projects/:id/style-sample', auth, upload.single('file'), async (req, res) => {
   try {
     const p = db.prepare('SELECT * FROM projects WHERE id=? AND user_id=?').get(req.params.id, req.user.id);
     if (!p) return res.status(404).json({ error: 'Not found.' });
@@ -712,7 +712,7 @@ app.post('/api/projects/:id/style-sample', upload.single('file'), auth, async (r
       return res.status(400).json({ error: 'Upload a PDF, Word document, or plain text file.' });
     }
 
-    const completion = await anthropic.messages.create({
+    const completion = await getClient().messages.create({
       model: 'claude-haiku-4-5',
       max_tokens: 800,
       messages: [{
@@ -859,7 +859,7 @@ Write in formal Nigerian academic English. Be thorough and professional.`;
 // CGPA CALCULATOR
 // ────────────────────────────────────────────
 
-app.post('/api/cgpa/calculate', (req, res) => {
+app.post('/api/cgpa/calculate', auth, (req, res) => {
   const { courses } = req.body;
   if (!Array.isArray(courses) || !courses.length) return res.status(400).json({ error: 'Courses array required.' });
   if (courses.length > 30) return res.status(400).json({ error: 'Too many courses.' });
@@ -953,7 +953,7 @@ async function extractFileContent(file) {
   }
 }
 
-app.post('/api/analyze-files', upload.array('files', 20), auth, async (req, res) => {
+app.post('/api/analyze-files', auth, upload.array('files', 20), async (req, res) => {
   try {
     if (!req.files?.length && !req.body.text?.trim()) return res.status(400).json({ error: 'No files or text provided.' });
     const client = getClient();
@@ -1080,13 +1080,18 @@ function extractJSON(text) {
   return { assignments: [], timetable: [], topics: {}, overview: 'Could not extract information.', tip: '' };
 }
 
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function verifyEmailHtml(name, link) {
+  const safeName = escHtml(name);
   return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:500px;margin:40px auto;color:#141414">
     <div style="background:#1B3F6E;padding:24px;border-radius:12px 12px 0 0;text-align:center">
       <h1 style="color:#fff;margin:0;font-size:22px">ClassMind AI</h1>
     </div>
     <div style="background:#fff;border:1px solid #E2E2DC;padding:32px;border-radius:0 0 12px 12px">
-      <h2 style="color:#1B3F6E">Hi ${name}, verify your email</h2>
+      <h2 style="color:#1B3F6E">Hi ${safeName}, verify your email</h2>
       <p>Click the button below to verify your email address. This link expires in 24 hours.</p>
       <a href="${link}" style="display:inline-block;background:#1B3F6E;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Verify Email</a>
       <p style="color:#747474;font-size:13px">Or copy this link: ${link}</p>
@@ -1095,12 +1100,13 @@ function verifyEmailHtml(name, link) {
 }
 
 function resetPasswordHtml(name, link) {
+  const safeName = escHtml(name);
   return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:500px;margin:40px auto;color:#141414">
     <div style="background:#1B3F6E;padding:24px;border-radius:12px 12px 0 0;text-align:center">
       <h1 style="color:#fff;margin:0;font-size:22px">ClassMind AI</h1>
     </div>
     <div style="background:#fff;border:1px solid #E2E2DC;padding:32px;border-radius:0 0 12px 12px">
-      <h2 style="color:#1B3F6E">Hi ${name}, reset your password</h2>
+      <h2 style="color:#1B3F6E">Hi ${safeName}, reset your password</h2>
       <p>Click the button below to set a new password. This link expires in <strong>1 hour</strong>.</p>
       <a href="${link}" style="display:inline-block;background:#B91C1C;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;margin:16px 0">Reset Password</a>
       <p style="color:#747474;font-size:13px">If you didn't request this, ignore this email — your password is unchanged.</p>

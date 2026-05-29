@@ -464,6 +464,7 @@
 
 <div id="toast"></div>
 
+<script src="/shared.js"></script>
 <script>
 'use strict';
 
@@ -621,6 +622,7 @@ async function fetchTasks() {
 }
 
 async function moveTask(id, dir) {
+  id = parseInt(id, 10);
   const task = allTasks.find(t => (t._id || t.id) === id);
   if (!task) return;
   const si = STATUS_ORDER.indexOf(task.status);
@@ -653,6 +655,7 @@ async function moveTask(id, dir) {
 }
 
 async function deleteTask(id) {
+  id = parseInt(id, 10);
   if (!confirm('Delete this task? This cannot be undone.')) return;
   const prev = [...allTasks];
   allTasks = allTasks.filter(t => (t._id || t.id) !== id);

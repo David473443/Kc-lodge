@@ -549,9 +549,11 @@
     <ul class="sidebar-nav">
       <li><a href="/dashboard.html" class="sidebar-link active"><span class="sidebar-icon">⊞</span><span>Dashboard</span></a></li>
       <li><a href="/study.html" class="sidebar-link"><span class="sidebar-icon">📚</span><span>Study Hub</span></a></li>
+      <li><a href="/projects.html" class="sidebar-link"><span class="sidebar-icon">📄</span><span>Projects</span></a></li>
       <li><a href="/tasks.html" class="sidebar-link"><span class="sidebar-icon">✓</span><span>Task Board</span></a></li>
       <li><a href="/cgpa.html" class="sidebar-link"><span class="sidebar-icon">📈</span><span>CGPA Calc</span></a></li>
       <li><a href="/notes.html" class="sidebar-link"><span class="sidebar-icon">🗂</span><span>Notes</span></a></li>
+      <li><a href="/feedback.html" class="sidebar-link"><span class="sidebar-icon">💬</span><span>Feedback</span></a></li>
       <li><a href="/settings.html" class="sidebar-link"><span class="sidebar-icon">⚙</span><span>Settings</span></a></li>
     </ul>
     <div class="sidebar-footer">
@@ -799,8 +801,8 @@
     const mins = Math.floor((diff % 3600000) / 60000);
     let label, color;
     if (days === 0 && hrs < 6) { label = hrs > 0 ? `${hrs}h ${mins}m left` : `${mins}m left`; color = 'var(--high)'; }
-    else if (days === 0) { label = `${hrs}h left`; color = 'var(--medium, #E67E22)'; }
-    else if (days <= 2) { label = `${days}d ${hrs}h left`; color = 'var(--medium, #E67E22)'; }
+    else if (days === 0) { label = `${hrs}h left`; color = 'var(--med)'; }
+    else if (days <= 2) { label = `${days}d ${hrs}h left`; color = 'var(--med)'; }
     else { label = `${days}d left`; color = 'var(--muted)'; }
     return `<span style="color:${color};font-size:11px;font-weight:600">⏱ ${label}</span>`;
   }
