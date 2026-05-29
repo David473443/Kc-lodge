@@ -45,19 +45,17 @@
       min-height: 100vh;
       position: relative;
     }
-    body::before {
-      content: '';
+    #bgOverlay {
       position: fixed;
       inset: 0;
       background: rgba(27,63,110,0.52);
       z-index: 0;
       pointer-events: none;
     }
-    body > * { position: relative; z-index: 1; }
 
     @media (max-width: 640px) {
       body { background-image: none; background-color: var(--bg); }
-      body::before { display: none; }
+      #bgOverlay { display: none; }
     }
 
     /* ── TOP BAR ── */
@@ -500,6 +498,7 @@
   </style>
 </head>
 <body>
+<div id="bgOverlay"></div>
 
 <!-- Top bar -->
 <div class="top-bar">
@@ -546,7 +545,7 @@
         <label for="universitySelect">Select your university</label>
         <select id="universitySelect" onchange="handleUniversityChange()">
           <option value="">— Choose your university —</option>
-          <option value="UNIAF">University of Africa (UNIAF)</option>
+          <option value="UAT">University of Africa Toru-Orua (UAT)</option>
           <optgroup label="Federal Universities">
             <option value="UNIPORT">University of Port Harcourt (UNIPORT)</option>
             <option value="UNILAG">University of Lagos (UNILAG)</option>
@@ -938,7 +937,8 @@
         throw new Error(data.message || data.error || 'Failed to save your profile. Please try again.');
       }
 
-      // Update stored user object
+      // Update token and stored user object
+      if (data.token) localStorage.setItem('cm_token', data.token);
       const storedUser = localStorage.getItem('cm_user');
       if (storedUser) {
         try {
