@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900">
+  <defs>
+    <linearGradient id="g1" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a4a7a"/>
+      <stop offset="100%" stop-color="#0f2033"/>
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="900" fill="url(#g1)"/>
+  <!-- Laptop screens (abstract) -->
+  <g opacity="0.09" fill="#fff">
+    <rect x="80" y="500" width="180" height="120" rx="6"/>
+    <rect x="80" y="618" width="200" height="8" rx="4"/>
+    <rect x="90" y="510" width="160" height="100" rx="3" fill="#1B3F6E"/>
+    <!-- Code lines on screen -->
+    <rect x="96" y="520" width="80" height="5" rx="2" fill="rgba(255,255,255,0.4)"/>
+    <rect x="96" y="532" width="120" height="5" rx="2" fill="rgba(255,255,255,0.25)"/>
+    <rect x="96" y="544" width="60" height="5" rx="2" fill="rgba(255,255,255,0.35)"/>
+    <rect x="96" y="556" width="100" height="5" rx="2" fill="rgba(255,255,255,0.2)"/>
+
+    <rect x="380" y="520" width="180" height="120" rx="6"/>
+    <rect x="380" y="638" width="200" height="8" rx="4"/>
+    <rect x="390" y="530" width="160" height="100" rx="3" fill="#1B3F6E"/>
+    <rect x="396" y="540" width="100" height="5" rx="2" fill="rgba(255,255,255,0.4)"/>
+    <rect x="396" y="552" width="70" height="5" rx="2" fill="rgba(255,255,255,0.25)"/>
+    <rect x="396" y="564" width="130" height="5" rx="2" fill="rgba(255,255,255,0.35)"/>
+
+    <rect x="700" y="490" width="180" height="120" rx="6"/>
+    <rect x="700" y="608" width="200" height="8" rx="4"/>
+    <rect x="710" y="500" width="160" height="100" rx="3" fill="#1B3F6E"/>
+    <rect x="716" y="510" width="90" height="5" rx="2" fill="rgba(255,255,255,0.4)"/>
+    <rect x="716" y="522" width="140" height="5" rx="2" fill="rgba(255,255,255,0.25)"/>
+    <rect x="716" y="534" width="50" height="5" rx="2" fill="rgba(255,255,255,0.35)"/>
+  </g>
+  <!-- Projector screen at front -->
+  <g opacity="0.08" fill="#fff">
+    <rect x="460" y="80" width="480" height="300" rx="8"/>
+    <rect x="480" y="100" width="440" height="260" rx="4" fill="#2d6a9f"/>
+  </g>
+  <g opacity="0.18" fill="#fff">
+    <circle cx="150" cy="80" r="2"/><circle cx="500" cy="40" r="3"/>
+    <circle cx="950" cy="70" r="2"/><circle cx="1300" cy="50" r="3"/>
+  </g>
+  <g stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none">
+    <line x1="0" y1="200" x2="1400" y2="600"/>
+    <line x1="0" y1="400" x2="1400" y2="800"/>
+  </g>
+</svg>

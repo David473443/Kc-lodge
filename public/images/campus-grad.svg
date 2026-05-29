@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1B3F6E"/>
+      <stop offset="50%" stop-color="#2d6a9f"/>
+      <stop offset="100%" stop-color="#0f2440"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#15335A" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#3a7fc1" stop-opacity="0.4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1400" height="900" fill="url(#g1)"/>
+  <rect width="1400" height="900" fill="url(#g2)"/>
+  <!-- Abstract graduation caps -->
+  <g opacity="0.12" fill="#fff">
+    <rect x="200" y="120" width="60" height="8" rx="4"/>
+    <rect x="225" y="100" width="10" height="28" rx="5"/>
+    <rect x="600" y="200" width="80" height="10" rx="5"/>
+    <rect x="635" y="175" width="10" height="35" rx="5"/>
+    <rect x="1050" y="150" width="70" height="9" rx="4"/>
+    <rect x="1080" y="128" width="10" height="30" rx="5"/>
+    <rect x="400" y="600" width="90" height="10" rx="5"/>
+    <rect x="440" y="575" width="10" height="38" rx="5"/>
+    <rect x="900" y="650" width="75" height="9" rx="4"/>
+    <rect x="932" y="628" width="10" height="30" rx="5"/>
+  </g>
+  <!-- Stars / sparkles -->
+  <g opacity="0.25" fill="#fff">
+    <circle cx="150" cy="80" r="3"/>
+    <circle cx="450" cy="50" r="2"/>
+    <circle cx="750" cy="90" r="3"/>
+    <circle cx="1050" cy="60" r="2"/>
+    <circle cx="1300" cy="100" r="3"/>
+    <circle cx="300" cy="750" r="2"/>
+    <circle cx="700" cy="800" r="3"/>
+    <circle cx="1100" cy="770" r="2"/>
+    <circle cx="80" cy="400" r="3"/>
+    <circle cx="1350" cy="500" r="2"/>
+  </g>
+  <!-- Diagonal accent lines -->
+  <g stroke="rgba(255,255,255,0.06)" stroke-width="1" fill="none">
+    <line x1="0" y1="900" x2="700" y2="0"/>
+    <line x1="200" y1="900" x2="900" y2="0"/>
+    <line x1="400" y1="900" x2="1100" y2="0"/>
+    <line x1="600" y1="900" x2="1300" y2="0"/>
+    <line x1="800" y1="900" x2="1400" y2="100"/>
+  </g>
+</svg>
