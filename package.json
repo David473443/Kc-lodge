@@ -9,7 +9,20 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.51.0",
-    "express": "^4.21.0"
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.10.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.0",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "mammoth": "^1.12.0",
+    "multer": "^2.1.1",
+    "node-cron": "^4.2.1",
+    "pdf-parse": "^2.4.5",
+    "resend": "^6.12.4",
+    "xlsx": "^0.18.5"
   },
   "engines": {
     "node": ">=18"

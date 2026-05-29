@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Hub — ClassMind AI</title>
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#1B3F6E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F6F6F3;
+      --card: #FFFFFF;
+      --card2: #F2F2EF;
+      --border: #E2E2DC;
+      --accent: #1B3F6E;
+      --accent-light: #EBF0F7;
+      --accent-hover: #15335A;
+      --text: #141414;
+      --muted: #747474;
+      --high: #B91C1C;
+      --med: #B45309;
+      --low: #15803D;
+      --purple: #6D28D9;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
+
+    /* ── Sidebar ── */
+    .app-layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      z-index: 200;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      padding: 22px 20px 18px;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 5px;
+      vertical-align: middle;
+      position: relative;
+      top: -2px;
+    }
+
+    .sidebar-nav { list-style: none; padding: 12px 0; flex: 1; }
+    .sidebar-nav li { margin: 2px 8px; }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sidebar-link:hover { background: var(--bg); color: var(--text); }
+    .sidebar-link.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+    .sidebar-icon { font-size: 16px; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-user { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+
+    .sidebar-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 120px;
+    }
+    .sidebar-user-uni {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 120px;
+    }
+
+    .sidebar-logout {
+      width: 100%;
+      padding: 7px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .sidebar-logout:hover { border-color: var(--high); color: var(--high); }
+
+    /* ── Page content ── */
+    .page-content {
+      margin-left: 220px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ── Mobile topbar ── */
+    .mobile-topbar { display: none; }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 199;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+      .page-content { margin-left: 0; }
+      .mobile-topbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 52px;
+        padding: 0 16px;
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .hamburger { background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; }
+      .mobile-logo {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .page-main { padding: 20px 16px 48px; }
+      .overview-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .msg { max-width: 92% !important; }
+    }
+
+    /* ── Main area ── */
+    .page-main {
+      padding: 32px 36px 60px;
+      max-width: 900px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 10px 22px;
+      border-radius: 8px;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
+      letter-spacing: 0.1px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .btn-demo { background: var(--purple); color: #fff; }
+    .btn-demo:hover { background: #5B21B6; }
+    .btn-sm { padding: 6px 14px; font-size: 12px; }
+    .btn-success { background: var(--low); color: #fff; }
+    .btn-success:hover { background: #166534; }
+
+    /* ── Guest banner ── */
+    .guest-banner {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-left: 4px solid var(--med);
+      border-radius: 10px;
+      padding: 11px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #92400E;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .guest-banner a { color: var(--accent); font-weight: 700; text-decoration: none; }
+    .guest-banner a:hover { text-decoration: underline; }
+
+    /* ── Page header ── */
+    .page-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    /* ── Upload box ── */
+    .upload-box {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 44px 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      background: var(--card);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 16px;
+    }
+    .upload-box:hover, .upload-box.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: var(--shadow);
+    }
+    .upload-icon { font-size: 44px; margin-bottom: 14px; }
+    .upload-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .upload-sub { font-size: 13px; color: var(--muted); margin-bottom: 22px; line-height: 1.6; }
+    .upload-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── File chips ── */
+    #fileChips {
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text);
+      max-width: 220px;
+      box-shadow: var(--shadow-sm);
+    }
+    .file-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+    .file-chip-remove {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+    .file-chip-remove:hover { color: var(--high); }
+
+    /* ── Textarea ── */
+    .paste-area {
+      width: 100%;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      padding: 14px 16px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      resize: vertical;
+      min-height: 140px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+    .paste-area:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,63,110,0.08); }
+    .paste-area::placeholder { color: #ADADAD; }
+
+    .analyze-bar {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .char-count { font-size: 12px; color: var(--muted); }
+
+    /* ── Loading ── */
+    #loadingSection {
+      display: none;
+      text-align: center;
+      padding: 80px 40px;
+    }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .loading-sub { font-size: 13px; color: var(--muted); }
+
+    /* ── Results header ── */
+    .results-topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .results-topbar-left { flex: 1; min-width: 0; }
+    .results-topbar-left h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 28px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      padding: 12px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--muted);
+      border: none;
+      background: transparent;
+      white-space: nowrap;
+      transition: color 0.2s;
+      position: relative;
+      bottom: -2px;
+      border-bottom: 2px solid transparent;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ── Overview ── */
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-num {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 40px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .overview-text { font-size: 15px; line-height: 1.75; color: var(--text); }
+    .tip-box {
+      background: var(--accent-light);
+      border: 1px solid #C8D9EE;
+      border-radius: 12px;
+      padding: 18px;
+      margin-top: 18px;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .tip-label {
+      font-size: 10px;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    /* ── Assignments ── */
+    .assignment-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--low);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s;
+    }
+    .assignment-card:hover { box-shadow: var(--shadow); }
+    .assignment-card.HIGH { border-left-color: var(--high); }
+    .assignment-card.MEDIUM { border-left-color: var(--med); }
+    .assignment-card.LOW { border-left-color: var(--low); }
+
+    .assignment-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+    .assignment-title { font-size: 15px; font-weight: 700; flex: 1; color: var(--text); }
+
+    .priority-badge {
+      padding: 3px 10px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      white-space: nowrap;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .badge-HIGH { background: #FEE2E2; color: var(--high); }
+    .badge-MEDIUM { background: #FEF3C7; color: var(--med); }
+    .badge-LOW { background: #DCFCE7; color: var(--low); }
+
+    .assignment-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 500; flex-wrap: wrap; }
+    .assignment-details { font-size: 14px; color: #3A3A3A; line-height: 1.65; }
+
+    .countdown { font-size: 12px; font-weight: 700; margin-top: 6px; margin-bottom: 8px; }
+    .countdown.urgent { color: var(--high); }
+    .countdown.soon { color: var(--med); }
+    .countdown.ok { color: var(--low); }
+    .countdown.unknown { color: var(--muted); }
+
+    /* ── Schedule ── */
+    .day-group { margin-bottom: 24px; }
+    .day-label {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .slot {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 14px 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s;
+    }
+    .slot:hover { box-shadow: var(--shadow); }
+    .slot-alarm-btn { padding: 5px 8px; border-radius: 7px; border: 1.5px solid #E2E2DC; background: transparent; font-size: 14px; cursor: pointer; flex-shrink: 0; transition: all .15s; align-self: center; }
+    .slot-alarm-btn:hover { background: #FEF9EC; border-color: #C4933F; }
+    .slot-time { font-size: 12px; color: var(--muted); min-width: 72px; font-weight: 600; padding-top: 2px; }
+    .slot-info { flex: 1; }
+    .slot-subject { font-size: 14px; font-weight: 700; color: var(--text); }
+    .slot-venue { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .slot-type-badge {
+      padding: 3px 10px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .type-class, .type-lecture { background: #DBEAFE; color: #1E40AF; }
+    .type-lab { background: #EDE9FE; color: #5B21B6; }
+    .type-test { background: #FEF3C7; color: #92400E; }
+    .type-exam { background: #FEE2E2; color: #991B1B; }
+    .type-assignment_due { background: #DCFCE7; color: #166534; }
+    .type-tutorial { background: #F0FDF4; color: #15803D; }
+
+    /* ── Topics ── */
+    .topic-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .topic-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .topic-header:hover { background: var(--card2); }
+    .topic-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .topic-chevron { font-size: 14px; color: var(--muted); transition: transform 0.2s; }
+    .topic-body {
+      display: none;
+      padding: 18px 20px;
+      border-top: 1px solid var(--border);
+      background: #FAFAF8;
+    }
+    .topic-body.open { display: block; }
+    .topic-chevron.open { transform: rotate(180deg); }
+    .topic-summary { font-size: 14px; line-height: 1.75; color: #3A3A3A; margin-bottom: 14px; }
+    .topic-points { list-style: none; }
+    .topic-points li {
+      font-size: 14px;
+      color: #3A3A3A;
+      padding: 6px 0 6px 22px;
+      position: relative;
+      line-height: 1.55;
+      border-bottom: 1px solid var(--border);
+    }
+    .topic-points li:last-child { border-bottom: none; }
+    .topic-points li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* ── Style bar ── */
+    .style-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--card2);
+      flex-wrap: wrap;
+    }
+    .style-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .style-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .style-pill {
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .style-pill:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .style-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ── Chat ── */
+    .chat-wrap {
+      display: flex;
+      flex-direction: column;
+      height: 560px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+      background: #FAFAF8;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .msg { max-width: 78%; display: flex; flex-direction: column; gap: 4px; }
+    .msg.user { align-self: flex-end; align-items: flex-end; }
+    .msg.ai { align-self: flex-start; align-items: flex-start; }
+
+    .msg-bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .msg.user .msg-bubble {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 16px 16px 4px 16px;
+      box-shadow: 0 2px 8px rgba(27,63,110,0.2);
+    }
+    .msg.ai .msg-bubble {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px 16px 16px 4px;
+      box-shadow: var(--shadow-sm);
+      color: var(--text);
+    }
+    .msg-time { font-size: 10px; color: var(--muted); }
+
+    .chat-input-wrap {
+      border-top: 1px solid var(--border);
+      padding: 14px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: var(--card);
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--card2);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      resize: none;
+      outline: none;
+      max-height: 120px;
+      min-height: 42px;
+      overflow-y: auto;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .chat-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,63,110,0.08); }
+    .chat-input::placeholder { color: #ADADAD; }
+
+    .send-btn {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: background 0.18s, box-shadow 0.18s;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(27,63,110,0.25);
+    }
+    .send-btn:hover { background: var(--accent-hover); }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+    .chat-suggestions {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
+    }
+    .chat-suggestions::-webkit-scrollbar { display: none; }
+
+    .suggestion {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      background: var(--card2);
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.18s;
+    }
+    .suggestion:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+    /* ── Empty states ── */
+    .empty {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 24px;
+      background: #1A1A1A;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+      z-index: 999;
+      max-width: 340px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      border-left: 4px solid var(--accent);
+    }
+
+    /* ── Save modal overlay ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 28px 28px 24px;
+      width: 380px;
+      max-width: 95vw;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    }
+    .modal h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .modal input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      margin-bottom: 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .modal input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,63,110,0.08); }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="app-layout">
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      ClassMind<span class="sidebar-logo-badge">AI</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/dashboard.html" class="sidebar-link"><span class="sidebar-icon">⊞</span><span>Dashboard</span></a></li>
+      <li><a href="/study.html" class="sidebar-link active"><span class="sidebar-icon">📚</span><span>Study Hub</span></a></li>
+      <li><a href="/tasks.html" class="sidebar-link"><span class="sidebar-icon">✓</span><span>Task Board</span></a></li>
+      <li><a href="/cgpa.html" class="sidebar-link"><span class="sidebar-icon">📈</span><span>CGPA Calc</span></a></li>
+      <li><a href="/notes.html" class="sidebar-link"><span class="sidebar-icon">🗂</span><span>Notes</span></a></li>
+      <li><a href="/settings.html" class="sidebar-link"><span class="sidebar-icon">⚙</span><span>Settings</span></a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">?</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebarName">Guest</div>
+          <div class="sidebar-user-uni" id="sidebarUni">Sign in to save</div>
+        </div>
+      </div>
+      <button class="sidebar-logout" id="sidebarSignOutBtn" onclick="signOut()" style="display:none">Sign out</button>
+    </div>
+  </nav>
+
+  <!-- Page content -->
+  <div class="page-content">
+    <!-- Mobile topbar -->
+    <div class="mobile-topbar">
+      <button class="hamburger" onclick="openSidebar()" aria-label="Open menu">☰</button>
+      <div class="mobile-logo">ClassMind<span class="sidebar-logo-badge">AI</span></div>
+    </div>
+
+    <main class="page-main">
+
+      <!-- Guest banner (shown when not logged in) -->
+      <div class="guest-banner" id="guestBanner" style="display:none">
+        <span>ℹ️</span>
+        <span>Sign in to save your analyses to Notes. <a href="/login.html">Sign in →</a></span>
+      </div>
+
+      <!-- ══ UPLOAD STATE ══ -->
+      <div id="uploadSection">
+        <h1 class="page-title">Study Hub</h1>
+        <p class="page-subtitle">Upload any material — chat export, PDF, image, document</p>
+
+        <!-- Drop zone -->
+        <div class="upload-box" id="dropZone">
+          <div class="upload-icon">📚</div>
+          <div class="upload-title">Drop any files here — or click to browse</div>
+          <div class="upload-sub">Images · PDFs · Word · Excel · CSV · TXT · and more</div>
+          <div class="upload-actions">
+            <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()">📂 Upload Files</button>
+            <button class="btn btn-demo" onclick="loadDemo()">✨ Try Demo</button>
+          </div>
+          <input type="file" id="fileInput" accept="*" multiple style="display:none" />
+        </div>
+
+        <!-- File chips -->
+        <div id="fileChips"></div>
+
+        <!-- Paste area -->
+        <textarea
+          class="paste-area"
+          id="pasteArea"
+          placeholder="Or paste your WhatsApp chat export, class notes, or timetable here...&#10;&#10;You can combine files + pasted text — ClassMind analyzes everything together."
+        ></textarea>
+
+        <div class="analyze-bar">
+          <button class="btn btn-primary" onclick="analyze()">🔍 Analyze with AI</button>
+          <button class="btn btn-outline btn-sm" onclick="clearAll()">Clear</button>
+          <span class="char-count" id="charCount">0 chars</span>
+        </div>
+      </div>
+
+      <!-- ══ LOADING STATE ══ -->
+      <div id="loadingSection">
+        <div class="spinner"></div>
+        <div class="loading-text">Analyzing your material…</div>
+        <div class="loading-sub">Extracting assignments, schedules, and key topics</div>
+      </div>
+
+      <!-- ══ RESULTS STATE ══ -->
+      <div id="resultsSection" style="display:none">
+
+        <!-- Results top bar -->
+        <div class="results-topbar">
+          <div class="results-topbar-left">
+            <h1>Analysis Results</h1>
+            <span id="autoSaveIndicator" style="display:none;font-size:12px;color:var(--low);font-weight:600;margin-left:12px;">✓ Saved automatically</span>
+            <span id="autoSaveSpinner" style="display:none;font-size:12px;color:var(--muted);margin-left:12px;">Saving…</span>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="backToUpload()">← Analyze Another</button>
+          <button class="btn btn-success btn-sm" id="saveBtn" onclick="openSaveModal()" style="display:none">
+            ✏️ Rename &amp; Save
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab active" data-tab="overview" onclick="switchTab('overview')">📊 Overview</button>
+          <button class="tab" data-tab="assignments" onclick="switchTab('assignments')">📋 Assignments</button>
+          <button class="tab" data-tab="schedule" onclick="switchTab('schedule')">📅 Schedule</button>
+          <button class="tab" data-tab="topics" onclick="switchTab('topics')">💡 Topics</button>
+          <button class="tab" data-tab="lecturers" onclick="switchTab('lecturers')">👨‍🏫 Lecturers</button>
+          <button class="tab" data-tab="outline" onclick="switchTab('outline')">📚 Course Outline</button>
+          <button class="tab" data-tab="chat" onclick="switchTab('chat')">🤖 AI Chat</button>
+        </div>
+
+        <!-- Overview -->
+        <div class="tab-content active" id="tab-overview"></div>
+
+        <!-- Assignments -->
+        <div class="tab-content" id="tab-assignments"></div>
+
+        <!-- Schedule -->
+        <div class="tab-content" id="tab-schedule"></div>
+
+        <!-- Topics -->
+        <div class="tab-content" id="tab-topics"></div>
+
+        <!-- Lecturers -->
+        <div class="tab-content" id="tab-lecturers"></div>
+
+        <!-- Course Outline -->
+        <div class="tab-content" id="tab-outline"></div>
+
+        <!-- Chat -->
+        <div class="tab-content" id="tab-chat">
+          <div class="chat-wrap">
+            <div class="style-bar">
+              <span class="style-label">AI Style:</span>
+              <div class="style-pills">
+                <button class="style-pill active" data-style="simple" onclick="setStyle(this)">🧠 Simple</button>
+                <button class="style-pill" data-style="academic" onclick="setStyle(this)">🎓 Academic</button>
+                <button class="style-pill" data-style="exam" onclick="setStyle(this)">📝 Exam Mode</button>
+                <button class="style-pill" data-style="naija" onclick="setStyle(this)">🇳🇬 Naija Mode</button>
+                <button class="style-pill" data-style="eli5" onclick="setStyle(this)">👶 ELI5</button>
+                <button class="style-pill" data-style="tutor" onclick="setStyle(this)">👨‍🏫 Tutor</button>
+              </div>
+            </div>
+            <div class="chat-suggestions" id="chatSuggestions">
+              <button class="suggestion" onclick="sendSuggestion(this)">Write my assignment for me</button>
+              <button class="suggestion" onclick="sendSuggestion(this)">What are my urgent deadlines?</button>
+              <button class="suggestion" onclick="sendSuggestion(this)">Explain today's class topics</button>
+              <button class="suggestion" onclick="sendSuggestion(this)">Help me prepare for exams</button>
+              <button class="suggestion" onclick="sendSuggestion(this)">Summarize all subjects</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+              <div class="msg ai">
+                <div class="msg-bubble">Hey! 👋 I'm ClassMind AI. I've analyzed your academic material and I'm ready to help.
+
+I can:
+• Write assignments and essays for you
+• Explain any topic from your courses
+• Help you prepare for tests and exams
+• Tell you what's urgent and due soon
+
+What do you need help with?</div>
+              </div>
+            </div>
+            <div class="chat-input-wrap">
+              <textarea
+                class="chat-input"
+                id="chatInput"
+                placeholder="Ask me anything about your courses…"
+                rows="1"
+                onkeydown="handleChatKey(event)"
+                oninput="autoResize(this)"
+              ></textarea>
+              <button class="send-btn" id="sendBtn" onclick="sendChat()">➤</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /resultsSection -->
+
+    </main>
+  </div>
+</div>
+
+<!-- Save modal -->
+<div class="modal-backdrop" id="saveModal">
+  <div class="modal">
+    <h3>Save Analysis to Notes</h3>
+    <input type="text" id="saveNameInput" placeholder="Enter a name for this analysis…" maxlength="100" />
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeSaveModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveAnalysis()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/shared.js"></script>
+<script>
+  /* ═══════════════════════════════════════════════
+     AUTH
+  ═══════════════════════════════════════════════ */
+  function getToken() { return localStorage.getItem('cm_token'); }
+  function getUser() {
+    try { return JSON.parse(localStorage.getItem('cm_user') || 'null'); } catch { return null; }
+  }
+  function clearAuth() {
+    localStorage.removeItem('cm_token');
+    localStorage.removeItem('cm_user');
+  }
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() };
+  }
+  function isLoggedIn() { return !!getToken(); }
+  function signOut() { clearAuth(); window.location.href = '/login.html'; }
+
+  /* ═══════════════════════════════════════════════
+     SIDEBAR / MOBILE
+  ═══════════════════════════════════════════════ */
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebarOverlay').classList.add('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+  }
+
+  /* ═══════════════════════════════════════════════
+     TOAST
+  ═══════════════════════════════════════════════ */
+  function showToast(msg, type = 'error') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.borderLeftColor = type === 'success' ? 'var(--low)' : type === 'info' ? 'var(--accent)' : 'var(--high)';
+    el.style.display = 'block';
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.style.display = 'none', 3500);
+  }
+
+  /* ═══════════════════════════════════════════════
+     ESCAPE UTILS
+  ═══════════════════════════════════════════════ */
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  /* ═══════════════════════════════════════════════
+     PAGE INIT
+  ═══════════════════════════════════════════════ */
+  function init() {
+    // Show guest banner or sidebar sign-out based on auth state
+    if (isLoggedIn()) {
+      const user = getUser();
+      if (user) {
+        const name = user.name || 'Student';
+        const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        document.getElementById('sidebarAvatar').textContent = initials;
+        document.getElementById('sidebarName').textContent = name;
+        document.getElementById('sidebarUni').textContent = user.university || 'Set up profile';
+      }
+      document.getElementById('sidebarSignOutBtn').style.display = 'block';
+      document.getElementById('saveBtn').style.display = '';
+    } else {
+      document.getElementById('guestBanner').style.display = 'flex';
+      document.getElementById('sidebarAvatar').textContent = '?';
+      document.getElementById('sidebarName').textContent = 'Guest';
+      document.getElementById('sidebarUni').textContent = 'Not signed in';
+    }
+  }
+
+  init();
+
+  /* ═══════════════════════════════════════════════
+     FILE HANDLING
+  ═══════════════════════════════════════════════ */
+  let attachedFiles = [];
+
+  const FILE_ICONS = {
+    pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊', csv: '📊',
+    ppt: '📑', pptx: '📑', txt: '📃', md: '📃',
+    jpg: '🖼️', jpeg: '🖼️', png: '🖼️', gif: '🖼️', webp: '🖼️',
+    mp3: '🎵', wav: '🎵', m4a: '🎵', ogg: '🎵',
+    mp4: '🎬', mov: '🎬', avi: '🎬'
+  };
+
+  function getFileIcon(name) {
+    const ext = (name.split('.').pop() || '').toLowerCase();
+    return FILE_ICONS[ext] || '📎';
+  }
+
+  function addFiles(files) {
+    const newFiles = Array.from(files);
+    newFiles.forEach(f => {
+      if (!attachedFiles.find(x => x.name === f.name && x.size === f.size)) {
+        attachedFiles.push(f);
+      }
+    });
+    renderChips();
+    updateCharCount();
+    if (newFiles.length > 0) {
+      showToast(`${newFiles.length} file${newFiles.length > 1 ? 's' : ''} added. Click "Analyze with AI" when ready.`, 'success');
+    }
+  }
+
+  function removeFile(idx) {
+    attachedFiles.splice(idx, 1);
+    renderChips();
+    updateCharCount();
+  }
+
+  function renderChips() {
+    const c = document.getElementById('fileChips');
+    if (!attachedFiles.length) { c.style.display = 'none'; return; }
+    c.style.display = 'flex';
+    c.innerHTML = attachedFiles.map((f, i) => `
+      <div class="file-chip">
+        <span>${getFileIcon(f.name)}</span>
+        <span class="file-chip-name" title="${esc(f.name)}">${esc(f.name)}</span>
+        <button class="file-chip-remove" onclick="removeFile(${i})" title="Remove">×</button>
+      </div>
+    `).join('');
+  }
+
+  function updateCharCount() {
+    const chars = document.getElementById('pasteArea').value.length;
+    const files = attachedFiles.length;
+    let label = chars ? `${chars.toLocaleString()} chars` : '';
+    if (files) label += (label ? ' + ' : '') + `${files} file${files > 1 ? 's' : ''}`;
+    document.getElementById('charCount').textContent = label || '0 chars';
+  }
+
+  /* ── Drop zone setup ── */
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const pasteArea = document.getElementById('pasteArea');
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) addFiles(fileInput.files);
+    fileInput.value = '';
+  });
+  pasteArea.addEventListener('input', updateCharCount);
+
+  /* ═══════════════════════════════════════════════
+     DEMO DATA
+  ═══════════════════════════════════════════════ */
+  function loadDemo() {
+    pasteArea.value = `[UNIPORT CSC 300 Level WhatsApp Group]
+
+David: Guys, the MTH201 test is next Friday! 30 marks
+Amaka: Which topics are coming?
+Prof_Chidi: MTH201 Test topics: Differentiation, Integration, and Series. Study chapters 4-7
+Prof_Chidi: Venue: LT4, Time: 10:00 AM
+
+COS102 Assignment posted by Course Rep:
+TOPIC: Write a program in C that reads 10 integers and sorts them using bubble sort
+DEADLINE: Submit hard copy by Thursday 5pm to CSC Dept
+MARKS: 15 marks
+
+Emeka: PHY107 practical is tomorrow morning 8am in Physics Lab Block B
+Admin: Register for the portal before end of week or lose access
+
+Timetable this semester:
+Monday: MTH201 - 8am-10am - LT2
+Monday: CSC221 - 12pm-2pm - LT5
+Tuesday: PHY107 - 8am-11am - Physics Lab
+Wednesday: CSC225 - 10am-12pm - LT3
+Wednesday: CSC102 - 2pm-4pm - LT1
+Thursday: MTH201 Tutorial - 2pm-4pm - Room 14
+Friday: CSC227 - 8am-10am - LT4
+Friday: PHY107 Lecture - 12pm-2pm - Physics Block A
+
+David_CSC: Anyone have the CSC225 notes from last week? Prof talked about memory management and pointers
+Tunde: I have it. Topics covered: Stack vs Heap, Dynamic memory allocation (malloc, calloc, free), Pointer arithmetic
+Amaka: CSC227 assignment: Write an essay on Operating System scheduling algorithms (500 words minimum), due next Monday
+
+PHY107 topics this week: Newton's Laws of Motion, Friction and inclined planes, Work-Energy theorem
+
+Chidi: Reminder - COS102 final project presentations start 2 weeks from now. Each group needs a demo`;
+
+    pasteArea.dispatchEvent(new Event('input'));
+    showToast('Demo data loaded! Click "Analyze with AI" to continue.', 'success');
+  }
+
+  /* ═══════════════════════════════════════════════
+     CLEAR
+  ═══════════════════════════════════════════════ */
+  function clearAll() {
+    pasteArea.value = '';
+    attachedFiles = [];
+    renderChips();
+    updateCharCount();
+    studyContext = null;
+    chatHistory = [];
+  }
+
+  function backToUpload() {
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('uploadSection').style.display = 'block';
+  }
+
+  /* ═══════════════════════════════════════════════
+     ANALYZE
+  ═══════════════════════════════════════════════ */
+  let studyContext = null;
+
+  // Restore analysis forwarded from Notes page via sessionStorage
+  (function() {
+    const stored = sessionStorage.getItem('cm_study_result');
+    if (stored) {
+      sessionStorage.removeItem('cm_study_result');
+      try { studyContext = JSON.parse(stored); renderAll(studyContext); } catch {}
+    }
+  })();
+
+  async function analyze() {
+    const content = pasteArea.value.trim();
+    if (!content && !attachedFiles.length) {
+      showToast('Please paste some content or upload files first.');
+      return;
+    }
+
+    document.getElementById('uploadSection').style.display = 'none';
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('loadingSection').style.display = 'block';
+
+    try {
+      let res;
+
+      if (attachedFiles.length > 0) {
+        const formData = new FormData();
+        attachedFiles.forEach(f => formData.append('files', f));
+        if (content) formData.append('text', content);
+
+        // Include auth header for file uploads (no Content-Type — browser sets multipart boundary)
+        const headers = {};
+        if (isLoggedIn()) headers['Authorization'] = 'Bearer ' + getToken();
+
+        res = await fetch('/api/analyze-files', { method: 'POST', headers, body: formData });
+      } else {
+        const headers = { 'Content-Type': 'application/json' };
+        if (isLoggedIn()) headers['Authorization'] = 'Bearer ' + getToken();
+
+        res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ content })
+        });
+      }
+
+      if (res.status === 401) {
+        clearAuth();
+        window.location.href = '/login.html';
+        return;
+      }
+
+      if (!res.ok) {
+        let errMsg = 'Analysis failed.';
+        try { const e = await res.json(); errMsg = e.error || errMsg; } catch {}
+        throw new Error(errMsg);
+      }
+
+      studyContext = await res.json();
+      renderAll(studyContext);
+      autoSaveAnalysis();
+      autoCreateClassReminders(studyContext.timetable || []);
+
+      document.getElementById('loadingSection').style.display = 'none';
+      document.getElementById('resultsSection').style.display = 'block';
+      switchTab('overview');
+
+    } catch (err) {
+      document.getElementById('loadingSection').style.display = 'none';
+      document.getElementById('uploadSection').style.display = 'block';
+      showToast('Error: ' + err.message);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════
+     RENDER ALL TABS
+  ═══════════════════════════════════════════════ */
+  function renderAll(data) {
+    renderOverview(data);
+    renderAssignments(data.assignments || []);
+    renderSchedule(data.timetable || []);
+    renderTopics(data.topics || {});
+    renderLecturers(data.lecturers || []);
+    renderCourseOutline(data.course_outline || []);
+    // Show/hide tabs based on data presence
+    document.querySelector('[data-tab="lecturers"]').style.display = (data.lecturers?.length) ? '' : 'none';
+    document.querySelector('[data-tab="outline"]').style.display = (data.course_outline?.length) ? '' : 'none';
+    resetChat();
+  }
+
+  /* ── Overview ── */
+  function renderOverview(data) {
+    const assignments = data.assignments || [];
+    const highCount = assignments.filter(a => a.priority === 'HIGH').length;
+    const subjects = Object.keys(data.topics || {});
+    const timetable = data.timetable || [];
+    const lecturers = data.lecturers || [];
+    const outline = data.course_outline || [];
+
+    document.getElementById('tab-overview').innerHTML = `
+      <div class="overview-grid">
+        <div class="stat-card">
+          <div class="stat-num">${assignments.length}</div>
+          <div class="stat-label">Assignments</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color:var(--high)">${highCount}</div>
+          <div class="stat-label">High Priority</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">${timetable.length}</div>
+          <div class="stat-label">Scheduled Classes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">${subjects.length}</div>
+          <div class="stat-label">Subjects Found</div>
+        </div>
+        ${lecturers.length ? `<div class="stat-card">
+          <div class="stat-num">${lecturers.length}</div>
+          <div class="stat-label">Lecturers</div>
+        </div>` : ''}
+        ${outline.length ? `<div class="stat-card">
+          <div class="stat-num">${outline.length}</div>
+          <div class="stat-label">Courses Outlined</div>
+        </div>` : ''}
+      </div>
+      <div class="card">
+        <div class="tip-label">OVERVIEW</div>
+        <div class="overview-text">${esc(data.overview || 'No overview available.')}</div>
+        ${data.tip ? `
+        <div class="tip-box">
+          <div class="tip-label">💡 AI TIP</div>
+          ${esc(data.tip)}
+        </div>` : ''}
+      </div>
+      ${highCount > 0 ? `
+      <div class="card" style="border-left:4px solid var(--high)">
+        <div class="tip-label" style="color:var(--high)">⚠ URGENT ITEMS</div>
+        ${assignments.filter(a => a.priority === 'HIGH').map(a => `
+          <div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start">
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:14px">${esc(a.title)}</div>
+              <div style="font-size:12px;color:var(--muted)">${esc(a.subject)} · Due: ${esc(a.deadline)}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>` : ''}
+    `;
+  }
+
+  /* ── Deadline parser / countdown ── */
+  function parseDeadline(str) {
+    if (!str) return null;
+    const s = str.trim();
+    const now = new Date();
+    const direct = new Date(s);
+    if (!isNaN(direct) && direct > now) return direct;
+
+    const timeMatch = s.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+    let hours = 17, minutes = 0;
+    if (timeMatch) {
+      hours = parseInt(timeMatch[1], 10);
+      minutes = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;
+      const mer = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+      if (mer === 'pm' && hours < 12) hours += 12;
+      if (mer === 'am' && hours === 12) hours = 0;
+    }
+
+    const lower = s.toLowerCase();
+    if (lower.startsWith('tomorrow')) {
+      const d = new Date(now); d.setDate(d.getDate() + 1); d.setHours(hours, minutes, 0, 0);
+      return d > now ? d : null;
+    }
+    if (lower.startsWith('today')) {
+      const d = new Date(now); d.setHours(hours, minutes, 0, 0);
+      return d > now ? d : null;
+    }
+    const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+    const isNext = lower.startsWith('next ');
+    const searchStr = isNext ? lower.slice(5) : lower;
+    for (let i = 0; i < days.length; i++) {
+      if (searchStr.startsWith(days[i])) {
+        const target = new Date(now);
+        let diff = ((i - now.getDay() + 7) % 7) || 7;
+        if (isNext) diff += 7;
+        target.setDate(target.getDate() + diff);
+        target.setHours(hours, minutes, 0, 0);
+        return target > now ? target : null;
+      }
+    }
+    return null;
+  }
+
+  function formatCountdown(deadline) {
+    const parsed = parseDeadline(deadline);
+    if (!parsed) return { text: '📅 Check deadline', cls: 'unknown' };
+    const diff = parsed - Date.now();
+    if (diff <= 0) return { text: '📅 Deadline passed', cls: 'unknown' };
+    const totalMins = Math.floor(diff / 60000);
+    const d = Math.floor(totalMins / 1440);
+    const h = Math.floor((totalMins % 1440) / 60);
+    const m = totalMins % 60;
+    const text = d > 0 ? `⏱ ${d}d ${h}h ${m}m left` : h > 0 ? `⏱ ${h}h ${m}m left` : `⏱ ${m}m left`;
+    const hrs = diff / 3600000;
+    const cls = hrs < 24 ? 'urgent' : hrs < 72 ? 'soon' : 'ok';
+    return { text, cls };
+  }
+
+  let countdownInterval = null;
+  function updateCountdowns() {
+    document.querySelectorAll('[data-countdown]').forEach(el => {
+      const { text, cls } = formatCountdown(el.dataset.countdown);
+      el.textContent = text;
+      el.className = 'countdown ' + cls;
+    });
+  }
+
+  /* ── Assignments ── */
+  function renderAssignments(assignments) {
+    if (!assignments.length) {
+      document.getElementById('tab-assignments').innerHTML = `<div class="empty"><div class="empty-icon">✅</div><p>No assignments found in the material.</p></div>`;
+      return;
+    }
+    const sorted = [...assignments].sort((a, b) => {
+      const o = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+      return (o[a.priority] ?? 1) - (o[b.priority] ?? 1);
+    });
+    document.getElementById('tab-assignments').innerHTML = sorted.map(a => {
+      const { text: cdText, cls: cdCls } = formatCountdown(a.deadline);
+      return `
+        <div class="assignment-card ${a.priority}">
+          <div class="assignment-header">
+            <div class="assignment-title">${esc(a.title)}</div>
+            <span class="priority-badge badge-${a.priority}">${a.priority}</span>
+          </div>
+          <div class="assignment-meta">
+            <span>📖 ${esc(a.subject)}</span>
+            <span>📅 ${esc(a.deadline)}</span>
+          </div>
+          <div class="countdown ${cdCls}" data-countdown="${esc(a.deadline)}">${cdText}</div>
+          <div class="assignment-details">${esc(a.details)}</div>
+          <div style="margin-top:12px">
+            <button class="btn btn-primary btn-sm" onclick="askAbout('Help me complete this assignment: ${escAttr(a.title)} for ${escAttr(a.subject)}')">
+              🤖 Get AI Help
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = setInterval(updateCountdowns, 30000);
+  }
+
+  /* ── Schedule ── */
+  function renderSchedule(timetable) {
+    if (!timetable.length) {
+      document.getElementById('tab-schedule').innerHTML = `<div class="empty"><div class="empty-icon">📅</div><p>No schedule information found.</p></div>`;
+      return;
+    }
+    const dayOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    const byDay = {};
+    timetable.forEach(slot => {
+      const day = slot.day || 'Other';
+      if (!byDay[day]) byDay[day] = [];
+      byDay[day].push(slot);
+    });
+    const sortedDays = Object.keys(byDay).sort((a, b) => {
+      const ai = dayOrder.indexOf(a), bi = dayOrder.indexOf(b);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+    document.getElementById('tab-schedule').innerHTML = sortedDays.map(day => `
+      <div class="day-group">
+        <div class="day-label">${esc(day)}</div>
+        ${byDay[day].map(slot => `
+          <div class="slot">
+            <div class="slot-time">${esc(slot.time)}</div>
+            <div class="slot-info">
+              <div class="slot-subject">${esc(slot.subject)}${slot.course_code ? ` <span style="font-size:10px;background:var(--accent-bg,#EBF0F7);color:var(--accent);padding:1px 6px;border-radius:10px;font-weight:700">${esc(slot.course_code)}</span>` : ''}</div>
+              <div class="slot-venue">📍 ${esc(slot.venue)}${slot.lecturer ? ` · 👨‍🏫 ${esc(slot.lecturer)}` : ''}</div>
+            </div>
+            <span class="slot-type-badge type-${(slot.type || 'class').toLowerCase()}">${(slot.type || 'class').replace('_', ' ')}</span>
+            <button class="slot-alarm-btn" title="Set alarm for this class" onclick="setClassAlarm(${JSON.stringify(slot.day)}, ${JSON.stringify(slot.time)}, ${JSON.stringify(slot.subject)}, ${JSON.stringify(slot.course_code||'')})">🔔</button>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+  }
+
+  /* ── Topics ── */
+  function renderTopics(topics) {
+    const keys = Object.keys(topics);
+    if (!keys.length) {
+      document.getElementById('tab-topics').innerHTML = `<div class="empty"><div class="empty-icon">💡</div><p>No topic details found.</p></div>`;
+      return;
+    }
+    document.getElementById('tab-topics').innerHTML = keys.map((subject, i) => {
+      const t = topics[subject];
+      const id = 'topic-' + i;
+      return `
+        <div class="topic-card">
+          <div class="topic-header" onclick="toggleTopic('${id}')">
+            <div class="topic-name">${esc(subject)}</div>
+            <span class="topic-chevron${i === 0 ? ' open' : ''}" id="chev-${id}">▾</span>
+          </div>
+          <div class="topic-body${i === 0 ? ' open' : ''}" id="${id}">
+            <div class="topic-summary">${esc(t.summary || '')}</div>
+            <ul class="topic-points">
+              ${(t.key_points || []).map(p => `<li>${esc(p)}</li>`).join('')}
+            </ul>
+            <div style="margin-top:12px">
+              <button class="btn btn-outline btn-sm" onclick="askAbout('Explain ${escAttr(subject)} in detail and help me prepare for exams on this topic')">
+                🔭 Deep Dive
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function toggleTopic(id) {
+    document.getElementById(id).classList.toggle('open');
+    document.getElementById('chev-' + id).classList.toggle('open');
+  }
+
+  /* ── Lecturers ── */
+  function renderLecturers(lecturers) {
+    const el = document.getElementById('tab-lecturers');
+    if (!lecturers.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">👨‍🏫</div><p>No lecturer information found in the material.</p></div>`;
+      return;
+    }
+    el.innerHTML = `<div style="display:grid;gap:14px;padding:4px 0">` + lecturers.map(l => `
+      <div class="topic-card" style="padding:16px 20px">
+        <div style="font-weight:700;font-size:15px;color:var(--accent)">${esc((l.title ? l.title + ' ' : '') + (l.name || 'Unknown'))}</div>
+        ${l.course ? `<div style="margin-top:4px;font-size:13px;color:var(--muted)">📖 ${esc(l.course)}${l.course_code ? ` <span style="background:var(--accent-bg);color:var(--accent);padding:1px 7px;border-radius:20px;font-size:11px;font-weight:700;margin-left:6px">${esc(l.course_code)}</span>` : ''}</div>` : ''}
+        ${l.office ? `<div style="margin-top:4px;font-size:13px">🏢 ${esc(l.office)}</div>` : ''}
+        ${l.email ? `<div style="margin-top:4px;font-size:13px">✉️ <a href="mailto:${esc(l.email)}" style="color:var(--accent)">${esc(l.email)}</a></div>` : ''}
+        ${l.phone ? `<div style="margin-top:4px;font-size:13px">📞 ${esc(l.phone)}</div>` : ''}
+      </div>`).join('') + `</div>`;
+  }
+
+  /* ── Course Outline ── */
+  function renderCourseOutline(outline) {
+    const el = document.getElementById('tab-outline');
+    if (!outline.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">📚</div><p>No course outline found in the material.</p></div>`;
+      return;
+    }
+    el.innerHTML = outline.map((c, i) => {
+      const id = 'outline-' + i;
+      return `
+        <div class="topic-card">
+          <div class="topic-header" onclick="toggleTopic('${id}')">
+            <div class="topic-name">
+              ${esc(c.course || 'Course')}
+              ${c.course_code ? `<span style="background:var(--accent-bg);color:var(--accent);padding:1px 8px;border-radius:20px;font-size:11px;font-weight:700;margin-left:8px">${esc(c.course_code)}</span>` : ''}
+              ${c.credit_units ? `<span style="color:var(--muted);font-size:11px;margin-left:8px">${esc(String(c.credit_units))} units</span>` : ''}
+            </div>
+            <span class="topic-chevron${i === 0 ? ' open' : ''}" id="chev-${id}">▾</span>
+          </div>
+          <div class="topic-body${i === 0 ? ' open' : ''}" id="${id}">
+            ${c.lecturer ? `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">👨‍🏫 ${esc(c.lecturer)}${c.semester ? ` · ${esc(c.semester)}` : ''}</div>` : ''}
+            ${c.assessment ? `<div style="font-size:12px;background:var(--accent-bg);color:var(--accent);padding:4px 10px;border-radius:6px;display:inline-block;margin-bottom:10px">📊 ${esc(c.assessment)}</div>` : ''}
+            ${(c.topics||[]).length ? `<div style="font-weight:600;font-size:12px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)">Topics Covered</div><ul class="topic-points">${(c.topics||[]).map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+            ${(c.recommended_texts||[]).length ? `<div style="font-weight:600;font-size:12px;margin-top:12px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)">Recommended Texts</div><ul class="topic-points">${(c.recommended_texts||[]).map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+            <div style="margin-top:14px">
+              <button class="btn btn-outline btn-sm" onclick="askAbout('Explain the course outline for ${escAttr(c.course || c.course_code || 'this course')} and help me plan my study schedule')">
+                📅 Plan Study Schedule
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  /* ═══════════════════════════════════════════════
+     TABS
+  ═══════════════════════════════════════════════ */
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === name);
+    });
+    document.querySelectorAll('.tab-content').forEach(c => {
+      c.classList.toggle('active', c.id === 'tab-' + name);
+    });
+    if (name === 'chat') scrollChat();
+  }
+
+  /* ═══════════════════════════════════════════════
+     CHAT
+  ═══════════════════════════════════════════════ */
+  let chatHistory = [];
+  let isStreaming = false;
+  let currentStyle = 'simple';
+
+  function setStyle(btn) {
+    document.querySelectorAll('.style-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    currentStyle = btn.dataset.style;
+    const styleNames = { simple: 'Simple', academic: 'Academic', exam: 'Exam Mode', naija: 'Naija Mode', eli5: 'ELI5', tutor: 'Tutor' };
+    showToast('Style: ' + styleNames[currentStyle], 'info');
+  }
+
+  function resetChat() {
+    chatHistory = [];
+    const msgs = document.getElementById('chatMessages');
+    msgs.innerHTML = `
+      <div class="msg ai">
+        <div class="msg-bubble">Hey! 👋 I've analyzed your material and I'm ready to help.
+
+I can:
+• Write assignments and essays for you
+• Explain any topic from your courses
+• Help you prepare for tests and exams
+• Tell you what's urgent and due soon
+
+What do you need help with?</div>
+      </div>
+    `;
+  }
+
+  function askAbout(text) {
+    switchTab('chat');
+    setTimeout(() => {
+      const input = document.getElementById('chatInput');
+      input.value = text;
+      autoResize(input);
+      sendChat();
+    }, 100);
+  }
+
+  function sendSuggestion(btn) {
+    document.getElementById('chatInput').value = btn.textContent.trim();
+    sendChat();
+  }
+
+  function handleChatKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  }
+
+  async function sendChat() {
+    if (isStreaming) return;
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if (!message) return;
+
+    input.value = '';
+    autoResize(input);
+    appendMsg('user', message);
+    chatHistory.push({ role: 'user', content: message });
+
+    const aiMsgEl = appendMsg('ai', '');
+    isStreaming = true;
+    document.getElementById('sendBtn').disabled = true;
+
+    let aiText = '';
+
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (isLoggedIn()) headers['Authorization'] = 'Bearer ' + getToken();
+
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          message,
+          history: chatHistory.slice(-10),
+          context: studyContext,
+          style: currentStyle
+        })
+      });
+
+      if (res.status === 401) { clearAuth(); window.location.href = '/login.html'; return; }
+
+      if (!res.ok) {
+        let errMsg = 'Chat failed.';
+        try { const e = await res.json(); errMsg = e.error || errMsg; } catch {}
+        throw new Error(errMsg);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+          if (data === '[DONE]') break;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.text) {
+              aiText += parsed.text;
+              aiMsgEl.querySelector('.msg-bubble').textContent = aiText;
+              scrollChat();
+            }
+            if (parsed.error) throw new Error(parsed.error);
+          } catch {}
+        }
+      }
+
+      chatHistory.push({ role: 'assistant', content: aiText });
+
+    } catch (err) {
+      const bubble = aiMsgEl.querySelector('.msg-bubble');
+      bubble.textContent = 'Sorry, something went wrong. ' + err.message;
+      bubble.style.color = 'var(--high)';
+    }
+
+    isStreaming = false;
+    document.getElementById('sendBtn').disabled = false;
+  }
+
+  function appendMsg(role, text) {
+    const msgs = document.getElementById('chatMessages');
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    div.innerHTML = `
+      <div class="msg-bubble">${esc(text)}</div>
+      <div class="msg-time">${now}</div>
+    `;
+    msgs.appendChild(div);
+    scrollChat();
+    return div;
+  }
+
+  function scrollChat() {
+    const msgs = document.getElementById('chatMessages');
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  /* ═══════════════════════════════════════════════
+     SAVE ANALYSIS
+  ═══════════════════════════════════════════════ */
+  let savedAnalysisId = null;
+
+  async function autoSaveAnalysis() {
+    if (!studyContext || !isLoggedIn()) return;
+    const spinner = document.getElementById('autoSaveSpinner');
+    const indicator = document.getElementById('autoSaveIndicator');
+    spinner.style.display = 'inline';
+    indicator.style.display = 'none';
+    const now = new Date();
+    const name = 'Analysis — ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    try {
+      const res = await fetch('/api/analyses', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ name, result: studyContext })
+      });
+      spinner.style.display = 'none';
+      if (res.ok) {
+        const data = await res.json();
+        savedAnalysisId = data.id;
+        indicator.style.display = 'inline';
+        document.getElementById('saveBtn').style.display = '';
+      }
+    } catch { spinner.style.display = 'none'; }
+  }
+
+  function openSaveModal() {
+    if (!isLoggedIn()) {
+      showToast('Sign in to save analyses.', 'error');
+      return;
+    }
+    if (!studyContext) {
+      showToast('No analysis to save yet.', 'error');
+      return;
+    }
+    const now = new Date();
+    const autoName = 'Analysis — ' + now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('saveNameInput').value = autoName;
+    document.getElementById('saveModal').classList.add('open');
+    setTimeout(() => { const el = document.getElementById('saveNameInput'); el.focus(); el.select(); }, 50);
+  }
+
+  function closeSaveModal() {
+    document.getElementById('saveModal').classList.remove('open');
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('saveModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSaveModal();
+  });
+
+  // Enter key in save modal
+  document.getElementById('saveNameInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') saveAnalysis();
+  });
+
+  async function saveAnalysis() {
+    const name = document.getElementById('saveNameInput').value.trim();
+    if (!name) {
+      showToast('Please enter a name for this analysis.', 'error');
+      return;
+    }
+
+    closeSaveModal();
+
+    try {
+      let res;
+      if (savedAnalysisId) {
+        res = await fetch('/api/analyses/' + savedAnalysisId, {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify({ name })
+        });
+      } else {
+        res = await fetch('/api/analyses', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ name, result: studyContext })
+        });
+        if (res.ok) { const d = await res.json(); savedAnalysisId = d.id; }
+      }
+
+      if (res.status === 401) { clearAuth(); window.location.href = '/login.html'; return; }
+
+      if (!res.ok) {
+        let errMsg = 'Failed to save.';
+        try { const e = await res.json(); errMsg = e.error || errMsg; } catch {}
+        throw new Error(errMsg);
+      }
+
+      showToast('Analysis renamed and saved!', 'success');
+      document.getElementById('autoSaveIndicator').textContent = '✓ Saved: ' + name;
+
+    } catch (err) {
+      showToast('Error saving: ' + err.message, 'error');
+    }
+  }
+
+  async function autoCreateClassReminders(timetable) {
+    if (!timetable.length || !isLoggedIn()) return;
+    const slots = timetable.filter(s => s.day && s.time && s.type !== 'assignment_due');
+    if (!slots.length) return;
+    let created = 0;
+    for (const slot of slots) {
+      const next = Reminders._nextOccurrence(slot.day, slot.time);
+      if (!next) continue;
+      const remindAt = new Date(next - 15 * 60000); // 15 min before
+      if (remindAt <= new Date()) continue;
+      try {
+        const res = await fetch('/api/reminders', {
+          method: 'POST', headers: authHeaders(),
+          body: JSON.stringify({
+            title: (slot.subject || 'Class') + (slot.course_code ? ' (' + slot.course_code + ')' : ''),
+            body: slot.day + ' at ' + slot.time + (slot.venue ? ' · ' + slot.venue : ''),
+            remind_at: remindAt.toISOString(),
+            source_type: 'class'
+          })
+        });
+        if (res.ok) created++;
+      } catch {}
+    }
+    if (created > 0) showToast('🔔 ' + created + ' class alarm' + (created > 1 ? 's' : '') + ' set automatically', 'success');
+  }
+
+  function setClassAlarm(day, time, subject, courseCode) {
+    const baseTime = Reminders._nextOccurrence(day, time);
+    Reminders.openModal({
+      title: (subject || 'Class') + (courseCode ? ' (' + courseCode + ')' : ''),
+      body: day + (time ? ' at ' + time : ''),
+      baseTime,
+      sourceType: 'class'
+    });
+  }
+</script>
+</body>
+</html>

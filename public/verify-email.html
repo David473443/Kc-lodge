@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Email — ClassMind AI</title>
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #F6F6F3; color: #141414; font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #fff; border: 1px solid #E2E2DC; border-radius: 18px; padding: 52px 40px; width: min(440px, 100%); box-shadow: 0 4px 24px rgba(0,0,0,0.06); text-align: center; }
+    .logo { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 36px; }
+    .logo-text { font-family: 'Playfair Display', serif; font-size: 22px; color: #1B3F6E; font-weight: 700; }
+    .logo-badge { background: #C4933F; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; padding: 3px 8px; border-radius: 5px; margin-left: 4px; }
+    .icon { font-size: 56px; margin-bottom: 16px; }
+    h2 { font-family: 'Playfair Display', serif; font-size: 24px; color: #1B3F6E; margin-bottom: 10px; }
+    p { font-size: 14px; color: #747474; line-height: 1.6; margin-bottom: 28px; }
+    .btn { display: inline-block; padding: 12px 32px; border-radius: 9px; background: #1B3F6E; color: #fff; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; text-decoration: none; transition: background .18s; }
+    .btn:hover { background: #15335A; }
+    .spinner { display: inline-block; width: 36px; height: 36px; border: 3px solid #E2E2DC; border-top-color: #1B3F6E; border-radius: 50%; animation: spin .8s linear infinite; margin-bottom: 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="48" height="48" rx="11" fill="#1B3F6E"/>
+        <path d="M8 34V18C8 16.34 9.34 15 11 15H23V34Q16 32 11 32C9.34 32 8 33.34 8 35Z" fill="white" opacity="0.92"/>
+        <path d="M40 34V18C40 16.34 38.66 15 37 15H25V34Q32 32 37 32C38.66 32 40 33.34 40 35Z" fill="white" opacity="0.7"/>
+        <circle cx="24" cy="8.5" r="3" fill="#C4933F"/>
+      </svg>
+      <span class="logo-text">ClassMind<span class="logo-badge">AI</span></span>
+    </div>
+
+    <div id="loading">
+      <div class="spinner"></div>
+      <h2>Verifying your email…</h2>
+      <p>Please wait a moment.</p>
+    </div>
+
+    <div id="success" style="display:none">
+      <div class="icon">✅</div>
+      <h2>Email verified!</h2>
+      <p>Your ClassMind AI account is fully set up. You can now log in and access all features.</p>
+      <a href="/login.html" class="btn">Go to Sign In</a>
+    </div>
+
+    <div id="error" style="display:none">
+      <div class="icon">❌</div>
+      <h2 id="errorTitle">Link expired</h2>
+      <p id="errorText">This verification link has expired or already been used. Log in and request a new verification email.</p>
+      <a href="/login.html" class="btn">Go to Sign In</a>
+    </div>
+  </div>
+
+  <script>
+    const token = new URLSearchParams(location.search).get('token');
+    if (!token) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('errorTitle').textContent = 'Invalid link';
+      document.getElementById('errorText').textContent = 'This verification link is invalid. Please request a new one from your account settings.';
+      document.getElementById('error').style.display = 'block';
+    } else {
+      // The server handles GET /api/auth/verify-email and redirects to /login.html?verified=1
+      // This page is shown briefly before the redirect - if we're here with a token, call the API
+      fetch(`/api/auth/verify-email?token=${encodeURIComponent(token)}`)
+        .then(res => {
+          // Server redirects, so this fetch will follow the redirect
+          // If we somehow stay here, show success
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('success').style.display = 'block';
+          setTimeout(() => window.location.href = '/login.html?verified=1', 2000);
+        })
+        .catch(() => {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('error').style.display = 'block';
+        });
+    }
+  </script>
+</body>
+</html>

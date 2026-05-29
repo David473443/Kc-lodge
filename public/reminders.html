@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reminders — ClassMind AI</title>
+  <link rel="manifest" href="/manifest.json" />
+  <script src="/shared.js"></script>
+</head>
+<body>
+<div class="app-layout">
+  <div class="page-main">
+    <div id="toast"></div>
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">🔔 Reminders &amp; Alarms</div>
+        <div class="page-subtitle">Get notified before classes and deadlines</div>
+      </div>
+      <button class="btn btn-primary" onclick="openNewModal()">+ New Alarm</button>
+    </div>
+
+    <!-- Notification permission banner -->
+    <div id="notif-banner" class="notif-banner" style="display:none">
+      <span>🔕 Browser notifications are off — you'll miss alarms when this tab is in the background.</span>
+      <button class="btn btn-sm btn-outline" onclick="requestNotifPermission()">Enable Notifications</button>
+    </div>
+
+    <!-- Class reminders (auto-created, toggleable) -->
+    <div class="section-header">
+      <div>
+        <div class="section-title">📅 Class Reminders</div>
+        <div class="section-sub">Auto-created from your timetable · 15 min before each class by default</div>
+      </div>
+      <label class="master-toggle" title="Enable / disable all class reminders">
+        <input type="checkbox" id="classToggleAll" onchange="toggleAllClass(this.checked)" checked>
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-label" id="classToggleLabel">All on</span>
+      </label>
+    </div>
+    <div id="class-list" class="rm-list">
+      <div class="rm-empty"><div class="rm-empty-icon">📅</div><p>No class reminders yet. Analyze a timetable in <a href="/study.html" style="color:var(--accent)">Study Hub</a> to create them automatically.</p></div>
+    </div>
+
+    <!-- Custom / task reminders -->
+    <div class="section-header" style="margin-top:32px">
+      <div>
+        <div class="section-title">📋 Custom &amp; Task Alarms</div>
+        <div class="section-sub">Manually set alarms and task deadline reminders</div>
+      </div>
+    </div>
+    <div id="custom-list" class="rm-list">
+      <div class="rm-empty"><div class="rm-empty-icon">🔔</div><p>No custom alarms. Use <strong>+ New Alarm</strong> or tap 🔔 on any task.</p></div>
+    </div>
+
+    <!-- Past / dismissed -->
+    <div class="section-header" style="margin-top:32px">
+      <div>
+        <div class="section-title">✓ Past &amp; Dismissed</div>
+      </div>
+      <button class="btn btn-sm btn-outline" id="clearPastBtn" style="display:none" onclick="clearPast()">Clear all</button>
+    </div>
+    <div id="past-list" class="rm-list">
+      <div class="rm-empty"><div class="rm-empty-icon">✓</div><p>No past alarms.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- New reminder modal -->
+<div class="modal-backdrop" id="newModal">
+  <div class="modal-box">
+    <h3>New Custom Alarm</h3>
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" id="new-title" placeholder="e.g. Study for MTH301 exam" maxlength="120" />
+    </div>
+    <div class="form-group">
+      <label>Note <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <input type="text" id="new-body" placeholder="Extra details…" maxlength="200" />
+    </div>
+    <div class="form-group">
+      <label>Alarm time</label>
+      <input type="datetime-local" id="new-dt" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeNewModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="createCustomReminder()">🔔 Set Alarm</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .page-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
+  .notif-banner {
+    background:#FEF9EC; border:1.5px solid #C4933F; border-radius:10px;
+    padding:12px 16px; display:flex; align-items:center; gap:12px; margin-bottom:20px;
+    font-size:13px; flex-wrap:wrap;
+  }
+  /* Section headers */
+  .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:10px; }
+  .section-title { font-size:14px; font-weight:700; color:var(--text); }
+  .section-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+  /* Master toggle */
+  .master-toggle { display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; }
+  .master-toggle input { display:none; }
+  .toggle-track {
+    width:40px; height:22px; border-radius:11px; background:#CCCCCC;
+    position:relative; transition:background .2s; flex-shrink:0;
+  }
+  .master-toggle input:checked + .toggle-track { background:#1B3F6E; }
+  .toggle-thumb {
+    width:16px; height:16px; border-radius:50%; background:#fff;
+    position:absolute; top:3px; left:3px; transition:transform .2s;
+    box-shadow:0 1px 3px rgba(0,0,0,0.2);
+  }
+  .master-toggle input:checked + .toggle-track .toggle-thumb { transform:translateX(18px); }
+  .toggle-label { font-size:12px; font-weight:600; color:var(--muted); }
+  /* Reminder list */
+  .rm-list { display:flex; flex-direction:column; gap:8px; }
+  .rm-empty { text-align:center; padding:28px 16px; color:var(--muted); font-size:13px; }
+  .rm-empty-icon { font-size:28px; margin-bottom:8px; }
+  /* Reminder item */
+  .rm-item {
+    background:var(--card); border:1.5px solid var(--border); border-radius:12px;
+    padding:13px 16px; display:flex; align-items:center; gap:12px; transition:opacity .2s;
+  }
+  .rm-item.disabled { opacity:0.45; }
+  .rm-item-icon { font-size:20px; flex-shrink:0; }
+  .rm-item-body { flex:1; min-width:0; }
+  .rm-item-title { font-weight:600; font-size:13px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rm-item-note { font-size:11px; color:var(--muted); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rm-item-time { font-size:11px; font-weight:600; margin-top:4px; }
+  .rm-item-time.urgent { color:var(--high); }
+  .rm-item-time.soon { color:#B45309; }
+  .rm-item-time.ok { color:var(--low); }
+  .rm-item-time.past { color:var(--muted); font-weight:400; }
+  /* Item toggle */
+  .item-toggle { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .item-toggle input { display:none; }
+  .item-toggle .toggle-track { width:34px; height:19px; border-radius:10px; }
+  .item-toggle .toggle-thumb { width:13px; height:13px; top:3px; left:3px; }
+  .item-toggle input:checked + .toggle-track .toggle-thumb { transform:translateX(15px); }
+  /* Delete button */
+  .rm-delete { background:none; border:none; font-size:16px; color:#CCCCCC; cursor:pointer; padding:4px 5px; border-radius:6px; transition:all .15s; flex-shrink:0; }
+  .rm-delete:hover { color:var(--high); background:#FEE2E2; }
+  /* Modal */
+  .modal-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:8000; align-items:center; justify-content:center; }
+  .modal-backdrop.open { display:flex; }
+  .modal-box { background:#fff; border-radius:16px; padding:28px; width:min(420px,94vw); box-shadow:0 20px 60px rgba(0,0,0,0.18); }
+  .modal-box h3 { font-family:'Playfair Display',serif; font-size:18px; color:var(--accent); margin-bottom:20px; }
+  .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:6px; }
+</style>
+
+<script>
+  injectBaseStyles();
+  renderNav('Reminders');
+
+  function esc(s) { return escHtml(s); }
+
+  let _allReminders = [];
+
+  function timeLabel(dateStr) {
+    const d = new Date(dateStr);
+    if (isNaN(d)) return { text: dateStr, cls: 'past' };
+    const diff = d - Date.now();
+    const abs = Math.abs(diff);
+    const mins = Math.floor(abs / 60000);
+    const hrs = Math.floor(abs / 3600000);
+    const days = Math.floor(abs / 86400000);
+    const fmt = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }) + ' at ' + d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+    if (diff < 0) return { text: 'Triggered ' + (days > 0 ? days + 'd' : hrs > 0 ? hrs + 'h' : mins + 'm') + ' ago · ' + fmt, cls: 'past' };
+    let text, cls;
+    if (days === 0 && hrs < 3) { text = (hrs > 0 ? hrs + 'h ' : '') + Math.floor((diff%3600000)/60000) + 'm left'; cls = 'urgent'; }
+    else if (days === 0) { text = hrs + 'h left'; cls = 'soon'; }
+    else if (days <= 2) { text = days + 'd ' + hrs + 'h left'; cls = 'soon'; }
+    else { text = days + ' days'; cls = 'ok'; }
+    return { text: '⏰ ' + text + ' · ' + fmt, cls };
+  }
+
+  function buildItem(r) {
+    const { text, cls } = timeLabel(r.remind_at);
+    const isClass = r.source_type === 'class';
+    const icon = isClass ? '📅' : r.source_type === 'task' ? '📋' : '🔔';
+    const enabled = r.enabled !== 0;
+    return `
+      <div class="rm-item ${enabled ? '' : 'disabled'}" id="rm-${r.id}">
+        <div class="rm-item-icon">${icon}</div>
+        <div class="rm-item-body">
+          <div class="rm-item-title">${esc(r.title)}</div>
+          ${r.body ? `<div class="rm-item-note">${esc(r.body)}</div>` : ''}
+          <div class="rm-item-time ${enabled ? cls : 'past'}">${enabled ? esc(text) : 'Alarm off'}</div>
+        </div>
+        <label class="item-toggle master-toggle" title="${enabled ? 'Turn off' : 'Turn on'}">
+          <input type="checkbox" ${enabled ? 'checked' : ''} onchange="toggleItem(${r.id}, this.checked)">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+        <button class="rm-delete" title="Delete" onclick="deleteReminder(${r.id})">🗑</button>
+      </div>`;
+  }
+
+  function renderLists(reminders) {
+    _allReminders = reminders;
+    const now = new Date();
+    const upcoming = reminders.filter(r => !r.triggered && new Date(r.remind_at) > now);
+    const past = reminders.filter(r => r.triggered || new Date(r.remind_at) <= now);
+
+    const classItems = upcoming.filter(r => r.source_type === 'class');
+    const customItems = upcoming.filter(r => r.source_type !== 'class');
+
+    document.getElementById('class-list').innerHTML = classItems.length
+      ? classItems.map(buildItem).join('')
+      : `<div class="rm-empty"><div class="rm-empty-icon">📅</div><p>No class reminders yet. Analyze a timetable in <a href="/study.html" style="color:var(--accent)">Study Hub</a> to create them automatically.</p></div>`;
+
+    document.getElementById('custom-list').innerHTML = customItems.length
+      ? customItems.map(buildItem).join('')
+      : `<div class="rm-empty"><div class="rm-empty-icon">🔔</div><p>No custom alarms. Use <strong>+ New Alarm</strong> or tap 🔔 on any task.</p></div>`;
+
+    document.getElementById('past-list').innerHTML = past.length
+      ? past.map(buildItem).join('')
+      : `<div class="rm-empty"><div class="rm-empty-icon">✓</div><p>No past alarms.</p></div>`;
+    document.getElementById('clearPastBtn').style.display = past.length ? '' : 'none';
+
+    // Sync master class toggle
+    const allClassOn = classItems.length > 0 && classItems.every(r => r.enabled !== 0);
+    const classToggle = document.getElementById('classToggleAll');
+    classToggle.checked = allClassOn;
+    document.getElementById('classToggleLabel').textContent = allClassOn ? 'All on' : classItems.some(r => r.enabled !== 0) ? 'Some on' : 'All off';
+  }
+
+  async function loadReminders() {
+    try {
+      const res = await fetch('/api/reminders', { headers: Auth.headers() });
+      if (res.status === 401) { Auth.logout(); return; }
+      renderLists(await res.json());
+    } catch { showToast('Failed to load reminders.', 'error'); }
+  }
+
+  async function toggleItem(id, enabled) {
+    await Reminders.toggle(id, enabled);
+    loadReminders();
+  }
+
+  async function toggleAllClass(enabled) {
+    const classItems = _allReminders.filter(r => r.source_type === 'class' && !r.triggered);
+    document.getElementById('classToggleLabel').textContent = enabled ? 'All on' : 'All off';
+    await Promise.all(classItems.map(r => Reminders.toggle(r.id, enabled)));
+    loadReminders();
+  }
+
+  async function deleteReminder(id) {
+    await fetch('/api/reminders/' + id, { method: 'DELETE', headers: Auth.headers() });
+    loadReminders();
+  }
+
+  async function clearPast() {
+    const past = _allReminders.filter(r => r.triggered || new Date(r.remind_at) <= new Date());
+    await Promise.all(past.map(r => fetch('/api/reminders/' + r.id, { method: 'DELETE', headers: Auth.headers() })));
+    loadReminders();
+  }
+
+  function openNewModal() {
+    const def = new Date(Date.now() + 3600000);
+    document.getElementById('new-dt').value = def.toISOString().slice(0, 16);
+    document.getElementById('new-title').value = '';
+    document.getElementById('new-body').value = '';
+    document.getElementById('newModal').classList.add('open');
+    setTimeout(() => document.getElementById('new-title').focus(), 50);
+  }
+
+  function closeNewModal() { document.getElementById('newModal').classList.remove('open'); }
+
+  document.getElementById('newModal').addEventListener('click', function(e) {
+    if (e.target === this) closeNewModal();
+  });
+
+  async function createCustomReminder() {
+    const title = document.getElementById('new-title').value.trim();
+    const body = document.getElementById('new-body').value.trim();
+    const dt = document.getElementById('new-dt').value;
+    if (!title) { showToast('Enter a title.', 'error'); return; }
+    if (!dt) { showToast('Pick a time.', 'error'); return; }
+    if (new Date(dt) <= new Date()) { showToast('Pick a future time.', 'error'); return; }
+    const res = await fetch('/api/reminders', {
+      method: 'POST', headers: Auth.headers(),
+      body: JSON.stringify({ title, body, remind_at: new Date(dt).toISOString() })
+    });
+    if (res.ok) { closeNewModal(); showToast('Alarm set! 🔔', 'success'); loadReminders(); }
+    else { const e = await res.json(); showToast(e.error || 'Failed.', 'error'); }
+  }
+
+  function requestNotifPermission() {
+    Notification.requestPermission().then(p => {
+      if (p === 'granted') document.getElementById('notif-banner').style.display = 'none';
+      else showToast('Notifications blocked in browser settings.', 'error');
+    });
+  }
+
+  // Init
+  if (!Auth.requireAuth()) { /* stopped */ } else {
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      document.getElementById('notif-banner').style.display = 'flex';
+    }
+    loadReminders();
+    setInterval(loadReminders, 60000);
+  }
+</script>
+</body>
+</html>
