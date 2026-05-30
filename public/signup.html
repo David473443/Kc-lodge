@@ -497,7 +497,7 @@
     if (t && u) {
       try {
         var user = JSON.parse(u);
-        window.location.replace(user.onboarded == 1 ? '/dashboard.html' : '/onboarding.html');
+        window.location.replace('/dashboard.html');
       } catch(e) {}
     }
   })();
@@ -658,7 +658,7 @@
       successEl.classList.add('show');
       document.getElementById('signupForm').style.display = 'none';
 
-      setTimeout(function() { window.location.href = '/onboarding.html'; }, 2000);
+      setTimeout(function() { window.location.href = '/dashboard.html'; }, 2000);
 
     } catch(err) {
       btn.disabled = false;

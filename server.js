@@ -356,9 +356,9 @@ app.post('/api/auth/register', async (req, res) => {
     const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(norm);
     if (existing) return res.status(400).json({ error: 'An account with this email already exists.' });
     const hash = await bcrypt.hash(password, 12);
-    const result = db.prepare('INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)').run(name.trim(), norm, hash);
+    const result = db.prepare('INSERT INTO users (name, email, password_hash, onboarded) VALUES (?, ?, ?, 1)').run(name.trim(), norm, hash);
     const userId = result.lastInsertRowid;
-    const user = { id: userId, name: name.trim(), email: norm, onboarded: 0, email_verified: 0, university: '', level: '', department: '', courses: [] };
+    const user = { id: userId, name: name.trim(), email: norm, onboarded: 1, email_verified: 0, university: '', level: '', department: '', courses: [] };
     const token = jwt.sign({ id: userId }, _JWT, { expiresIn: '7d' });
 
     // Send verification email (non-blocking)
