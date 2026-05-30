@@ -79,6 +79,9 @@ if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 console.log(`[DB] Using database at: ${DB_PATH}`);
+if (IS_PROD && DB_PATH === '/app/data/classmind.db' && !fs.existsSync('/app/data/.volume_ok')) {
+  console.warn('[WARNING] /app/data/.volume_ok not found. If this is a fresh container, data WILL reset on redeploy. Add a Railway Volume mounted at /app/data to persist the database.');
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (

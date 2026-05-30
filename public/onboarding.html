@@ -780,11 +780,18 @@
     var level = selectedLevel;
     var department = document.getElementById('departmentInput').value.trim();
     try {
-      var res = await Auth.fetchWithAuth('/api/auth/profile', {
+      var token = localStorage.getItem('cm_token') || '';
+      var res = await fetch('/api/auth/profile', {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ university: university, level: level, department: department, courses: courses, onboarded: 1 })
       });
-      if (!res) return; // 401 — Auth.fetchWithAuth redirects to login
+      if (res.status === 401) {
+        localStorage.removeItem('cm_token');
+        localStorage.removeItem('cm_user');
+        window.location.replace('/login.html');
+        return;
+      }
 
       var data;
       try { data = await res.json(); } catch(ex) { throw new Error('Unexpected server response.'); }
