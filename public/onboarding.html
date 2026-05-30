@@ -15,15 +15,12 @@
       --bg: #0F172A;
       --bg2: #1E293B;
       --card: #1E293B;
-      --card2: #263347;
       --border: #334155;
       --accent: #3B82F6;
       --accent-hover: #2563EB;
       --text: #F1F5F9;
       --text2: #CBD5E1;
       --muted: #94A3B8;
-      --success: #22C55E;
-      --warn: #F59E0B;
       --danger: #EF4444;
       --radius: 10px;
       --shadow: 0 4px 32px rgba(0,0,0,0.5);
@@ -42,7 +39,7 @@
       min-height: 100vh;
     }
 
-    h1, h2, h3 { font-family: 'Playfair Display', serif; }
+    h1, h2 { font-family: 'Playfair Display', serif; }
 
     .topbar {
       padding: 18px 32px;
@@ -54,18 +51,13 @@
       backdrop-filter: blur(8px);
       flex-shrink: 0;
     }
-
     .topbar-logo {
       font-family: 'Playfair Display', serif;
       font-size: 18px;
       font-weight: 700;
       color: #fff;
       text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
-
     .topbar-badge {
       background: var(--accent);
       color: #fff;
@@ -75,12 +67,9 @@
       letter-spacing: 1px;
       padding: 2px 7px;
       border-radius: 5px;
+      margin-left: 6px;
     }
-
-    .topbar-meta {
-      font-size: 13px;
-      color: rgba(255,255,255,0.55);
-    }
+    .topbar-meta { font-size: 13px; color: rgba(255,255,255,0.55); }
 
     .progress-bar-wrap {
       background: rgba(15,23,42,0.5);
@@ -88,7 +77,6 @@
       padding: 20px 32px;
       flex-shrink: 0;
     }
-
     .progress-steps {
       display: flex;
       align-items: center;
@@ -96,7 +84,6 @@
       margin: 0 auto;
       position: relative;
     }
-
     .progress-step {
       display: flex;
       flex-direction: column;
@@ -106,7 +93,6 @@
       position: relative;
       z-index: 1;
     }
-
     .progress-step:not(:last-child)::after {
       content: '';
       position: absolute;
@@ -118,9 +104,7 @@
       z-index: -1;
       transition: background 0.4s;
     }
-
     .progress-step.done:not(:last-child)::after { background: var(--accent); }
-
     .step-circle {
       width: 36px;
       height: 36px;
@@ -135,20 +119,17 @@
       color: var(--muted);
       transition: all 0.3s;
     }
-
     .progress-step.active .step-circle {
       background: var(--accent);
       border-color: var(--accent);
       color: #fff;
       box-shadow: 0 0 0 4px rgba(59,130,246,0.2);
     }
-
     .progress-step.done .step-circle {
       background: var(--accent);
       border-color: var(--accent);
       color: #fff;
     }
-
     .step-label {
       font-size: 11px;
       font-weight: 600;
@@ -156,7 +137,6 @@
       text-align: center;
       transition: color 0.3s;
     }
-
     .progress-step.active .step-label,
     .progress-step.done .step-label { color: var(--text2); }
 
@@ -167,7 +147,6 @@
       justify-content: center;
       padding: 44px 20px 60px;
     }
-
     .onboard-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -193,7 +172,6 @@
       font-size: 26px;
       margin-bottom: 20px;
     }
-
     .step-heading {
       font-size: 1.5rem;
       font-weight: 700;
@@ -201,11 +179,10 @@
       margin-bottom: 8px;
       line-height: 1.2;
     }
-
     .step-sub {
       font-size: 14px;
       color: var(--muted);
-      margin-bottom: 32px;
+      margin-bottom: 28px;
       line-height: 1.65;
     }
 
@@ -221,11 +198,9 @@
       margin-bottom: 20px;
       display: none;
     }
-
     .alert-error.show { display: block; }
 
     .form-group { margin-bottom: 22px; }
-
     .form-group label {
       display: block;
       font-size: 13px;
@@ -233,7 +208,6 @@
       color: var(--text2);
       margin-bottom: 7px;
     }
-
     .form-group select,
     .form-group input[type="text"] {
       width: 100%;
@@ -249,7 +223,6 @@
       -webkit-appearance: none;
       appearance: none;
     }
-
     .form-group select {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
       background-repeat: no-repeat;
@@ -257,22 +230,13 @@
       padding-right: 40px;
       cursor: pointer;
     }
-
     .form-group select option { background: var(--bg2); color: var(--text); }
-
     .form-group select:focus,
     .form-group input[type="text"]:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
     }
-
     .form-group input[type="text"]::placeholder { color: var(--muted); }
-
-    .form-group input.has-error,
-    .form-group select.has-error {
-      border-color: var(--danger);
-      box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
-    }
 
     .other-wrap { margin-top: 12px; display: none; }
     .other-wrap.show { display: block; }
@@ -282,23 +246,20 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
     }
-
     .level-btn {
-      padding: 12px 8px;
+      padding: 14px 8px;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       background: var(--bg);
       font-family: 'Inter', sans-serif;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       color: var(--muted);
       cursor: pointer;
       text-align: center;
       transition: all 0.18s;
     }
-
     .level-btn:hover { border-color: var(--accent); color: var(--text); }
-
     .level-btn.selected {
       background: var(--accent);
       border-color: var(--accent);
@@ -320,12 +281,10 @@
       transition: border-color 0.2s;
       margin-bottom: 10px;
     }
-
     .course-tag-area:focus-within {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
     }
-
     .course-chip {
       display: inline-flex;
       align-items: center;
@@ -338,7 +297,6 @@
       font-weight: 700;
       color: var(--text2);
     }
-
     .chip-remove {
       background: none;
       border: none;
@@ -351,9 +309,7 @@
       align-items: center;
       transition: color 0.15s;
     }
-
     .chip-remove:hover { color: var(--danger); }
-
     .course-input-inline {
       flex: 1;
       min-width: 120px;
@@ -365,21 +321,9 @@
       color: var(--text);
       padding: 2px 4px;
     }
-
     .course-input-inline::placeholder { color: var(--muted); }
-
-    .courses-hint {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .course-count {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: right;
-      margin-top: 4px;
-    }
+    .courses-hint { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .course-count { font-size: 12px; color: var(--muted); text-align: right; margin-top: 4px; }
 
     .step-nav {
       display: flex;
@@ -389,7 +333,6 @@
       padding-top: 24px;
       border-top: 1px solid var(--border);
     }
-
     .btn-back {
       padding: 11px 22px;
       background: transparent;
@@ -402,10 +345,8 @@
       cursor: pointer;
       transition: all 0.18s;
     }
-
     .btn-back:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
     .btn-back:disabled { opacity: 0; pointer-events: none; }
-
     .btn-next {
       padding: 12px 28px;
       background: var(--accent);
@@ -421,14 +362,8 @@
       align-items: center;
       gap: 8px;
     }
-
-    .btn-next:hover:not(:disabled) {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-    }
-
+    .btn-next:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
     .btn-next:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-
     .spinner {
       width: 16px;
       height: 16px;
@@ -437,57 +372,12 @@
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .done-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: rgba(34,197,94,0.1);
-      border: 2px solid rgba(34,197,94,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 36px;
-      margin: 0 auto 24px;
-    }
-
-    .done-features {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-
-    .done-features li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 14px;
-      color: var(--text2);
-    }
-
-    .done-features .feat-dot {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: rgba(59,130,246,0.15);
-      border: 1px solid rgba(59,130,246,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-
     @media (max-width: 600px) {
-      .onboard-card { padding: 32px 20px; }
-      .topbar { padding: 14px 20px; }
-      .progress-bar-wrap { padding: 16px 20px; }
-      .level-grid { grid-template-columns: repeat(3, 1fr); }
+      .onboard-card { padding: 28px 18px; }
+      .topbar { padding: 14px 18px; }
+      .progress-bar-wrap { padding: 16px 18px; }
     }
   </style>
 </head>
@@ -506,11 +396,11 @@
     </div>
     <div class="progress-step" id="pstep-2">
       <div class="step-circle" id="pcircle-2">2</div>
-      <div class="step-label">Courses</div>
+      <div class="step-label">Details</div>
     </div>
     <div class="progress-step" id="pstep-3">
       <div class="step-circle" id="pcircle-3">3</div>
-      <div class="step-label">Done</div>
+      <div class="step-label">Courses</div>
     </div>
   </div>
 </div>
@@ -518,36 +408,72 @@
 <div class="page-center">
   <div class="onboard-card">
 
+    <!-- Step 1: University only -->
     <div class="step-panel active" id="panel-1">
       <div class="step-icon">🏛️</div>
-      <h2 class="step-heading">Your university details</h2>
-      <p class="step-sub">Tell us where you study so we can personalize your experience.</p>
+      <h2 class="step-heading">Which university do you attend?</h2>
+      <p class="step-sub">We'll personalize your experience based on your institution's academic calendar and common course structures.</p>
 
       <div class="alert-error" id="err-1"></div>
 
       <div class="form-group">
-        <label for="universitySelect">University</label>
+        <label for="universitySelect">Select your university</label>
         <select id="universitySelect">
           <option value="">— Choose your university —</option>
-          <option value="UAT">University of Africa (UAT)</option>
-          <option value="UNILAG">University of Lagos (UNILAG)</option>
-          <option value="ABU">Ahmadu Bello University (ABU)</option>
-          <option value="UNN">University of Nigeria (UNN)</option>
-          <option value="OAU">Obafemi Awolowo University (OAU)</option>
-          <option value="LASU">Lagos State University (LASU)</option>
-          <option value="COVENANT">Covenant University</option>
-          <option value="UNIBEN">University of Benin (UNIBEN)</option>
-          <option value="FUTA">Federal University of Technology Akure (FUTA)</option>
-          <option value="UI">University of Ibadan (UI)</option>
-          <option value="other">Other</option>
+          <optgroup label="Federal Universities">
+            <option value="UNILAG">University of Lagos (UNILAG)</option>
+            <option value="UI">University of Ibadan (UI)</option>
+            <option value="UNN">University of Nigeria, Nsukka (UNN)</option>
+            <option value="ABU">Ahmadu Bello University (ABU)</option>
+            <option value="OAU">Obafemi Awolowo University (OAU)</option>
+            <option value="UNIBEN">University of Benin (UNIBEN)</option>
+            <option value="UNIPORT">University of Port Harcourt (UNIPORT)</option>
+            <option value="UNIZIK">Nnamdi Azikiwe University (UNIZIK)</option>
+            <option value="UNIABUJA">University of Abuja (UNIABUJA)</option>
+            <option value="UNILORIN">University of Ilorin (UNILORIN)</option>
+            <option value="UNIUYO">University of Uyo (UNIUYO)</option>
+            <option value="FUOYE">Federal University Oye-Ekiti (FUOYE)</option>
+            <option value="FUTA">Fed. University of Technology, Akure (FUTA)</option>
+            <option value="FUTMINNA">Fed. University of Technology, Minna (FUTMINNA)</option>
+            <option value="FUTASHERE">Fed. University of Technology, Owerri (FUTO)</option>
+          </optgroup>
+          <optgroup label="State Universities">
+            <option value="LASU">Lagos State University (LASU)</option>
+            <option value="RSUST">Rivers State University (RSUST)</option>
+            <option value="IMSU">Imo State University (IMSU)</option>
+            <option value="ABSU">Abia State University (ABSU)</option>
+            <option value="DELSU">Delta State University (DELSU)</option>
+            <option value="EKSU">Ekiti State University (EKSU)</option>
+            <option value="KWASU">Kwara State University (KWASU)</option>
+            <option value="OSUN">Osun State University (UNIOSUN)</option>
+          </optgroup>
+          <optgroup label="Private Universities">
+            <option value="COVENANT">Covenant University</option>
+            <option value="BABCOCK">Babcock University</option>
+            <option value="PANAFRICAN">Pan-Atlantic University</option>
+            <option value="LANDMARK">Landmark University</option>
+            <option value="BOWEN">Bowen University</option>
+            <option value="UAT">University of Africa (UAT)</option>
+            <option value="BENSON">Benson Idahosa University</option>
+          </optgroup>
+          <option value="other">Other (type yours below)</option>
         </select>
         <div class="other-wrap" id="otherWrap">
           <input type="text" id="otherUni" placeholder="Enter your university name" />
         </div>
       </div>
+    </div>
+
+    <!-- Step 2: Level + Department -->
+    <div class="step-panel" id="panel-2">
+      <div class="step-icon">🎓</div>
+      <h2 class="step-heading">Your academic details</h2>
+      <p class="step-sub">Select your current level. Department is optional — you can fill it in later from Settings.</p>
+
+      <div class="alert-error" id="err-2"></div>
 
       <div class="form-group">
-        <label for="levelSelect">Academic level</label>
+        <label>Academic level</label>
         <div class="level-grid" id="levelGrid">
           <button type="button" class="level-btn" data-level="100L">100L</button>
           <button type="button" class="level-btn" data-level="200L">200L</button>
@@ -559,39 +485,24 @@
       </div>
 
       <div class="form-group">
-        <label for="departmentInput">Department</label>
+        <label for="departmentInput">Department <span style="font-size:12px;font-weight:400;color:var(--muted)">(optional)</span></label>
         <input type="text" id="departmentInput" placeholder="e.g. Computer Science, Medicine, Law…" />
       </div>
     </div>
 
-    <div class="step-panel" id="panel-2">
+    <!-- Step 3: Courses -->
+    <div class="step-panel" id="panel-3">
       <div class="step-icon">📚</div>
       <h2 class="step-heading">Add your courses</h2>
-      <p class="step-sub">Type your course codes (e.g. CSC301, MTH201). Press Enter or comma to add each one. You must add at least 1 course.</p>
+      <p class="step-sub">Type each course code and press <strong>Enter</strong>. You can skip this and add courses later in Settings.</p>
 
-      <div class="alert-error" id="err-2"></div>
+      <div class="alert-error" id="err-3"></div>
 
       <div class="courses-hint">Your courses this semester:</div>
       <div class="course-tag-area" id="courseTagArea">
-        <input type="text" class="course-input-inline" id="courseInput" placeholder="Type a course code and press Enter…" maxlength="15" />
+        <input type="text" class="course-input-inline" id="courseInput" placeholder="e.g. CSC301, MTH201 — press Enter to add…" maxlength="15" />
       </div>
       <div class="course-count" id="courseCount">0 courses added</div>
-    </div>
-
-    <div class="step-panel" id="panel-3">
-      <div style="text-align:center">
-        <div class="done-icon">🎉</div>
-        <h2 class="step-heading" style="text-align:center" id="doneHeading">You're all set!</h2>
-        <p class="step-sub" style="text-align:center">Here's what ClassMind AI can do for you:</p>
-      </div>
-
-      <ul class="done-features">
-        <li><div class="feat-dot">📚</div><span>Chat with an AI that knows your course material — upload notes and ask questions</span></li>
-        <li><div class="feat-dot">📈</div><span>Track your CGPA and simulate grade scenarios for each semester</span></li>
-        <li><div class="feat-dot">✅</div><span>Manage assignments, deadlines, and group projects in a clean task board</span></li>
-      </ul>
-
-      <div class="alert-error" id="err-3"></div>
     </div>
 
     <div class="step-nav">
@@ -613,16 +524,7 @@
 
   (function() {
     var token = localStorage.getItem('cm_token');
-    if (!token) window.location.replace('/login.html');
-    var u = localStorage.getItem('cm_user');
-    if (u) {
-      try {
-        var user = JSON.parse(u);
-        if (user.name) {
-          document.getElementById('doneHeading').textContent = "You're all set, " + user.name.split(' ')[0] + "!";
-        }
-      } catch(e) {}
-    }
+    if (!token) { window.location.replace('/login.html'); return; }
   })();
 
   function updateProgress() {
@@ -638,7 +540,6 @@
     var lbl = document.getElementById('nextLabel');
     var arr = document.getElementById('nextArrow');
     if (currentStep === totalSteps) { lbl.textContent = 'Go to Dashboard'; arr.textContent = ''; }
-    else if (currentStep === totalSteps - 1) { lbl.textContent = 'Finish Setup'; arr.textContent = '→'; }
     else { lbl.textContent = 'Next'; arr.textContent = '→'; }
   }
 
@@ -670,15 +571,12 @@
       var other = document.getElementById('otherUni').value.trim();
       if (!other) { showErr(1, 'Please enter your university name.'); document.getElementById('otherUni').focus(); return false; }
     }
-    if (!selectedLevel) { showErr(1, 'Please select your academic level.'); return false; }
-    var dept = document.getElementById('departmentInput').value.trim();
-    if (!dept) { showErr(1, 'Please enter your department.'); document.getElementById('departmentInput').focus(); return false; }
     return true;
   }
 
   function validateStep2() {
     hideErr(2);
-    if (courses.length === 0) { showErr(2, 'Please add at least 1 course before continuing.'); document.getElementById('courseInput').focus(); return false; }
+    if (!selectedLevel) { showErr(2, 'Please select your academic level.'); return false; }
     return true;
   }
 
@@ -692,7 +590,7 @@
       document.querySelectorAll('.level-btn').forEach(function(b) { b.classList.remove('selected'); });
       this.classList.add('selected');
       selectedLevel = this.dataset.level;
-      hideErr(1);
+      hideErr(2);
     });
   });
 
@@ -700,9 +598,7 @@
     var codes = raw.toUpperCase().split(/[\s,;]+/).filter(Boolean);
     codes.forEach(function(code) {
       var clean = code.replace(/[^A-Z0-9]/g, '').substring(0, 12);
-      if (clean && !courses.includes(clean)) {
-        courses.push(clean);
-      }
+      if (clean && !courses.includes(clean)) courses.push(clean);
     });
     renderChips();
   }
@@ -719,8 +615,7 @@
   function renderChips() {
     var area = document.getElementById('courseTagArea');
     var inp = document.getElementById('courseInput');
-    var existing = area.querySelectorAll('.course-chip');
-    existing.forEach(function(el) { el.remove(); });
+    area.querySelectorAll('.course-chip').forEach(function(el) { el.remove(); });
     courses.forEach(function(code) {
       var chip = document.createElement('div');
       chip.className = 'course-chip';
@@ -732,7 +627,6 @@
       courses.length === 0 ? '0 courses added' :
       courses.length === 1 ? '1 course added' :
       courses.length + ' courses added';
-    hideErr(2);
   }
 
   document.getElementById('courseInput').addEventListener('keydown', function(e) {
@@ -779,6 +673,7 @@
     var university = uniVal === 'other' ? document.getElementById('otherUni').value.trim() : uniVal;
     var level = selectedLevel;
     var department = document.getElementById('departmentInput').value.trim();
+
     try {
       var token = localStorage.getItem('cm_token') || '';
       var res = await fetch('/api/auth/profile', {
@@ -786,6 +681,7 @@
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ university: university, level: level, department: department, courses: courses, onboarded: 1 })
       });
+
       if (res.status === 401) {
         localStorage.removeItem('cm_token');
         localStorage.removeItem('cm_user');
@@ -795,7 +691,7 @@
 
       var data;
       try { data = await res.json(); } catch(ex) { throw new Error('Unexpected server response.'); }
-      if (!res.ok) throw new Error(data.message || data.error || 'Failed to save your profile. Please try again.');
+      if (!res.ok) throw new Error(data.message || data.error || 'Failed to save. Please try again.');
 
       if (data.token) localStorage.setItem('cm_token', data.token);
       var stored = localStorage.getItem('cm_user');
