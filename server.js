@@ -70,10 +70,15 @@ async function deepSearch(query, maxResults = 5, depth = 'basic') {
 }
 
 // ── Database setup ──
-const DB_DIR = path.join(__dirname, 'data');
+// DATABASE_PATH env var lets Railway volume override the path.
+// Add a Railway volume mounted at /app/data to persist across deploys.
+const DB_PATH = process.env.DATABASE_PATH ||
+  (IS_PROD ? '/app/data/classmind.db' : path.join(__dirname, 'data', 'classmind.db'));
+const DB_DIR = path.dirname(DB_PATH);
 if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
-const db = new Database(path.join(DB_DIR, 'classmind.db'));
+const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
+console.log(`[DB] Using database at: ${DB_PATH}`);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
@@ -242,7 +247,8 @@ const aiLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.user?.id?.toString() || req.ip,
+  validate: { keyGeneratorIpFallback: false },
+  keyGenerator: (req) => req.user?.id?.toString() || (req.ip || '').replace(/^::ffff:/, ''),
   message: { error: 'Too many AI requests. Please wait an hour and try again.' }
 });
 
@@ -785,7 +791,7 @@ app.post('/api/projects/:id/research', auth, aiLimiter, async (req, res) => {
       ? `Web search results:\n${sources.slice(0, 8).map((s, i) => `[${i+1}] ${s.title}\n${s.snippet}`).join('\n\n')}`
       : 'No web search results available. Draw on general academic knowledge.';
 
-    const synthesis = await anthropic.messages.create({
+    const synthesis = await getClient().messages.create({
       model: 'claude-haiku-4-5',
       max_tokens: 1200,
       messages: [{
@@ -867,7 +873,7 @@ Task: ${sectionPrompts[section] || `Write the section titled "${sectionTitle}" i
 
 Write in formal Nigerian academic English. Be thorough and professional.`;
 
-    const completion = await anthropic.messages.create({
+    const completion = await getClient().messages.create({
       model: 'claude-haiku-4-5',
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }]

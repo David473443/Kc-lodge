@@ -1,906 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Notes — ClassMind AI</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notes — ClassMind AI</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    .page-header { padding: 28px 32px 0; }
+    .page-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+    .page-header p { color: var(--muted); font-size: 14px; }
+    .page-content { padding: 24px 32px 40px; }
 
-    :root {
-      --bg: #F6F6F3;
-      --card: #FFFFFF;
-      --card2: #F2F2EF;
-      --border: #E2E2DC;
-      --accent: #1B3F6E;
-      --accent-light: #EBF0F7;
-      --accent-hover: #15335A;
-      --text: #141414;
-      --muted: #747474;
-      --high: #B91C1C;
-      --med: #B45309;
-      --low: #15803D;
-      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-    }
+    .notes-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .search-box { position: relative; flex: 1; max-width: 360px; }
+    .search-box input { padding-left: 36px; }
+    .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; pointer-events: none; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      line-height: 1.6;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
+    .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .note-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: border-color .15s; }
+    .note-card:hover { border-color: var(--accent); }
+    .note-name { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .note-name-input { font-size: 15px; font-weight: 700; color: var(--text); background: var(--bg2); border: 1px solid var(--accent); border-radius: 6px; padding: 4px 8px; width: 100%; display: none; }
+    .note-date { font-size: 12px; color: var(--muted); }
+    .note-overview { font-size: 13px; color: var(--text2); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+    .note-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+    .note-actions { display: flex; gap: 6px; }
 
-    h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
+    .empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
+    .empty-state div { font-size: 48px; margin-bottom: 16px; }
+    .empty-state strong { display: block; font-size: 16px; color: var(--text2); margin-bottom: 8px; }
 
-    /* ── Sidebar ── */
-    .app-layout { display: flex; min-height: 100vh; }
+    .detail-modal .modal { max-width: 760px; width: 95vw; max-height: 85vh; overflow-y: auto; }
+    .detail-modal .modal-title { font-size: 20px; }
+    .detail-section { margin-bottom: 20px; }
+    .detail-section h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 10px; }
+    .overview-text { font-size: 14px; color: var(--text2); line-height: 1.7; }
+    .assignment-row { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+    .assignment-row .title { font-size: 14px; font-weight: 600; }
+    .assignment-row .meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .timetable-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .timetable-table th { text-align: left; padding: 6px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+    .timetable-table td { padding: 7px 10px; border-bottom: 1px solid rgba(51,65,85,.3); }
+    .topics-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+    .topics-item summary { font-size: 14px; font-weight: 600; cursor: pointer; }
+    .topics-item ul { margin-top: 8px; padding-left: 16px; font-size: 13px; color: var(--text2); }
+    .lecturer-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; font-size: 13px; }
+    .lecturer-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+    .tip-box { background: var(--accent-light); border: 1px solid rgba(59,130,246,.25); border-radius: 8px; padding: 14px 16px; font-size: 14px; color: var(--text2); line-height: 1.7; }
 
-    .sidebar {
-      width: 220px; flex-shrink: 0;
-      background: #fff; border-right: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      position: fixed; top: 0; left: 0; height: 100vh;
-      z-index: 200; overflow-y: auto;
-    }
-    .sidebar-logo {
-      padding: 22px 20px 18px;
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 18px; font-weight: 700; color: var(--accent);
-      border-bottom: 1px solid var(--border);
-    }
-    .sidebar-logo-badge {
-      display: inline-block; background: var(--accent); color: #fff;
-      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700;
-      letter-spacing: 1px; padding: 2px 6px; border-radius: 4px;
-      margin-left: 5px; vertical-align: middle; position: relative; top: -2px;
-    }
-    .sidebar-nav { list-style: none; padding: 12px 0; flex: 1; }
-    .sidebar-nav li { margin: 2px 8px; }
-    .sidebar-link {
-      display: flex; align-items: center; gap: 10px;
-      padding: 9px 12px; border-radius: 8px; text-decoration: none;
-      color: var(--muted); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
-      transition: background 0.15s, color 0.15s;
-    }
-    .sidebar-link:hover { background: var(--bg); color: var(--text); }
-    .sidebar-link.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
-    .sidebar-icon { font-size: 16px; width: 20px; text-align: center; }
-    .sidebar-footer { padding: 14px 16px; border-top: 1px solid var(--border); }
-    .sidebar-user { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .sidebar-avatar {
-      width: 34px; height: 34px; border-radius: 50%; background: var(--accent);
-      color: #fff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .sidebar-user-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-    .sidebar-user-uni { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-    .sidebar-logout {
-      width: 100%; padding: 7px; border: 1.5px solid var(--border); border-radius: 7px;
-      background: transparent; color: var(--muted); font-family: 'Inter', sans-serif;
-      font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;
-    }
-    .sidebar-logout:hover { border-color: var(--high); color: var(--high); }
-
-    /* ── Mobile topbar ── */
-    .mobile-topbar { display: none; }
-    .sidebar-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.3); z-index: 199;
-    }
-
-    /* ── Page content ── */
-    .page-content { margin-left: 220px; flex: 1; min-width: 0; }
-    .page-main { padding: 32px; max-width: 1060px; }
-
-    /* ── Buttons ── */
-    .btn {
-      padding: 10px 22px; border-radius: 8px; border: none;
-      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
-      cursor: pointer; transition: all 0.18s; letter-spacing: 0.1px;
-      display: inline-flex; align-items: center; gap: 6px;
-    }
-    .btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn-danger { background: transparent; color: var(--high); border: 1.5px solid #FCA5A5; }
-    .btn-danger:hover { background: #FEE2E2; }
-    .btn-sm { padding: 6px 14px; font-size: 12px; }
-
-    /* ── Page header ── */
-    .page-header { margin-bottom: 28px; }
-    .page-title { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .page-subtitle { font-size: 14px; color: var(--muted); }
-
-    /* ── Search ── */
-    .search-wrap { margin-bottom: 24px; position: relative; }
-    .search-icon {
-      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-      color: var(--muted); font-size: 15px; pointer-events: none;
-    }
-    #searchInput {
-      width: 100%; max-width: 400px;
-      background: var(--card); border: 1.5px solid var(--border); border-radius: 10px;
-      color: var(--text); padding: 10px 14px 10px 38px;
-      font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    #searchInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,63,110,0.08); }
-    #searchInput::placeholder { color: #ADADAD; }
-
-    /* ── Notes grid ── */
-    .notes-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
-    /* ── Note card ── */
-    .note-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: var(--shadow-sm);
-      display: flex; flex-direction: column; gap: 10px;
-      transition: box-shadow 0.2s, transform 0.15s;
-    }
-    .note-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
-
-    .note-title {
-      font-size: 15px; font-weight: 700; color: var(--text);
-      line-height: 1.4; display: -webkit-box;
-      -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-    }
-    .note-date { font-size: 12px; color: var(--muted); font-weight: 500; }
-    .note-excerpt {
-      font-size: 13px; color: #4A4A4A; line-height: 1.6;
-      flex: 1; display: -webkit-box;
-      -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-    }
-    .note-chip {
-      display: inline-flex; align-items: center;
-      padding: 3px 10px; border-radius: 20px;
-      background: var(--accent-light); color: var(--accent);
-      font-size: 11px; font-weight: 700; width: fit-content;
-    }
-    .note-actions { display: flex; gap: 8px; margin-top: 4px; }
-    .note-actions .btn { flex: 1; justify-content: center; }
-
-    /* ── Skeleton loading ── */
-    .skeleton-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: var(--shadow-sm);
-      display: flex; flex-direction: column; gap: 10px;
-    }
-    .skel {
-      border-radius: 6px; background: #E9E9E4;
-      animation: pulse 1.4s ease-in-out infinite;
-    }
-    .skel-title { height: 18px; width: 75%; }
-    .skel-date { height: 12px; width: 40%; }
-    .skel-text { height: 12px; }
-    .skel-text-short { height: 12px; width: 65%; }
-    .skel-chip { height: 22px; width: 100px; border-radius: 20px; }
-    .skel-btns { display: flex; gap: 8px; }
-    .skel-btn { height: 34px; flex: 1; border-radius: 8px; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
-
-    /* ── Empty state ── */
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--muted);
-    }
-    .empty-icon { font-size: 64px; margin-bottom: 18px; line-height: 1; }
-    .empty-title {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px;
-    }
-    .empty-sub { font-size: 14px; margin-bottom: 22px; }
-
-    /* ── Modal overlay ── */
-    .modal-overlay {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 500;
-      overflow-y: auto;
-      padding: 20px;
-    }
-    .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
-
-    .modal {
-      background: var(--card);
-      border-radius: 18px;
-      width: 100%; max-width: 820px;
-      margin: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-      overflow: hidden;
-      animation: modalIn 0.2s ease;
-    }
-    @keyframes modalIn { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    .modal-header {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      padding: 24px 28px 0;
-      gap: 16px;
-    }
-    .modal-title {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 20px; font-weight: 700; color: var(--text); flex: 1;
-    }
-    .modal-close {
-      background: none; border: none; font-size: 22px; color: var(--muted);
-      cursor: pointer; padding: 0 4px; line-height: 1;
-      transition: color 0.15s;
-    }
-    .modal-close:hover { color: var(--text); }
-
-    .modal-actions {
-      display: flex; gap: 10px; padding: 14px 28px 0;
-      border-bottom: 1px solid var(--border); padding-bottom: 0;
-      flex-wrap: wrap; align-items: center;
-    }
-    .modal-hub-btn {
-      margin-left: auto;
-      padding: 7px 16px; border-radius: 8px;
-      background: var(--accent-light); color: var(--accent);
-      border: 1.5px solid #C8D9EE;
-      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
-      cursor: pointer; transition: all 0.15s;
-      white-space: nowrap;
-    }
-    .modal-hub-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-    /* ── Modal tabs ── */
-    .modal-tabs {
-      display: flex; gap: 0;
-      border-bottom: 2px solid var(--border);
-      overflow-x: auto; scrollbar-width: none;
-      padding: 0 28px;
-    }
-    .modal-tabs::-webkit-scrollbar { display: none; }
-    .modal-tab {
-      padding: 12px 18px;
-      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
-      cursor: pointer; color: var(--muted);
-      border: none; background: transparent; white-space: nowrap;
-      transition: color 0.2s;
-      position: relative; bottom: -2px;
-      border-bottom: 2px solid transparent;
-    }
-    .modal-tab:hover { color: var(--text); }
-    .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    .modal-body {
-      padding: 24px 28px 28px;
-      max-height: calc(90vh - 160px);
-      overflow-y: auto;
-    }
-
-    .modal-tab-content { display: none; }
-    .modal-tab-content.active { display: block; }
-
-    /* ── Result styles (matching index.html) ── */
-    .overview-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px; margin-bottom: 18px;
-    }
-    .stat-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 18px; text-align: center; box-shadow: var(--shadow-sm);
-    }
-    .stat-num {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 36px; font-weight: 700; color: var(--accent); line-height: 1;
-    }
-    .stat-label { font-size: 11px; color: var(--muted); margin-top: 5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-    .overview-text { font-size: 15px; line-height: 1.75; color: var(--text); }
-    .tip-box {
-      background: var(--accent-light); border: 1px solid #C8D9EE;
-      border-radius: 12px; padding: 16px; margin-top: 16px;
-      font-size: 14px; line-height: 1.65; color: var(--text);
-    }
-    .tip-label {
-      font-size: 10px; color: var(--accent); font-weight: 700;
-      margin-bottom: 6px; letter-spacing: 1.2px; text-transform: uppercase;
-    }
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
-    }
-    .assignment-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 18px; margin-bottom: 12px;
-      border-left: 4px solid var(--low); box-shadow: var(--shadow-sm);
-    }
-    .assignment-card.HIGH { border-left-color: var(--high); }
-    .assignment-card.MEDIUM { border-left-color: var(--med); }
-    .assignment-card.LOW { border-left-color: var(--low); }
-    .assignment-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
-    .assignment-title { font-size: 14px; font-weight: 700; flex: 1; color: var(--text); }
-    .priority-badge {
-      padding: 3px 10px; border-radius: 5px; font-size: 10px;
-      font-weight: 700; letter-spacing: 0.8px; white-space: nowrap; text-transform: uppercase;
-    }
-    .badge-HIGH { background: #FEE2E2; color: var(--high); }
-    .badge-MEDIUM { background: #FEF3C7; color: var(--med); }
-    .badge-LOW { background: #DCFCE7; color: var(--low); }
-    .assignment-meta { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; flex-wrap: wrap; }
-    .assignment-details { font-size: 13px; color: #3A3A3A; line-height: 1.65; }
-
-    .day-group { margin-bottom: 22px; }
-    .day-label { font-family: 'Playfair Display', Georgia, serif; font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
-    .slot {
-      display: flex; gap: 14px; align-items: flex-start;
-      padding: 12px 16px; background: var(--card); border: 1px solid var(--border);
-      border-radius: 10px; margin-bottom: 7px; box-shadow: var(--shadow-sm);
-    }
-    .slot-time { font-size: 12px; color: var(--muted); min-width: 68px; font-weight: 600; padding-top: 2px; }
-    .slot-info { flex: 1; }
-    .slot-subject { font-size: 13px; font-weight: 700; color: var(--text); }
-    .slot-venue { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .slot-type-badge {
-      padding: 3px 9px; border-radius: 5px; font-size: 10px;
-      font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; text-transform: uppercase;
-    }
-    .type-class, .type-lecture { background: #DBEAFE; color: #1E40AF; }
-    .type-lab { background: #EDE9FE; color: #5B21B6; }
-    .type-test { background: #FEF3C7; color: #92400E; }
-    .type-exam { background: #FEE2E2; color: #991B1B; }
-    .type-assignment_due { background: #DCFCE7; color: #166534; }
-
-    .topic-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; margin-bottom: 12px; overflow: hidden; box-shadow: var(--shadow-sm);
-    }
-    .topic-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 18px; cursor: pointer; user-select: none; transition: background 0.15s;
-    }
-    .topic-header:hover { background: var(--card2); }
-    .topic-name { font-family: 'Playfair Display', Georgia, serif; font-size: 15px; font-weight: 700; color: var(--text); }
-    .topic-chevron { font-size: 13px; color: var(--muted); transition: transform 0.2s; }
-    .topic-chevron.open { transform: rotate(180deg); }
-    .topic-body { display: none; padding: 16px 18px; border-top: 1px solid var(--border); background: #FAFAF8; }
-    .topic-body.open { display: block; }
-    .topic-summary { font-size: 13px; line-height: 1.75; color: #3A3A3A; margin-bottom: 12px; }
-    .topic-points { list-style: none; }
-    .topic-points li {
-      font-size: 13px; color: #3A3A3A; padding: 5px 0 5px 20px;
-      position: relative; line-height: 1.55; border-bottom: 1px solid var(--border);
-    }
-    .topic-points li:last-child { border-bottom: none; }
-    .topic-points li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
-
-    .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
-    .empty-icon-sm { font-size: 32px; margin-bottom: 10px; }
-    .empty p { font-size: 13px; }
-
-    /* ── Confirm dialog ── */
-    .confirm-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.4); z-index: 600;
-      align-items: center; justify-content: center;
-    }
-    .confirm-overlay.open { display: flex; }
-    .confirm-box {
-      background: var(--card); border-radius: 14px;
-      padding: 28px; max-width: 360px; width: 90%;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      animation: modalIn 0.18s ease;
-    }
-    .confirm-title { font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-    .confirm-msg { font-size: 14px; color: var(--muted); margin-bottom: 22px; }
-    .confirm-actions { display: flex; gap: 10px; justify-content: flex-end; }
-    .btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--muted); padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; }
-    .btn-ghost:hover { border-color: var(--text); color: var(--text); }
-
-    /* ── Toast ── */
-    #toast {
-      position: fixed; bottom: 28px; right: 24px;
-      background: #1A1A1A; color: #fff;
-      padding: 12px 20px; border-radius: 10px;
-      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
-      display: none; z-index: 900; max-width: 340px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      border-left: 4px solid var(--accent);
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      .notes-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
-      .sidebar.open { transform: translateX(0); }
-      .sidebar-overlay.open { display: block; }
-      .page-content { margin-left: 0; }
-      .mobile-topbar {
-        display: flex; align-items: center; gap: 12px;
-        height: 52px; padding: 0 16px; background: #fff;
-        border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
-      }
-      .hamburger { background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; }
-      .mobile-logo { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; color: var(--accent); }
-      .page-main { padding: 16px; }
-      .modal { border-radius: 14px; }
-      .modal-header { padding: 18px 18px 0; }
-      .modal-tabs { padding: 0 18px; }
-      .modal-body { padding: 18px 18px 22px; }
-      .modal-actions { padding: 10px 18px 0; }
-    }
-    @media (max-width: 520px) {
-      .notes-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 768px) { .page-content { padding: 16px 16px 40px; } }
   </style>
 </head>
 <body>
 
-<!-- Sidebar overlay -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-<div class="app-layout">
-  <!-- Sidebar -->
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      ClassMind<span class="sidebar-logo-badge">AI</span>
-    </div>
-    <ul class="sidebar-nav" id="sidebarNav"></ul>
-    <div class="sidebar-footer">
-      <div class="sidebar-user">
-        <div class="sidebar-avatar" id="sidebarAvatar">?</div>
-        <div>
-          <div class="sidebar-user-name" id="sidebarName">Loading…</div>
-          <div class="sidebar-user-uni" id="sidebarUni"></div>
-        </div>
-      </div>
-      <button class="sidebar-logout" onclick="logout()">Sign out</button>
-    </div>
-  </nav>
-
-  <!-- Page content -->
-  <div class="page-content">
-    <!-- Mobile topbar -->
-    <div class="mobile-topbar">
-      <button class="hamburger" onclick="openSidebar()">☰</button>
-      <div class="mobile-logo">ClassMind<span class="sidebar-logo-badge" style="font-size:9px;padding:1px 5px">AI</span></div>
-    </div>
-
-    <main class="page-main">
-      <div class="page-header">
-        <h1 class="page-title">My Notes</h1>
-        <p class="page-subtitle">Your saved study analyses</p>
-      </div>
-
-      <div class="search-wrap">
-        <span class="search-icon">🔍</span>
-        <input type="search" id="searchInput" placeholder="Search notes…" oninput="filterNotes()" />
-      </div>
-
-      <div class="notes-grid" id="notesGrid">
-        <!-- Skeleton cards inserted by JS -->
-      </div>
-    </main>
-  </div>
+<div class="page-header">
+  <h1>Notes</h1>
+  <p>Your saved AI analyses and study notes.</p>
 </div>
+<div class="page-content">
 
-<!-- Note detail modal -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="noteModal">
-    <div class="modal-header">
-      <h2 class="modal-title" id="modalTitle">Loading…</h2>
-      <button class="modal-close" onclick="closeModal()" title="Close">×</button>
+  <div class="notes-toolbar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search notes…" oninput="filterNotes()">
     </div>
-    <div class="modal-actions">
-      <div class="modal-tabs" id="modalTabsRow">
-        <button class="modal-tab active" data-tab="overview" onclick="switchModalTab('overview')">📊 Overview</button>
-        <button class="modal-tab" data-tab="assignments" onclick="switchModalTab('assignments')">📋 Assignments</button>
-        <button class="modal-tab" data-tab="schedule" onclick="switchModalTab('schedule')">📅 Schedule</button>
-        <button class="modal-tab" data-tab="topics" onclick="switchModalTab('topics')">💡 Topics</button>
-      </div>
-      <button class="modal-hub-btn" onclick="openInStudyHub()">Open in Study Hub ↗</button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-tab-content active" id="modal-tab-overview"></div>
-      <div class="modal-tab-content" id="modal-tab-assignments"></div>
-      <div class="modal-tab-content" id="modal-tab-schedule"></div>
-      <div class="modal-tab-content" id="modal-tab-topics"></div>
+    <div id="noteCount" style="font-size:13px;color:var(--muted)"></div>
+  </div>
+
+  <div id="notesGrid" class="notes-grid">
+    <div style="grid-column:1/-1;text-align:center;padding:60px">
+      <div class="spinner" style="margin:0 auto 16px"></div>
+      Loading notes…
     </div>
   </div>
 </div>
 
-<!-- Confirm dialog -->
-<div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <div class="confirm-title">Delete this note?</div>
-    <div class="confirm-msg">This action cannot be undone. The analysis will be permanently removed.</div>
-    <div class="confirm-actions">
-      <button class="btn-ghost" onclick="closeConfirm()">Cancel</button>
-      <button class="btn btn-danger btn-sm" id="confirmDeleteBtn">Delete</button>
+<!-- Detail Modal -->
+<div class="modal-backdrop detail-modal" id="detailModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle"></div>
+    <div id="modalContent"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Close</button>
     </div>
   </div>
 </div>
 
-<div id="toast"></div>
-
+<script src="/shared.js"></script>
 <script>
-  'use strict';
+if (!Auth.requireAuth()) throw new Error('redirect');
+renderNav('Notes');
 
-  // ── Auth ──
-  const token = localStorage.getItem('cm_token');
-  const user = (() => { try { return JSON.parse(localStorage.getItem('cm_user') || 'null'); } catch { return null; } })();
-  if (!token) { window.location.href = '/login.html'; }
+let allNotes = [];
 
-  function authHeaders() {
-    return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+async function loadNotes() {
+  const res = await Auth.fetchWithAuth('/api/analyses');
+  if (!res || !res.ok) { showToast('Failed to load notes.', 'error'); return; }
+  allNotes = await res.json();
+  renderNotes(allNotes);
+}
+
+function filterNotes() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (!q) { renderNotes(allNotes); return; }
+  renderNotes(allNotes.filter(n => n.name.toLowerCase().includes(q) || (n.overview || '').toLowerCase().includes(q)));
+}
+
+function renderNotes(notes) {
+  const grid = document.getElementById('notesGrid');
+  document.getElementById('noteCount').textContent = notes.length + ' note' + (notes.length !== 1 ? 's' : '');
+  if (!notes.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div>📝</div>
+      <strong>No notes yet</strong>
+      Go to Study Hub to analyse your first document and save it as a note.
+    </div>`;
+    return;
   }
-  function logout() {
-    localStorage.removeItem('cm_token');
-    localStorage.removeItem('cm_user');
-    window.location.href = '/login.html';
-  }
-
-  // ── Sidebar setup ──
-  const NAV_ITEMS = [
-    { href: '/dashboard.html', icon: '⊞', label: 'Dashboard' },
-    { href: '/study.html',     icon: '📚', label: 'Study Hub' },
-    { href: '/tasks.html',     icon: '✓',  label: 'Task Board' },
-    { href: '/cgpa.html',      icon: '📈', label: 'CGPA Calc' },
-    { href: '/notes.html',     icon: '🗂',  label: 'Notes' },
-    { href: '/settings.html',  icon: '⚙',  label: 'Settings' },
-  ];
-
-  function buildSidebar() {
-    const initials = (user?.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-    document.getElementById('sidebarAvatar').textContent = initials;
-    document.getElementById('sidebarName').textContent = user?.name || 'Student';
-    document.getElementById('sidebarUni').textContent = user?.university || '';
-
-    document.getElementById('sidebarNav').innerHTML = NAV_ITEMS.map(item => `
-      <li>
-        <a href="${item.href}" class="sidebar-link ${item.href === '/notes.html' ? 'active' : ''}">
-          <span class="sidebar-icon">${item.icon}</span>
-          <span>${item.label}</span>
-        </a>
-      </li>
-    `).join('');
-  }
-
-  function openSidebar() {
-    document.getElementById('sidebar').classList.add('open');
-    document.getElementById('sidebarOverlay').classList.add('open');
-  }
-  function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebarOverlay').classList.remove('open');
-  }
-
-  // ── Utils ──
-  function escHtml(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  function formatDate(str) {
-    if (!str) return '';
-    const d = new Date(str);
-    if (isNaN(d)) return str;
-    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  }
-
-  function showToast(msg, type = 'error') {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.style.borderLeftColor = type === 'success' ? 'var(--low)' : 'var(--high)';
-    el.style.display = 'block';
-    clearTimeout(el._t);
-    el._t = setTimeout(() => el.style.display = 'none', 3500);
-  }
-
-  // ── State ──
-  let allNotes = [];
-  let currentModalResult = null;
-  let pendingDeleteId = null;
-
-  // ── Skeletons ──
-  function showSkeletons(n = 6) {
-    document.getElementById('notesGrid').innerHTML = Array.from({ length: n }, () => `
-      <div class="skeleton-card">
-        <div class="skel skel-title"></div>
-        <div class="skel skel-date"></div>
-        <div class="skel skel-text"></div>
-        <div class="skel skel-text-short"></div>
-        <div class="skel skel-chip"></div>
-        <div class="skel-btns">
-          <div class="skel skel-btn"></div>
-          <div class="skel skel-btn"></div>
+  grid.innerHTML = notes.map(n => `
+    <div class="note-card" onclick="openNote(${n.id})">
+      <div>
+        <div class="note-name" id="noteName_${n.id}">${escHtmlClient(n.name)}</div>
+        <input class="note-name-input" id="noteNameInput_${n.id}" value="${escHtmlClient(n.name)}"
+               onclick="event.stopPropagation()" onblur="saveNoteName(event, ${n.id})"
+               onkeydown="handleNameKey(event, ${n.id})">
+      </div>
+      <div class="note-date">${formatDate(n.created_at)}</div>
+      ${n.overview ? `<div class="note-overview">${escHtmlClient(n.overview)}</div>` : ''}
+      <div class="note-footer">
+        ${n.assignment_count ? `<span class="badge badge-blue">${n.assignment_count} task${n.assignment_count !== 1 ? 's' : ''}</span>` : '<span></span>'}
+        <div class="note-actions" onclick="event.stopPropagation()">
+          <button class="btn-sm btn-secondary" onclick="startRename(${n.id})">Rename</button>
+          <button class="btn-sm btn-danger" onclick="deleteNote(${n.id})">Delete</button>
         </div>
       </div>
-    `).join('');
-  }
+    </div>
+  `).join('');
+}
 
-  // ── Fetch notes ──
-  async function fetchNotes() {
-    showSkeletons();
-    try {
-      const res = await fetch('/api/analyses', { headers: authHeaders() });
-      if (res.status === 401) { logout(); return; }
-      if (!res.ok) throw new Error('Failed to load notes');
-      allNotes = await res.json();
-      renderNotes(allNotes);
-    } catch (err) {
-      showToast(err.message);
-      document.getElementById('notesGrid').innerHTML = `
-        <div class="empty-state" style="grid-column:1/-1">
-          <div style="font-size:40px;margin-bottom:12px">⚠️</div>
-          <div class="empty-title">Could not load notes</div>
-          <p style="font-size:14px;color:var(--muted)">${escHtml(err.message)}</p>
-        </div>`;
+function startRename(id) {
+  const nameEl = document.getElementById('noteName_' + id);
+  const inputEl = document.getElementById('noteNameInput_' + id);
+  nameEl.style.display = 'none';
+  inputEl.style.display = 'block';
+  inputEl.focus();
+  inputEl.select();
+}
+
+function handleNameKey(e, id) {
+  if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
+  if (e.key === 'Escape') {
+    const n = allNotes.find(x => x.id === id);
+    if (n) e.target.value = n.name;
+    e.target.blur();
+  }
+}
+
+async function saveNoteName(e, id) {
+  const newName = e.target.value.trim();
+  const n = allNotes.find(x => x.id === id);
+  if (!n || !newName || newName === n.name) {
+    if (newName) {
+      document.getElementById('noteName_' + id).style.display = 'block';
+      document.getElementById('noteNameInput_' + id).style.display = 'none';
     }
+    return;
   }
-
-  // ── Render notes grid ──
-  function renderNotes(notes) {
-    const grid = document.getElementById('notesGrid');
-    if (!notes.length) {
-      grid.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">📚</div>
-          <div class="empty-title">No notes yet</div>
-          <p class="empty-sub">Analyze some material to save your first study note</p>
-          <a href="/study.html" class="btn btn-primary">Go analyze some material</a>
-        </div>`;
-      return;
-    }
-    grid.innerHTML = notes.map(note => `
-      <div class="note-card" data-id="${note.id}" data-name="${escHtml(note.name)}" data-overview="${escHtml(note.overview || '')}">
-        <div class="note-title">${escHtml(note.name)}</div>
-        <div class="note-date">${formatDate(note.created_at)}</div>
-        <div class="note-excerpt">${escHtml((note.overview || 'No overview available.').slice(0, 120))}${(note.overview || '').length > 120 ? '…' : ''}</div>
-        <div class="note-chip">${note.assignment_count || 0} assignment${note.assignment_count !== 1 ? 's' : ''}</div>
-        <div class="note-actions">
-          <button class="btn btn-primary btn-sm" onclick="openNote(${note.id})">Open</button>
-          <button class="btn btn-danger btn-sm" onclick="confirmDelete(${note.id})">× Delete</button>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // ── Search filter ──
-  function filterNotes() {
-    const q = document.getElementById('searchInput').value.trim().toLowerCase();
-    if (!q) { renderNotes(allNotes); return; }
-    const filtered = allNotes.filter(n =>
-      (n.name || '').toLowerCase().includes(q) ||
-      (n.overview || '').toLowerCase().includes(q)
-    );
-    renderNotes(filtered);
-  }
-
-  // ── Open note modal ──
-  async function openNote(id) {
-    document.getElementById('modalTitle').textContent = 'Loading…';
-    document.getElementById('modalOverlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-    // Reset tabs
-    switchModalTab('overview');
-    ['overview','assignments','schedule','topics'].forEach(t => {
-      document.getElementById('modal-tab-' + t).innerHTML = '<div class="empty"><div class="empty-icon-sm">⏳</div><p>Loading…</p></div>';
-    });
-
-    try {
-      const res = await fetch(`/api/analyses/${id}`, { headers: authHeaders() });
-      if (res.status === 401) { logout(); return; }
-      if (!res.ok) throw new Error('Could not load note');
-      const data = await res.json();
-      currentModalResult = data.result || data;
-      // Title from list
-      const note = allNotes.find(n => n.id === id);
-      document.getElementById('modalTitle').textContent = note?.name || data.name || 'Note';
-      renderModalContent(currentModalResult);
-    } catch (err) {
-      closeModal();
-      showToast(err.message);
-    }
-  }
-
-  function renderModalContent(result) {
-    renderModalOverview(result);
-    renderModalAssignments(result.assignments || []);
-    renderModalSchedule(result.timetable || []);
-    renderModalTopics(result.topics || {});
-  }
-
-  function renderModalOverview(data) {
-    const assignments = data.assignments || [];
-    const highCount = assignments.filter(a => a.priority === 'HIGH').length;
-    const subjects = Object.keys(data.topics || {});
-
-    document.getElementById('modal-tab-overview').innerHTML = `
-      <div class="overview-grid">
-        <div class="stat-card"><div class="stat-num">${assignments.length}</div><div class="stat-label">Assignments</div></div>
-        <div class="stat-card"><div class="stat-num" style="color:var(--high)">${highCount}</div><div class="stat-label">High Priority</div></div>
-        <div class="stat-card"><div class="stat-num">${(data.timetable || []).length}</div><div class="stat-label">Classes</div></div>
-        <div class="stat-card"><div class="stat-num">${subjects.length}</div><div class="stat-label">Subjects</div></div>
-      </div>
-      <div class="card">
-        <div class="tip-label">OVERVIEW</div>
-        <div class="overview-text">${escHtml(data.overview || 'No overview available.')}</div>
-        ${data.tip ? `<div class="tip-box"><div class="tip-label">💡 AI CONCEPT</div>${escHtml(data.tip)}</div>` : ''}
-      </div>
-      ${highCount > 0 ? `
-      <div class="card" style="border-left:4px solid var(--high)">
-        <div class="tip-label" style="color:var(--high)">⚠ URGENT ITEMS</div>
-        ${assignments.filter(a => a.priority === 'HIGH').map(a => `
-          <div style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start">
-            <div style="flex:1">
-              <div style="font-weight:600;font-size:13px">${escHtml(a.title)}</div>
-              <div style="font-size:12px;color:var(--muted)">${escHtml(a.subject)} · Due: ${escHtml(a.deadline)}</div>
-            </div>
-          </div>
-        `).join('')}
-      </div>` : ''}
-    `;
-  }
-
-  function renderModalAssignments(assignments) {
-    if (!assignments.length) {
-      document.getElementById('modal-tab-assignments').innerHTML = `<div class="empty"><div class="empty-icon-sm">✅</div><p>No assignments found.</p></div>`;
-      return;
-    }
-    const sorted = [...assignments].sort((a, b) => ({ HIGH: 0, MEDIUM: 1, LOW: 2 }[a.priority] ?? 1) - ({ HIGH: 0, MEDIUM: 1, LOW: 2 }[b.priority] ?? 1));
-    document.getElementById('modal-tab-assignments').innerHTML = sorted.map(a => `
-      <div class="assignment-card ${a.priority}">
-        <div class="assignment-header">
-          <div class="assignment-title">${escHtml(a.title)}</div>
-          <span class="priority-badge badge-${a.priority}">${a.priority}</span>
-        </div>
-        <div class="assignment-meta">
-          <span>📖 ${escHtml(a.subject)}</span>
-          <span>📅 ${escHtml(a.deadline)}</span>
-          ${a.marks ? `<span>🏆 ${escHtml(String(a.marks))} marks</span>` : ''}
-        </div>
-        <div class="assignment-details">${escHtml(a.details)}</div>
-      </div>
-    `).join('');
-  }
-
-  function renderModalSchedule(timetable) {
-    if (!timetable.length) {
-      document.getElementById('modal-tab-schedule').innerHTML = `<div class="empty"><div class="empty-icon-sm">📅</div><p>No schedule found.</p></div>`;
-      return;
-    }
-    const dayOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-    const byDay = {};
-    timetable.forEach(slot => { const d = slot.day || 'Other'; (byDay[d] = byDay[d] || []).push(slot); });
-    const sortedDays = Object.keys(byDay).sort((a, b) => {
-      const ai = dayOrder.indexOf(a), bi = dayOrder.indexOf(b);
-      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-    });
-    document.getElementById('modal-tab-schedule').innerHTML = sortedDays.map(day => `
-      <div class="day-group">
-        <div class="day-label">${escHtml(day)}</div>
-        ${byDay[day].map(slot => `
-          <div class="slot">
-            <div class="slot-time">${escHtml(slot.time)}</div>
-            <div class="slot-info">
-              <div class="slot-subject">${escHtml(slot.subject)}</div>
-              <div class="slot-venue">📍 ${escHtml(slot.venue)}</div>
-            </div>
-            <span class="slot-type-badge type-${slot.type || 'class'}">${(slot.type || 'class').replace('_', ' ')}</span>
-          </div>
-        `).join('')}
-      </div>
-    `).join('');
-  }
-
-  function renderModalTopics(topics) {
-    const keys = Object.keys(topics);
-    if (!keys.length) {
-      document.getElementById('modal-tab-topics').innerHTML = `<div class="empty"><div class="empty-icon-sm">💡</div><p>No topics found.</p></div>`;
-      return;
-    }
-    document.getElementById('modal-tab-topics').innerHTML = keys.map((subject, i) => {
-      const t = topics[subject];
-      const id = 'mtopic-' + i;
-      return `
-        <div class="topic-card">
-          <div class="topic-header" onclick="toggleTopic('${id}')">
-            <div class="topic-name">${escHtml(subject)}</div>
-            <span class="topic-chevron${i === 0 ? ' open' : ''}" id="chev-${id}">▾</span>
-          </div>
-          <div class="topic-body${i === 0 ? ' open' : ''}" id="${id}">
-            <div class="topic-summary">${escHtml(t.summary || '')}</div>
-            <ul class="topic-points">
-              ${(t.key_points || []).map(p => `<li>${escHtml(p)}</li>`).join('')}
-            </ul>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function toggleTopic(id) {
-    document.getElementById(id)?.classList.toggle('open');
-    document.getElementById('chev-' + id)?.classList.toggle('open');
-  }
-
-  // ── Modal tab switching ──
-  function switchModalTab(name) {
-    document.querySelectorAll('.modal-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-    document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.toggle('active', c.id === 'modal-tab-' + name));
-  }
-
-  function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('open');
-    document.body.style.overflow = '';
-    currentModalResult = null;
-  }
-
-  // Close modal on overlay click
-  document.getElementById('modalOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
+  const res = await Auth.fetchWithAuth('/api/analyses/' + id, {
+    method: 'PUT',
+    body: JSON.stringify({ name: newName })
   });
+  if (res && res.ok) {
+    n.name = newName;
+    document.getElementById('noteName_' + id).textContent = newName;
+    document.getElementById('noteName_' + id).style.display = 'block';
+    document.getElementById('noteNameInput_' + id).style.display = 'none';
+    showToast('Note renamed.', 'success');
+  } else {
+    showToast('Rename failed.', 'error');
+    document.getElementById('noteName_' + id).style.display = 'block';
+    document.getElementById('noteNameInput_' + id).style.display = 'none';
+  }
+}
 
-  // ── Open in Study Hub ──
-  function openInStudyHub() {
-    if (!currentModalResult) return;
-    sessionStorage.setItem('cm_study_result', JSON.stringify(currentModalResult));
-    window.location.href = '/study.html';
+async function deleteNote(id) {
+  if (!confirm('Delete this note? This cannot be undone.')) return;
+  const res = await Auth.fetchWithAuth('/api/analyses/' + id, { method: 'DELETE' });
+  if (res && res.ok) {
+    allNotes = allNotes.filter(n => n.id !== id);
+    filterNotes();
+    showToast('Note deleted.', 'success');
+  } else {
+    showToast('Failed to delete note.', 'error');
+  }
+}
+
+async function openNote(id) {
+  const res = await Auth.fetchWithAuth('/api/analyses/' + id);
+  if (!res || !res.ok) { showToast('Could not load note.', 'error'); return; }
+  const data = await res.json();
+  const result = data.result || {};
+  document.getElementById('modalTitle').textContent = data.name;
+  document.getElementById('modalContent').innerHTML = buildNoteDetail(result);
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function buildNoteDetail(r) {
+  const parts = [];
+
+  if (r.overview) {
+    parts.push(`<div class="detail-section">
+      <h3>Overview</h3>
+      <div class="overview-text">${escHtmlClient(r.overview)}</div>
+    </div>`);
   }
 
-  // ── Delete ──
-  function confirmDelete(id) {
-    pendingDeleteId = id;
-    document.getElementById('confirmOverlay').classList.add('open');
+  if (r.assignments && r.assignments.length) {
+    parts.push(`<div class="detail-section">
+      <h3>Assignments &amp; Tasks (${r.assignments.length})</h3>
+      ${r.assignments.map(a => `
+        <div class="assignment-row">
+          <div class="title">${escHtmlClient(a.title || '')}</div>
+          <div class="meta">
+            ${a.subject ? escHtmlClient(a.subject) + ' · ' : ''}
+            Deadline: ${escHtmlClient(a.deadline || '—')} ·
+            Priority: <span class="badge ${a.priority === 'HIGH' ? 'badge-red' : a.priority === 'MEDIUM' ? 'badge-amber' : 'badge-blue'}">${a.priority || 'MEDIUM'}</span>
+          </div>
+          ${a.details ? `<div style="font-size:12px;color:var(--muted);margin-top:4px">${escHtmlClient(a.details)}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>`);
   }
-  function closeConfirm() {
-    pendingDeleteId = null;
-    document.getElementById('confirmOverlay').classList.remove('open');
+
+  if (r.timetable && r.timetable.length) {
+    parts.push(`<div class="detail-section">
+      <h3>Timetable (${r.timetable.length} entries)</h3>
+      <table class="timetable-table">
+        <thead><tr><th>Day</th><th>Time</th><th>Subject</th><th>Type</th><th>Venue</th></tr></thead>
+        <tbody>${r.timetable.map(t => `
+          <tr>
+            <td>${escHtmlClient(t.day || '')}</td>
+            <td>${escHtmlClient(t.time || '')}</td>
+            <td>${escHtmlClient(t.subject || '')} ${t.course_code ? '<small>(' + escHtmlClient(t.course_code) + ')</small>' : ''}</td>
+            <td>${escHtmlClient(t.type || '')}</td>
+            <td>${escHtmlClient(t.venue || '')}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    </div>`);
   }
 
-  document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
-    if (!pendingDeleteId) return;
-    const id = pendingDeleteId;
-    closeConfirm();
-    try {
-      const res = await fetch(`/api/analyses/${id}`, { method: 'DELETE', headers: authHeaders() });
-      if (res.status === 401) { logout(); return; }
-      if (!res.ok) throw new Error('Delete failed');
-      allNotes = allNotes.filter(n => n.id !== id);
-      renderNotes(allNotes);
-      showToast('Note deleted', 'success');
-    } catch (err) {
-      showToast(err.message);
-    }
-  });
+  if (r.topics && Object.keys(r.topics).length) {
+    parts.push(`<div class="detail-section">
+      <h3>Topics</h3>
+      ${Object.entries(r.topics).map(([subj, data]) => `
+        <details class="topics-item">
+          <summary>${escHtmlClient(subj)}</summary>
+          ${data.summary ? `<p style="font-size:13px;color:var(--text2);margin:8px 0 4px">${escHtmlClient(data.summary)}</p>` : ''}
+          ${data.key_points && data.key_points.length ? `<ul>${data.key_points.map(p => `<li>${escHtmlClient(p)}</li>`).join('')}</ul>` : ''}
+        </details>
+      `).join('')}
+    </div>`);
+  }
 
-  // ── Keyboard: Escape closes modals ──
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      if (document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm();
-      else if (document.getElementById('modalOverlay').classList.contains('open')) closeModal();
-      else closeSidebar();
-    }
-  });
+  if (r.lecturers && r.lecturers.length) {
+    parts.push(`<div class="detail-section">
+      <h3>Lecturers</h3>
+      ${r.lecturers.map(l => `
+        <div class="lecturer-card">
+          <div class="lecturer-name">${escHtmlClient((l.title ? l.title + ' ' : '') + (l.name || ''))}</div>
+          ${l.course ? `<div style="color:var(--muted)">${escHtmlClient(l.course)} ${l.course_code ? '(' + escHtmlClient(l.course_code) + ')' : ''}</div>` : ''}
+          ${l.email ? `<div>Email: ${escHtmlClient(l.email)}</div>` : ''}
+          ${l.phone ? `<div>Phone: ${escHtmlClient(l.phone)}</div>` : ''}
+          ${l.office ? `<div>Office: ${escHtmlClient(l.office)}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>`);
+  }
 
-  // ── Init ──
-  buildSidebar();
-  fetchNotes();
+  if (r.tip) {
+    parts.push(`<div class="detail-section">
+      <h3>Study Tip</h3>
+      <div class="tip-box">💡 ${escHtmlClient(r.tip)}</div>
+    </div>`);
+  }
+
+  return parts.join('') || '<div style="color:var(--muted);text-align:center;padding:30px">No structured data in this note.</div>';
+}
+
+function closeModal() {
+  document.getElementById('detailModal').classList.remove('open');
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+loadNotes();
 </script>
 </body>
 </html>

@@ -1,958 +1,457 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Settings — ClassMind AI</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    .page-header { padding: 28px 32px 0; }
+    .page-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+    .page-header p { color: var(--muted); font-size: 14px; }
+    .page-content { padding: 24px 32px 48px; max-width: 700px; }
 
-    :root {
-      --bg: #F6F6F3;
-      --card: #FFFFFF;
-      --card2: #F2F2EF;
-      --border: #E2E2DC;
-      --accent: #1B3F6E;
-      --accent-light: #EBF0F7;
-      --accent-hover: #15335A;
-      --text: #141414;
-      --muted: #747474;
-      --high: #B91C1C;
-      --med: #B45309;
-      --low: #15803D;
-      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-    }
+    .settings-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+    .settings-card.danger-card { border-color: var(--danger); }
+    .settings-card .card-title { font-size: 15px; font-weight: 700; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+    .settings-card.danger-card .card-title { color: var(--danger); }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      line-height: 1.6;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-
-    h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
-
-    /* ── Sidebar ── */
-    .app-layout { display: flex; min-height: 100vh; }
-
-    .sidebar {
-      width: 220px; flex-shrink: 0;
-      background: #fff; border-right: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      position: fixed; top: 0; left: 0; height: 100vh;
-      z-index: 200; overflow-y: auto;
-    }
-    .sidebar-logo {
-      padding: 22px 20px 18px;
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 18px; font-weight: 700; color: var(--accent);
-      border-bottom: 1px solid var(--border);
-    }
-    .sidebar-logo-badge {
-      display: inline-block; background: var(--accent); color: #fff;
-      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700;
-      letter-spacing: 1px; padding: 2px 6px; border-radius: 4px;
-      margin-left: 5px; vertical-align: middle; position: relative; top: -2px;
-    }
-    .sidebar-nav { list-style: none; padding: 12px 0; flex: 1; }
-    .sidebar-nav li { margin: 2px 8px; }
-    .sidebar-link {
-      display: flex; align-items: center; gap: 10px;
-      padding: 9px 12px; border-radius: 8px; text-decoration: none;
-      color: var(--muted); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500;
-      transition: background 0.15s, color 0.15s;
-    }
-    .sidebar-link:hover { background: var(--bg); color: var(--text); }
-    .sidebar-link.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
-    .sidebar-icon { font-size: 16px; width: 20px; text-align: center; }
-    .sidebar-footer { padding: 14px 16px; border-top: 1px solid var(--border); }
-    .sidebar-user { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .sidebar-avatar {
-      width: 34px; height: 34px; border-radius: 50%; background: var(--accent);
-      color: #fff; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .sidebar-user-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-    .sidebar-user-uni { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-    .sidebar-logout {
-      width: 100%; padding: 7px; border: 1.5px solid var(--border); border-radius: 7px;
-      background: transparent; color: var(--muted); font-family: 'Inter', sans-serif;
-      font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;
-    }
-    .sidebar-logout:hover { border-color: var(--high); color: var(--high); }
-
-    /* ── Mobile topbar ── */
-    .mobile-topbar { display: none; }
-    .sidebar-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.3); z-index: 199;
-    }
-
-    /* ── Page content ── */
-    .page-content { margin-left: 220px; flex: 1; min-width: 0; }
-    .page-main { padding: 32px; max-width: 760px; }
-
-    /* ── Page header ── */
-    .page-title { font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .page-subtitle { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
-
-    /* ── Settings card ── */
-    .settings-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 26px;
-      margin-bottom: 22px;
-      box-shadow: var(--shadow-sm);
-    }
-    .card-title {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 18px; font-weight: 700; color: var(--text);
-      margin-bottom: 20px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    /* ── Avatar (large) ── */
-    .profile-top { display: flex; align-items: center; gap: 18px; margin-bottom: 22px; }
-    .profile-avatar {
-      width: 64px; height: 64px; border-radius: 50%; background: var(--accent);
-      color: #fff; font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .profile-info { display: flex; flex-direction: column; }
-    .profile-name { font-size: 16px; font-weight: 700; color: var(--text); }
-    .profile-uni { font-size: 13px; color: var(--muted); margin-top: 3px; }
-
-    /* ── Form ── */
-    .form-group { margin-bottom: 16px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    label {
-      display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px;
-    }
-    input, select {
-      width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: 8px;
-      color: var(--text); padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s; appearance: none;
-    }
-    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,63,110,0.08); }
-    input::placeholder { color: #ADADAD; }
-    input[readonly], input:disabled { background: var(--card2); color: var(--muted); cursor: not-allowed; }
+
+    input[readonly], input:disabled { opacity: .55; cursor: not-allowed; }
 
     .input-wrap { position: relative; }
-    .input-wrap input { padding-right: 40px; }
-    .toggle-pw {
-      position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px;
-      padding: 2px 4px; line-height: 1; transition: color 0.15s;
-    }
+    .input-wrap input { padding-right: 42px; }
+    .toggle-pw { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px 4px; border-radius: 4px; line-height: 1; }
     .toggle-pw:hover { color: var(--text); }
 
-    /* ── Courses chips ── */
-    .courses-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; min-height: 28px; }
-    .course-chip {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: var(--accent-light); color: var(--accent);
-      border: 1.5px solid #C8D9EE; border-radius: 20px;
-      padding: 4px 10px; font-size: 12px; font-weight: 600;
-    }
-    .chip-remove {
-      background: none; border: none; cursor: pointer;
-      color: var(--accent); font-size: 14px; line-height: 1; padding: 0;
-      opacity: 0.7; transition: opacity 0.15s;
-    }
-    .chip-remove:hover { opacity: 1; color: var(--high); }
-    .add-course-row { display: flex; gap: 8px; align-items: center; }
+    .courses-wrap { display: flex; flex-wrap: wrap; gap: 7px; min-height: 28px; margin-bottom: 10px; }
+    .course-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--accent-light); color: var(--accent); border: 1px solid rgba(59,130,246,.3); border-radius: 99px; padding: 4px 10px; font-size: 12px; font-weight: 700; }
+    .chip-remove { background: none; border: none; color: var(--accent); font-size: 14px; cursor: pointer; line-height: 1; padding: 0; opacity: .7; }
+    .chip-remove:hover { opacity: 1; color: var(--danger); }
+    .add-course-row { display: flex; gap: 8px; }
     .add-course-row input { flex: 1; }
-    .btn-add-course {
-      padding: 9px 16px; border-radius: 8px; border: 1.5px solid var(--accent);
-      background: var(--accent-light); color: var(--accent);
-      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
-      cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0;
-    }
-    .btn-add-course:hover { background: var(--accent); color: #fff; }
+    .btn-add { padding: 10px 16px; border-radius: var(--radius); border: 1.5px solid var(--accent); background: var(--accent-light); color: var(--accent); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all .15s; flex-shrink: 0; }
+    .btn-add:hover { background: var(--accent); color: #fff; }
 
-    /* ── Buttons ── */
-    .btn {
-      padding: 10px 22px; border-radius: 8px; border: none;
-      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
-      cursor: pointer; transition: all 0.18s; letter-spacing: 0.1px;
-      display: inline-flex; align-items: center; gap: 6px;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-    .btn-danger { background: transparent; color: var(--high); border: 1.5px solid #FCA5A5; }
-    .btn-danger:hover { background: #FEE2E2; }
-    .btn-outline-accent { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
-    .btn-outline-accent:hover { background: var(--accent); color: #fff; }
-    .btn-sm { padding: 7px 16px; font-size: 13px; }
+    .plan-badge { display: inline-block; background: var(--accent-light); color: var(--accent); border: 1.5px solid rgba(59,130,246,.35); border-radius: 99px; font-size: 12px; font-weight: 700; padding: 4px 14px; margin-bottom: 10px; }
+    .plan-meta { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+    .plan-features { display: flex; flex-direction: column; gap: 7px; margin-bottom: 20px; }
+    .plan-feature { font-size: 13px; color: var(--text2); }
+    .plan-feature.locked { color: var(--muted); font-style: italic; }
 
-    /* ── Style selector ── */
-    .style-options {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .style-option {
-      padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border);
-      background: var(--card2); color: var(--muted);
-      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
-      cursor: pointer; transition: all 0.15s; text-align: center;
-    }
-    .style-option:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
-    .style-option.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .style-textarea { resize: vertical; min-height: 90px; }
 
-    /* ── Account section ── */
-    .account-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 0; border-bottom: 1px solid var(--border);
-    }
-    .account-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .account-row:first-child { padding-top: 0; }
-    .account-label { font-size: 13px; color: var(--muted); font-weight: 500; }
-    .account-value { font-size: 14px; color: var(--text); font-weight: 600; }
+    .danger-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .danger-info { font-size: 13px; color: var(--text2); }
+    .danger-info strong { display: block; font-size: 14px; font-weight: 700; color: var(--danger); margin-bottom: 2px; }
 
-    /* ── Danger zone ── */
-    .danger-zone {
-      border: 1.5px solid #FCA5A5; border-radius: 10px; padding: 16px 18px;
-      background: #FFF5F5; display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    }
-    .danger-text { font-size: 13px; color: var(--high); font-weight: 600; }
-    .danger-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .close-btn { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; padding: 2px; line-height: 1; }
+    .close-btn:hover { color: var(--danger); }
 
-    /* ── Confirm dialog ── */
-    .confirm-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.4); z-index: 600;
-      align-items: center; justify-content: center;
-    }
-    .confirm-overlay.open { display: flex; }
-    .confirm-box {
-      background: var(--card); border-radius: 14px;
-      padding: 28px; max-width: 380px; width: 90%;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-      animation: confIn 0.18s ease;
-    }
-    @keyframes confIn { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .confirm-title { font-family: 'Playfair Display', Georgia, serif; font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-    .confirm-msg { font-size: 14px; color: var(--muted); margin-bottom: 22px; line-height: 1.6; }
-    .confirm-actions { display: flex; gap: 10px; justify-content: flex-end; }
-    .btn-ghost {
-      background: transparent; border: 1.5px solid var(--border); color: var(--muted);
-      padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600;
-      cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s;
-    }
-    .btn-ghost:hover { border-color: var(--text); color: var(--text); }
-
-    /* ── Toast ── */
-    #toast {
-      position: fixed; bottom: 28px; right: 24px;
-      background: #1A1A1A; color: #fff;
-      padding: 12px 20px; border-radius: 10px;
-      font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500;
-      display: none; z-index: 900; max-width: 340px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      border-left: 4px solid var(--accent);
-    }
-
-    /* ── Field error ── */
-    .field-error { font-size: 12px; color: var(--high); margin-top: 5px; display: none; }
-    .field-error.visible { display: block; }
-    input.error { border-color: var(--high); }
-    input.error:focus { box-shadow: 0 0 0 3px rgba(185,28,28,0.08); }
-
-    /* ── Responsive ── */
     @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
-      .sidebar.open { transform: translateX(0); }
-      .sidebar-overlay.open { display: block; }
-      .page-content { margin-left: 0; }
-      .mobile-topbar {
-        display: flex; align-items: center; gap: 12px;
-        height: 52px; padding: 0 16px; background: #fff;
-        border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
-      }
-      .hamburger { background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; }
-      .mobile-logo { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 700; color: var(--accent); }
-      .page-main { padding: 16px; }
+      .page-header { padding: 20px 16px 0; }
+      .page-content { padding: 16px 16px 48px; }
       .form-row { grid-template-columns: 1fr; }
-      .style-options { grid-template-columns: repeat(2, 1fr); }
-      .danger-zone { flex-direction: column; align-items: flex-start; }
-    }
-    @media (max-width: 400px) {
-      .style-options { grid-template-columns: 1fr 1fr; }
+      .danger-row { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
-
-<!-- Sidebar overlay -->
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-<div class="app-layout">
-  <!-- Sidebar -->
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      ClassMind<span class="sidebar-logo-badge">AI</span>
-    </div>
-    <ul class="sidebar-nav" id="sidebarNav"></ul>
-    <div class="sidebar-footer">
-      <div class="sidebar-user">
-        <div class="sidebar-avatar" id="sidebarAvatar">?</div>
-        <div>
-          <div class="sidebar-user-name" id="sidebarName">Loading…</div>
-          <div class="sidebar-user-uni" id="sidebarUni"></div>
-        </div>
-      </div>
-      <button class="sidebar-logout" onclick="logout()">Sign out</button>
-    </div>
-  </nav>
-
-  <!-- Page content -->
-  <div class="page-content">
-    <!-- Mobile topbar -->
-    <div class="mobile-topbar">
-      <button class="hamburger" onclick="openSidebar()">☰</button>
-      <div class="mobile-logo">ClassMind<span class="sidebar-logo-badge" style="font-size:9px;padding:1px 5px">AI</span></div>
-    </div>
-
-    <main class="page-main">
-      <h1 class="page-title">Settings</h1>
-      <p class="page-subtitle">Manage your profile, security, and preferences</p>
-
-      <!-- ── 1. Profile Section ── -->
-      <div class="settings-card">
-        <div class="card-title">Profile</div>
-
-        <div class="profile-top">
-          <div class="profile-avatar" id="profileAvatar">?</div>
-          <div class="profile-info">
-            <div class="profile-name" id="profileDisplayName">Loading…</div>
-            <div class="profile-uni" id="profileDisplayUni"></div>
-          </div>
-        </div>
-
-        <form id="profileForm" onsubmit="saveProfile(event)">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="inputName">Full Name</label>
-              <input type="text" id="inputName" placeholder="e.g. Amaka Okonkwo" autocomplete="name" />
-              <div class="field-error" id="nameError">Name is required</div>
-            </div>
-            <div class="form-group">
-              <label for="inputEmail">Email</label>
-              <input type="email" id="inputEmail" readonly disabled />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="inputUniversity">University</label>
-              <input type="text" id="inputUniversity" placeholder="e.g. University of Lagos" />
-            </div>
-            <div class="form-group">
-              <label for="inputLevel">Level</label>
-              <select id="inputLevel">
-                <option value="">Select level</option>
-                <option value="100L">100L</option>
-                <option value="200L">200L</option>
-                <option value="300L">300L</option>
-                <option value="400L">400L</option>
-                <option value="500L">500L</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="inputDepartment">Department</label>
-            <input type="text" id="inputDepartment" placeholder="e.g. Computer Science" />
-          </div>
-
-          <div class="form-group">
-            <label>My Courses</label>
-            <div class="courses-wrap" id="coursesWrap"></div>
-            <div class="add-course-row">
-              <input type="text" id="courseInput" placeholder="Add a course (e.g. MTH201)" onkeydown="handleCourseKey(event)" />
-              <button type="button" class="btn-add-course" onclick="addCourse()">+ Add</button>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
-        </form>
-      </div>
-
-      <!-- ── 2. Change Password ── -->
-      <div class="settings-card">
-        <div class="card-title">Change Password</div>
-        <form id="passwordForm" onsubmit="savePassword(event)">
-          <div class="form-group">
-            <label for="currentPw">Current Password</label>
-            <div class="input-wrap">
-              <input type="password" id="currentPw" placeholder="Enter current password" autocomplete="current-password" />
-              <button type="button" class="toggle-pw" onclick="togglePw('currentPw', this)" title="Show/hide">👁</button>
-            </div>
-            <div class="field-error" id="currentPwError">Current password is required</div>
-          </div>
-          <div class="form-group">
-            <label for="newPw">New Password</label>
-            <div class="input-wrap">
-              <input type="password" id="newPw" placeholder="At least 8 characters" autocomplete="new-password" />
-              <button type="button" class="toggle-pw" onclick="togglePw('newPw', this)" title="Show/hide">👁</button>
-            </div>
-            <div class="field-error" id="newPwError">Password must be at least 8 characters</div>
-          </div>
-          <div class="form-group">
-            <label for="confirmPw">Confirm New Password</label>
-            <div class="input-wrap">
-              <input type="password" id="confirmPw" placeholder="Re-enter new password" autocomplete="new-password" />
-              <button type="button" class="toggle-pw" onclick="togglePw('confirmPw', this)" title="Show/hide">👁</button>
-            </div>
-            <div class="field-error" id="confirmPwError">Passwords do not match</div>
-          </div>
-          <button type="submit" class="btn btn-primary" id="savePwBtn">Update Password</button>
-        </form>
-      </div>
-
-      <!-- ── 3. App Preferences ── -->
-      <div class="settings-card">
-        <div class="card-title">App Preferences</div>
-
-        <div class="form-group" style="margin-bottom:24px">
-          <label>Default AI Style</label>
-          <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Applied automatically when you start a study session</p>
-          <div class="style-options" id="styleOptions">
-            <button type="button" class="style-option" data-style="simple" onclick="selectStyle(this)">🧠 Simple</button>
-            <button type="button" class="style-option" data-style="academic" onclick="selectStyle(this)">🎓 Academic</button>
-            <button type="button" class="style-option" data-style="exam" onclick="selectStyle(this)">📝 Exam Mode</button>
-            <button type="button" class="style-option" data-style="naija" onclick="selectStyle(this)">🇳🇬 Naija Mode</button>
-            <button type="button" class="style-option" data-style="eli5" onclick="selectStyle(this)">👶 ELI5</button>
-            <button type="button" class="style-option" data-style="tutor" onclick="selectStyle(this)">👨‍🏫 Tutor</button>
-          </div>
-        </div>
-
-        <div class="danger-zone">
-          <div>
-            <div class="danger-text">Clear All Local Data</div>
-            <div class="danger-sub">Removes all cached data except your login session</div>
-          </div>
-          <button type="button" class="btn btn-danger btn-sm" onclick="confirmClearData()">Clear Data</button>
-        </div>
-      </div>
-
-      <!-- ── 4. Plan ── -->
-      <div class="settings-card" id="planCard">
-        <div class="card-title">Your Plan</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-          <span style="background:var(--accent-light);color:var(--accent);font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;border:1.5px solid var(--accent)">Basic — Free</span>
-          <span style="font-size:13px;color:var(--muted)">15 AI queries/day · Manual uploads</span>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:20px">
-          <div style="font-size:13px">✅ Study Hub analysis</div>
-          <div style="font-size:13px">✅ Course Chat (RAG from your notes)</div>
-          <div style="font-size:13px">✅ Project document generator</div>
-          <div style="font-size:13px">✅ CGPA calculator &amp; Task board</div>
-          <div style="font-size:13px;color:var(--muted)">🔒 <em>Unlimited queries — Premium</em></div>
-          <div style="font-size:13px;color:var(--muted)">🔒 <em>WhatsApp group auto-sync — Premium</em></div>
-          <div style="font-size:13px;color:var(--muted)">🔒 <em>Unlimited projects — Premium</em></div>
-          <div style="font-size:13px;color:var(--muted)">🔒 <em>Priority AI responses — Premium</em></div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="openUpgradeModal()">Upgrade to Premium — ₦1,500/month</button>
-      </div>
-
-      <!-- ── 5. Account ── -->
-      <div class="settings-card">
-        <div class="card-title">Account</div>
-        <div class="account-row">
-          <div class="account-label">Email address</div>
-          <div class="account-value" id="accountEmail">—</div>
-        </div>
-        <div class="account-row">
-          <div class="account-label">Member since</div>
-          <div class="account-value" id="accountSince">—</div>
-        </div>
-        <div class="account-row" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
-          <div>
-            <div style="font-size:14px;font-weight:600">Sign out of ClassMind AI</div>
-            <div style="font-size:12px;color:var(--muted)">You will need to log in again</div>
-          </div>
-          <button type="button" class="btn btn-danger btn-sm" onclick="logout()">Sign Out</button>
-        </div>
-        <div class="account-row" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
-          <div>
-            <div style="font-size:14px;font-weight:600;color:#B91C1C">Delete Account</div>
-            <div style="font-size:12px;color:var(--muted)">Permanently deletes your account and all data. This cannot be undone.</div>
-          </div>
-          <button type="button" class="btn btn-danger btn-sm" onclick="openDeleteAccount()">Delete</button>
-        </div>
-      </div>
-    </main>
-  </div>
+<div class="page-header">
+  <h1>Settings</h1>
+  <p>Manage your profile, security, and preferences</p>
 </div>
+<div class="page-content">
 
-<!-- Delete account modal -->
-<div class="confirm-overlay" id="deleteAccountOverlay">
-  <div class="confirm-box">
-    <div class="confirm-title" style="color:#B91C1C">Delete your account?</div>
-    <div class="confirm-msg">This will permanently delete your account, all saved analyses, tasks, timetables, and reminders. There is no undo.</div>
-    <div class="form-group" style="margin-top:16px;margin-bottom:0">
-      <label for="deleteConfirmPw" style="font-size:13px;font-weight:600">Enter your password to confirm</label>
-      <input type="password" id="deleteConfirmPw" placeholder="Your current password" autocomplete="current-password" style="width:100%;background:#fff;border:1.5px solid #E2E2DC;border-radius:9px;padding:10px 14px;font-size:14px;margin-top:6px;" />
-      <div style="font-size:12px;color:#B91C1C;margin-top:4px;display:none" id="deleteConfirmPwErr">Incorrect password.</div>
-    </div>
-    <div class="confirm-actions" style="margin-top:16px">
-      <button type="button" class="btn-ghost" onclick="closeDeleteAccount()">Cancel</button>
-      <button type="button" class="btn btn-danger btn-sm" id="deleteAccountBtn" onclick="confirmDeleteAccount()">Delete Forever</button>
-    </div>
-  </div>
-</div>
-
-<!-- Confirm dialog -->
-<div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
-    <div class="confirm-msg" id="confirmMsg">This action cannot be undone.</div>
-    <div class="confirm-actions">
-      <button type="button" class="btn-ghost" onclick="closeConfirm()">Cancel</button>
-      <button type="button" class="btn btn-danger btn-sm" id="confirmActionBtn">Confirm</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
-
-<script>
-  'use strict';
-
-  // ── Auth ──
-  const token = localStorage.getItem('cm_token');
-  let currentUser = (() => { try { return JSON.parse(localStorage.getItem('cm_user') || 'null'); } catch { return null; } })();
-  if (!token) { window.location.href = '/login.html'; }
-
-  function authHeaders(isJson = true) {
-    const h = { 'Authorization': 'Bearer ' + token };
-    if (isJson) h['Content-Type'] = 'application/json';
-    return h;
-  }
-  function logout() {
-    localStorage.removeItem('cm_token');
-    localStorage.removeItem('cm_user');
-    window.location.href = '/login.html';
-  }
-
-  // ── Sidebar ──
-  const NAV_ITEMS = [
-    { href: '/dashboard.html', icon: '⊞', label: 'Dashboard' },
-    { href: '/study.html',     icon: '📚', label: 'Study Hub' },
-    { href: '/kb.html',        icon: '🧠', label: 'Course Chat' },
-    { href: '/tasks.html',     icon: '✓',  label: 'Task Board' },
-    { href: '/cgpa.html',      icon: '📈', label: 'CGPA Calc' },
-    { href: '/notes.html',     icon: '🗂',  label: 'Notes' },
-    { href: '/settings.html',  icon: '⚙',  label: 'Settings' },
-  ];
-
-  function buildSidebar(user) {
-    const initials = (user?.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-    document.getElementById('sidebarAvatar').textContent = initials;
-    document.getElementById('sidebarName').textContent = user?.name || 'Student';
-    document.getElementById('sidebarUni').textContent = user?.university || '';
-    document.getElementById('sidebarNav').innerHTML = NAV_ITEMS.map(item => `
-      <li>
-        <a href="${item.href}" class="sidebar-link ${item.href === '/settings.html' ? 'active' : ''}">
-          <span class="sidebar-icon">${item.icon}</span>
-          <span>${item.label}</span>
-        </a>
-      </li>
-    `).join('');
-  }
-
-  function openSidebar() {
-    document.getElementById('sidebar').classList.add('open');
-    document.getElementById('sidebarOverlay').classList.add('open');
-  }
-  function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebarOverlay').classList.remove('open');
-  }
-
-  // ── Utils ──
-  function escHtml(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-  function formatDate(str) {
-    if (!str) return '—';
-    const d = new Date(str);
-    return isNaN(d) ? str : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  }
-  function showToast(msg, type = 'error') {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.style.borderLeftColor = type === 'success' ? 'var(--low)' : 'var(--high)';
-    el.style.display = 'block';
-    clearTimeout(el._t);
-    el._t = setTimeout(() => el.style.display = 'none', 3500);
-  }
-  function setFieldError(fieldId, errorId, show) {
-    const inp = document.getElementById(fieldId);
-    const err = document.getElementById(errorId);
-    if (inp) inp.classList.toggle('error', show);
-    if (err) err.classList.toggle('visible', show);
-  }
-  function clearFieldError(fieldId, errorId) { setFieldError(fieldId, errorId, false); }
-
-  // ── Courses state ──
-  let courses = [];
-
-  function renderCourses() {
-    document.getElementById('coursesWrap').innerHTML = courses.length
-      ? courses.map((c, i) => `
-          <div class="course-chip">
-            ${escHtml(c)}
-            <button type="button" class="chip-remove" onclick="removeCourse(${i})" title="Remove">×</button>
-          </div>`).join('')
-      : '<span style="font-size:12px;color:var(--muted)">No courses added yet</span>';
-  }
-
-  function addCourse() {
-    const input = document.getElementById('courseInput');
-    const val = input.value.trim().toUpperCase();
-    if (!val) return;
-    if (courses.includes(val)) { showToast('Course already added'); return; }
-    courses.push(val);
-    renderCourses();
-    input.value = '';
-    input.focus();
-  }
-  function removeCourse(i) { courses.splice(i, 1); renderCourses(); }
-  function handleCourseKey(e) { if (e.key === 'Enter') { e.preventDefault(); addCourse(); } }
-
-  // ── Populate form from user object ──
-  function populateForm(user) {
-    if (!user) return;
-    document.getElementById('inputName').value = user.name || '';
-    document.getElementById('inputEmail').value = user.email || '';
-    document.getElementById('inputUniversity').value = user.university || '';
-    document.getElementById('inputDepartment').value = user.department || '';
-
-    const levelSel = document.getElementById('inputLevel');
-    if (user.level) levelSel.value = user.level;
-
-    courses = Array.isArray(user.courses) ? [...user.courses] : (user.courses ? String(user.courses).split(',').map(s=>s.trim()).filter(Boolean) : []);
-    renderCourses();
-
-    // Update profile header
-    const initials = (user.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-    document.getElementById('profileAvatar').textContent = initials;
-    document.getElementById('profileDisplayName').textContent = user.name || 'Student';
-    document.getElementById('profileDisplayUni').textContent = [user.university, user.level].filter(Boolean).join(' · ');
-
-    // Account section
-    document.getElementById('accountEmail').textContent = user.email || '—';
-    document.getElementById('accountSince').textContent = formatDate(user.created_at);
-  }
-
-  // ── Save profile ──
-  async function saveProfile(e) {
-    e.preventDefault();
-    const name = document.getElementById('inputName').value.trim();
-    if (!name) { setFieldError('inputName', 'nameError', true); return; }
-    clearFieldError('inputName', 'nameError');
-
-    const btn = document.getElementById('saveProfileBtn');
-    btn.disabled = true;
-    btn.textContent = 'Saving…';
-
-    try {
-      const payload = {
-        name,
-        university: document.getElementById('inputUniversity').value.trim(),
-        level: document.getElementById('inputLevel').value,
-        department: document.getElementById('inputDepartment').value.trim(),
-        courses,
-        onboarded: 1
-      };
-      const res = await fetch('/api/auth/profile', {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify(payload)
-      });
-      if (res.status === 401) { logout(); return; }
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || err.message || 'Save failed');
-      }
-      const updated = await res.json().catch(() => null);
-      if (updated?.token) localStorage.setItem('cm_token', updated.token);
-      const newUser = { ...currentUser, ...payload, ...(updated?.user || updated || {}) };
-      currentUser = newUser;
-      localStorage.setItem('cm_user', JSON.stringify(newUser));
-      buildSidebar(newUser);
-      populateForm(newUser);
-      showToast('Profile saved successfully', 'success');
-    } catch (err) {
-      showToast(err.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Save Changes';
-    }
-  }
-
-  // ── Password helpers ──
-  function togglePw(inputId, btn) {
-    const inp = document.getElementById(inputId);
-    const isText = inp.type === 'text';
-    inp.type = isText ? 'password' : 'text';
-    btn.textContent = isText ? '👁' : '🙈';
-  }
-
-  // ── Save password ──
-  async function savePassword(e) {
-    e.preventDefault();
-    let valid = true;
-
-    const curr = document.getElementById('currentPw').value;
-    const next = document.getElementById('newPw').value;
-    const conf = document.getElementById('confirmPw').value;
-
-    if (!curr) { setFieldError('currentPw', 'currentPwError', true); valid = false; } else clearFieldError('currentPw', 'currentPwError');
-    if (!next || next.length < 8) { setFieldError('newPw', 'newPwError', true); valid = false; } else clearFieldError('newPw', 'newPwError');
-    if (next !== conf) { setFieldError('confirmPw', 'confirmPwError', true); valid = false; } else clearFieldError('confirmPw', 'confirmPwError');
-
-    if (!valid) return;
-
-    const btn = document.getElementById('savePwBtn');
-    btn.disabled = true;
-    btn.textContent = 'Updating…';
-
-    try {
-      const res = await fetch('/api/auth/profile', {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify({ password: next, current_password: curr })
-      });
-      if (res.status === 401) { logout(); return; }
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || err.message || 'Password update failed');
-      }
-      document.getElementById('passwordForm').reset();
-      showToast('Password updated successfully', 'success');
-    } catch (err) {
-      showToast(err.message);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Update Password';
-    }
-  }
-
-  // ── AI Style ──
-  function selectStyle(btn) {
-    document.querySelectorAll('.style-option').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    localStorage.setItem('cm_default_style', btn.dataset.style);
-    showToast('Default style set to ' + btn.textContent.trim(), 'success');
-  }
-
-  function loadSavedStyle() {
-    const saved = localStorage.getItem('cm_default_style') || 'simple';
-    const btn = document.querySelector(`.style-option[data-style="${saved}"]`);
-    if (btn) btn.classList.add('active');
-  }
-
-  // ── Confirm dialog ──
-  let confirmCallback = null;
-  function openConfirm(title, msg, cb) {
-    document.getElementById('confirmTitle').textContent = title;
-    document.getElementById('confirmMsg').textContent = msg;
-    confirmCallback = cb;
-    document.getElementById('confirmOverlay').classList.add('open');
-  }
-  function closeConfirm() {
-    confirmCallback = null;
-    document.getElementById('confirmOverlay').classList.remove('open');
-  }
-  document.getElementById('confirmActionBtn').addEventListener('click', () => {
-    if (confirmCallback) confirmCallback();
-    closeConfirm();
-  });
-
-  // ── Clear data ──
-  function confirmClearData() {
-    openConfirm(
-      'Clear all local data?',
-      'This will clear all cached study data, notes stored locally, and preferences — but you will stay logged in.',
-      () => {
-        const keepToken = localStorage.getItem('cm_token');
-        const keepUser = localStorage.getItem('cm_user');
-        localStorage.clear();
-        if (keepToken) localStorage.setItem('cm_token', keepToken);
-        if (keepUser) localStorage.setItem('cm_user', keepUser);
-        showToast('Local data cleared', 'success');
-      }
-    );
-  }
-
-  // ── Clear input errors on type ──
-  ['inputName'].forEach(id => {
-    document.getElementById(id)?.addEventListener('input', () => {
-      const map = { inputName: 'nameError' };
-      clearFieldError(id, map[id]);
-    });
-  });
-  ['currentPw','newPw','confirmPw'].forEach(id => {
-    const errMap = { currentPw: 'currentPwError', newPw: 'newPwError', confirmPw: 'confirmPwError' };
-    document.getElementById(id)?.addEventListener('input', () => clearFieldError(id, errMap[id]));
-  });
-
-  // ── Keyboard: Escape ──
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      if (document.getElementById('deleteAccountOverlay').classList.contains('open')) closeDeleteAccount();
-      else if (document.getElementById('confirmOverlay').classList.contains('open')) closeConfirm();
-      else closeSidebar();
-    }
-  });
-
-  // ── Delete account ──
-  function openDeleteAccount() {
-    document.getElementById('deleteConfirmPw').value = '';
-    document.getElementById('deleteConfirmPwErr').style.display = 'none';
-    document.getElementById('deleteAccountOverlay').classList.add('open');
-    setTimeout(() => document.getElementById('deleteConfirmPw').focus(), 50);
-  }
-  function closeDeleteAccount() {
-    document.getElementById('deleteAccountOverlay').classList.remove('open');
-  }
-  async function confirmDeleteAccount() {
-    const pw = document.getElementById('deleteConfirmPw').value;
-    const errEl = document.getElementById('deleteConfirmPwErr');
-    const btn = document.getElementById('deleteAccountBtn');
-    if (!pw) { errEl.textContent = 'Password is required.'; errEl.style.display = 'block'; return; }
-    errEl.style.display = 'none';
-    btn.disabled = true; btn.textContent = 'Deleting…';
-    try {
-      const res = await fetch('/api/auth/account', {
-        method: 'DELETE',
-        headers: authHeaders(),
-        body: JSON.stringify({ password: pw })
-      });
-      if (res.status === 401) {
-        window.location.href = '/login.html';
-        return;
-      }
-      if (res.status === 400) {
-        const data = await res.json().catch(() => ({}));
-        errEl.textContent = data.error || 'Incorrect password.';
-        errEl.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Delete Forever';
-        return;
-      }
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Delete failed');
-      localStorage.removeItem('cm_token');
-      localStorage.removeItem('cm_user');
-      window.location.href = '/login.html';
-    } catch (err) {
-      showToast(err.message || 'Delete failed. Please try again.');
-      btn.disabled = false; btn.textContent = 'Delete Forever';
-    }
-  }
-
-  // ── Init ──
-  async function init() {
-    buildSidebar(currentUser);
-    populateForm(currentUser);
-    loadSavedStyle();
-
-    // Fetch fresh user data
-    try {
-      const res = await fetch('/api/auth/me', { headers: authHeaders() });
-      if (res.status === 401) { logout(); return; }
-      if (res.ok) {
-        const user = await res.json();
-        currentUser = user;
-        localStorage.setItem('cm_user', JSON.stringify(user));
-        buildSidebar(user);
-        populateForm(user);
-      }
-    } catch (_) { /* use cached */ }
-  }
-
-  init();
-
-  // ── Upgrade modal ──
-  function openUpgradeModal() {
-    document.getElementById('upgradeEmailInput').value = currentUser?.email || '';
-    document.getElementById('upgradeOverlay').classList.add('open');
-  }
-  function closeUpgradeModal() {
-    document.getElementById('upgradeOverlay').classList.remove('open');
-    document.getElementById('upgradeSuccess').style.display = 'none';
-    document.getElementById('upgradeForm').style.display = 'block';
-  }
-  async function submitWaitlist() {
-    const email = document.getElementById('upgradeEmailInput').value.trim();
-    if (!email || !email.includes('@')) { showToast('Please enter a valid email address'); return; }
-    const btn = document.getElementById('waitlistBtn');
-    btn.disabled = true; btn.textContent = 'Joining…';
-    try {
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      if (!res.ok) throw new Error('Failed');
-      document.getElementById('upgradeForm').style.display = 'none';
-      document.getElementById('upgradeSuccess').style.display = 'block';
-    } catch {
-      showToast('Something went wrong. Please try again.');
-      btn.disabled = false; btn.textContent = "Join Waitlist";
-    }
-  }
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && document.getElementById('upgradeOverlay').classList.contains('open')) closeUpgradeModal();
-  });
-</script>
-
-<!-- Upgrade modal -->
-<div class="confirm-overlay" id="upgradeOverlay" style="z-index:1001">
-  <div class="confirm-box" style="max-width:420px">
-    <div id="upgradeForm">
-      <div class="confirm-title" style="color:var(--accent)">Upgrade to Premium ✨</div>
-      <div class="confirm-msg" style="margin-bottom:16px">
-        <strong>₦1,500/month</strong> — coming soon! Join the waitlist and we'll notify you the moment it launches.
-        <br><br>
-        <strong>Premium includes:</strong><br>
-        • Unlimited AI queries<br>
-        • WhatsApp group auto-sync<br>
-        • Unlimited projects<br>
-        • Priority AI responses
+  <div class="settings-card">
+    <div class="card-title">Profile</div>
+    <div id="profileErr" class="alert-error" style="display:none"></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Full Name <span style="color:var(--danger)">*</span></label>
+        <input type="text" id="p-name" placeholder="e.g. Amaka Okonkwo" autocomplete="name" />
       </div>
       <div class="form-group">
-        <label style="font-size:13px;font-weight:600">Your email</label>
-        <input type="email" id="upgradeEmailInput" placeholder="you@example.com" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;outline:none" />
-      </div>
-      <div style="display:flex;gap:10px;margin-top:18px">
-        <button class="btn btn-primary" style="flex:1" id="waitlistBtn" onclick="submitWaitlist()">Join Waitlist</button>
-        <button class="btn btn-secondary" onclick="closeUpgradeModal()">Cancel</button>
+        <label>Email</label>
+        <input type="email" id="p-email" readonly disabled />
       </div>
     </div>
-    <div id="upgradeSuccess" style="display:none;text-align:center;padding:12px 0">
+    <div class="form-row">
+      <div class="form-group">
+        <label>University</label>
+        <select id="p-university">
+          <option value="">Select university…</option>
+          <option>University of Lagos</option>
+          <option>University of Ibadan</option>
+          <option>Obafemi Awolowo University</option>
+          <option>University of Nigeria, Nsukka</option>
+          <option>Ahmadu Bello University</option>
+          <option>University of Benin</option>
+          <option>Covenant University</option>
+          <option>Lagos State University</option>
+          <option>Federal University of Technology, Akure</option>
+          <option>University of Port Harcourt</option>
+          <option>Nnamdi Azikiwe University</option>
+          <option>Bayero University Kano</option>
+          <option>University of Ilorin</option>
+          <option>Federal University of Technology, Minna</option>
+          <option>Landmark University</option>
+          <option>Pan-Atlantic University</option>
+          <option>Babcock University</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Level</label>
+        <select id="p-level">
+          <option value="">Select level…</option>
+          <option value="100L">100L</option>
+          <option value="200L">200L</option>
+          <option value="300L">300L</option>
+          <option value="400L">400L</option>
+          <option value="500L">500L</option>
+          <option value="Postgraduate">Postgraduate</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Department</label>
+      <input type="text" id="p-department" placeholder="e.g. Computer Science" />
+    </div>
+    <div class="form-group">
+      <label>Courses</label>
+      <div class="courses-wrap" id="coursesWrap"></div>
+      <div class="add-course-row">
+        <input type="text" id="courseInput" placeholder="Type a course code, then press Enter (e.g. MTH201)" onkeydown="handleCourseKey(event)" />
+        <button type="button" class="btn-add" onclick="addCourse()">+ Add</button>
+      </div>
+    </div>
+    <button class="btn-primary" id="saveProfileBtn" onclick="saveProfile()">Save Profile</button>
+  </div>
+
+  <div class="settings-card">
+    <div class="card-title">Change Password</div>
+    <div id="pwErr" class="alert-error" style="display:none"></div>
+    <div class="form-group">
+      <label>Current Password <span style="color:var(--danger)">*</span></label>
+      <div class="input-wrap">
+        <input type="password" id="pw-current" placeholder="Your current password" autocomplete="current-password" />
+        <button type="button" class="toggle-pw" onclick="togglePw('pw-current', this)">👁</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>New Password <span style="color:var(--danger)">*</span></label>
+      <div class="input-wrap">
+        <input type="password" id="pw-new" placeholder="At least 8 characters" autocomplete="new-password" />
+        <button type="button" class="toggle-pw" onclick="togglePw('pw-new', this)">👁</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Confirm New Password <span style="color:var(--danger)">*</span></label>
+      <div class="input-wrap">
+        <input type="password" id="pw-confirm" placeholder="Re-enter new password" autocomplete="new-password" />
+        <button type="button" class="toggle-pw" onclick="togglePw('pw-confirm', this)">👁</button>
+      </div>
+    </div>
+    <button class="btn-primary" id="savePwBtn" onclick="savePassword()">Change Password</button>
+  </div>
+
+  <div class="settings-card" id="planCard">
+    <div class="card-title">Your Plan</div>
+    <div class="plan-badge">Basic — Free</div>
+    <div class="plan-meta">15 AI queries/day · Manual uploads · 1 active project</div>
+    <div class="plan-features">
+      <div class="plan-feature">✅ Study Hub analysis</div>
+      <div class="plan-feature">✅ Course Chat (RAG)</div>
+      <div class="plan-feature">✅ CGPA calculator</div>
+      <div class="plan-feature">✅ Task board</div>
+      <div class="plan-feature locked">🔒 Unlimited queries — Premium</div>
+      <div class="plan-feature locked">🔒 WhatsApp group auto-sync — Premium</div>
+      <div class="plan-feature locked">🔒 Unlimited projects — Premium</div>
+    </div>
+    <button class="btn-primary" onclick="openUpgradeModal()">Upgrade to Premium — ₦1,500/month</button>
+  </div>
+
+  <div class="settings-card">
+    <div class="card-title">AI Style Preferences</div>
+    <div id="styleErr" class="alert-error" style="display:none"></div>
+    <div class="form-group">
+      <label>How would you like ClassMind AI to explain things?</label>
+      <textarea class="style-textarea" id="stylePrompt" placeholder="e.g. Explain like I'm 16, use bullet points, keep it under 200 words"></textarea>
+    </div>
+    <button class="btn-primary" id="saveStyleBtn" onclick="saveStyle()">Save Style</button>
+  </div>
+
+  <div class="settings-card danger-card">
+    <div class="card-title">Danger Zone</div>
+    <div class="danger-row">
+      <div class="danger-info">
+        <strong>Delete Account</strong>
+        This will permanently delete your account and all data. This cannot be undone.
+      </div>
+      <button class="btn-danger btn-sm" onclick="openDeleteModal()">Delete Account</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="upgradeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Upgrade to Premium ✨</div>
+      <button class="close-btn" onclick="closeUpgradeModal()">&#xD7;</button>
+    </div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.6">
+      <strong style="color:var(--text)">₦1,500/month</strong> — coming soon! Join the waitlist and we'll notify you the moment it launches.
+    </p>
+    <div id="upgradeFormWrap">
+      <div class="form-group">
+        <label>Your email</label>
+        <input type="email" id="waitlistEmail" placeholder="you@example.com" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeUpgradeModal()">Cancel</button>
+        <button class="btn-primary" id="waitlistBtn" onclick="submitWaitlist()">Join Waitlist</button>
+      </div>
+    </div>
+    <div id="upgradeSuccess" style="display:none;text-align:center;padding:20px 0">
       <div style="font-size:40px;margin-bottom:12px">🎉</div>
-      <div style="font-size:17px;font-weight:700;color:var(--accent);margin-bottom:8px">You're on the list!</div>
+      <div style="font-size:17px;font-weight:700;margin-bottom:8px">You're on the list!</div>
       <p style="font-size:13px;color:var(--muted);margin-bottom:20px">We'll email you the moment Premium launches.</p>
-      <button class="btn btn-primary" onclick="closeUpgradeModal()">Done</button>
+      <button class="btn-primary" onclick="closeUpgradeModal()">Done</button>
     </div>
   </div>
 </div>
+
+<div class="modal-backdrop" id="deleteModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--danger)">Delete Account</div>
+      <button class="close-btn" onclick="closeDeleteModal()">&#xD7;</button>
+    </div>
+    <div class="alert-error" style="display:block;margin-bottom:16px">This will permanently delete your account and all data. This action cannot be undone.</div>
+    <div id="deleteErr" class="alert-error" style="display:none"></div>
+    <div class="form-group">
+      <label>Enter your password to confirm</label>
+      <div class="input-wrap">
+        <input type="password" id="delete-pw" placeholder="Your current password" autocomplete="current-password" />
+        <button type="button" class="toggle-pw" onclick="togglePw('delete-pw', this)">👁</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn-danger" id="deleteAccountBtn" onclick="confirmDelete()">Delete My Account</button>
+    </div>
+  </div>
+</div>
+
+<script src="/shared.js"></script>
+<script>
+if (!Auth.requireAuth()) throw new Error('redirect');
+renderNav('Settings');
+
+let courses = [];
+
+function esc(s) { return escHtmlClient(s); }
+
+function renderCourses() {
+  const wrap = document.getElementById('coursesWrap');
+  if (!courses.length) {
+    wrap.innerHTML = '<span style="font-size:12px;color:var(--muted)">No courses added yet</span>';
+    return;
+  }
+  wrap.innerHTML = courses.map((c, i) =>
+    '<div class="course-chip">' + esc(c) +
+    '<button type="button" class="chip-remove" onclick="removeCourse(' + i + ')" title="Remove">\xD7</button>' +
+    '</div>'
+  ).join('');
+}
+
+function addCourse() {
+  const input = document.getElementById('courseInput');
+  const vals = input.value.split(/[,\n]+/).map(v => v.trim().toUpperCase()).filter(Boolean);
+  vals.forEach(v => { if (v && !courses.includes(v)) courses.push(v); });
+  renderCourses();
+  input.value = '';
+  input.focus();
+}
+
+function removeCourse(i) { courses.splice(i, 1); renderCourses(); }
+
+function handleCourseKey(e) {
+  if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addCourse(); }
+}
+
+function populateForm(user) {
+  if (!user) return;
+  document.getElementById('p-name').value = user.name || '';
+  document.getElementById('p-email').value = user.email || '';
+  const uniSel = document.getElementById('p-university');
+  const uniVal = user.university || '';
+  let found = false;
+  for (let i = 0; i < uniSel.options.length; i++) {
+    if (uniSel.options[i].value === uniVal || uniSel.options[i].text === uniVal) {
+      uniSel.selectedIndex = i; found = true; break;
+    }
+  }
+  if (!found && uniVal) {
+    const opt = document.createElement('option');
+    opt.value = uniVal; opt.textContent = uniVal;
+    uniSel.appendChild(opt); uniSel.value = uniVal;
+  }
+  document.getElementById('p-level').value = user.level || '';
+  document.getElementById('p-department').value = user.department || '';
+  courses = Array.isArray(user.courses) ? user.courses.slice() :
+    (user.courses ? String(user.courses).split(',').map(s => s.trim()).filter(Boolean) : []);
+  renderCourses();
+}
+
+async function saveProfile() {
+  const name = document.getElementById('p-name').value.trim();
+  const errEl = document.getElementById('profileErr');
+  errEl.style.display = 'none';
+  if (!name) { errEl.textContent = 'Name is required.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('saveProfileBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const payload = {
+    name,
+    university: document.getElementById('p-university').value,
+    level: document.getElementById('p-level').value,
+    department: document.getElementById('p-department').value.trim(),
+    courses
+  };
+  const res = await Auth.fetchWithAuth('/api/auth/profile', { method: 'PUT', body: JSON.stringify(payload) });
+  btn.disabled = false; btn.textContent = 'Save Profile';
+  if (!res || !res.ok) {
+    const e = await (res ? res.json().catch(() => ({})) : Promise.resolve({}));
+    errEl.textContent = e.error || 'Could not save profile.'; errEl.style.display = 'block'; return;
+  }
+  const data = await res.json();
+  if (data.token) Auth.setAuth(data.token, data.user || payload);
+  showToast('Profile saved!', 'success');
+}
+
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  const isText = inp.type === 'text';
+  inp.type = isText ? 'password' : 'text';
+  btn.textContent = isText ? '👁' : '🙈';
+}
+
+async function savePassword() {
+  const current = document.getElementById('pw-current').value;
+  const next = document.getElementById('pw-new').value;
+  const confirm = document.getElementById('pw-confirm').value;
+  const errEl = document.getElementById('pwErr');
+  errEl.style.display = 'none';
+  if (!current) { errEl.textContent = 'Current password is required.'; errEl.style.display = 'block'; return; }
+  if (!next || next.length < 8) { errEl.textContent = 'New password must be at least 8 characters.'; errEl.style.display = 'block'; return; }
+  if (next !== confirm) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('savePwBtn');
+  btn.disabled = true; btn.textContent = 'Updating…';
+  const res = await Auth.fetchWithAuth('/api/auth/profile', { method: 'PUT', body: JSON.stringify({ password: next, current_password: current }) });
+  btn.disabled = false; btn.textContent = 'Change Password';
+  if (!res || !res.ok) {
+    const e = await (res ? res.json().catch(() => ({})) : Promise.resolve({}));
+    errEl.textContent = e.error || 'Could not update password.'; errEl.style.display = 'block'; return;
+  }
+  document.getElementById('pw-current').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  showToast('Password updated!', 'success');
+}
+
+async function loadStyle() {
+  const res = await Auth.fetchWithAuth('/api/style');
+  if (!res || !res.ok) return;
+  const data = await res.json();
+  document.getElementById('stylePrompt').value = data.style_prompt || '';
+}
+
+async function saveStyle() {
+  const stylePrompt = document.getElementById('stylePrompt').value.trim();
+  const errEl = document.getElementById('styleErr');
+  errEl.style.display = 'none';
+  const btn = document.getElementById('saveStyleBtn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const res = await Auth.fetchWithAuth('/api/style', { method: 'PUT', body: JSON.stringify({ style_prompt: stylePrompt }) });
+  btn.disabled = false; btn.textContent = 'Save Style';
+  if (!res || !res.ok) {
+    const e = await (res ? res.json().catch(() => ({})) : Promise.resolve({}));
+    errEl.textContent = e.error || 'Could not save style.'; errEl.style.display = 'block'; return;
+  }
+  showToast('AI style saved!', 'success');
+}
+
+function openUpgradeModal() {
+  const user = Auth.getUser();
+  document.getElementById('waitlistEmail').value = (user && user.email) ? user.email : '';
+  document.getElementById('upgradeFormWrap').style.display = 'block';
+  document.getElementById('upgradeSuccess').style.display = 'none';
+  document.getElementById('upgradeModal').classList.add('open');
+}
+
+function closeUpgradeModal() {
+  document.getElementById('upgradeModal').classList.remove('open');
+}
+
+async function submitWaitlist() {
+  const email = document.getElementById('waitlistEmail').value.trim();
+  if (!email || !email.includes('@')) { showToast('Please enter a valid email address', 'error'); return; }
+  const btn = document.getElementById('waitlistBtn');
+  btn.disabled = true; btn.textContent = 'Joining…';
+  const res = await fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+  btn.disabled = false; btn.textContent = 'Join Waitlist';
+  if (!res.ok) { showToast('Something went wrong. Please try again.', 'error'); return; }
+  document.getElementById('upgradeFormWrap').style.display = 'none';
+  document.getElementById('upgradeSuccess').style.display = 'block';
+}
+
+function openDeleteModal() {
+  document.getElementById('delete-pw').value = '';
+  document.getElementById('deleteErr').style.display = 'none';
+  document.getElementById('deleteModal').classList.add('open');
+  setTimeout(() => document.getElementById('delete-pw').focus(), 50);
+}
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('open');
+}
+
+async function confirmDelete() {
+  const pw = document.getElementById('delete-pw').value;
+  const errEl = document.getElementById('deleteErr');
+  errEl.style.display = 'none';
+  if (!pw) { errEl.textContent = 'Password is required.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('deleteAccountBtn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  const res = await Auth.fetchWithAuth('/api/auth/account', { method: 'DELETE', body: JSON.stringify({ password: pw }) });
+  if (!res) { btn.disabled = false; btn.textContent = 'Delete My Account'; return; }
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    errEl.textContent = e.error || 'Incorrect password or delete failed.'; errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Delete My Account'; return;
+  }
+  Auth.clearAuth();
+  window.location.replace('/login.html');
+}
+
+document.getElementById('upgradeModal').addEventListener('click', function(e) { if (e.target === this) closeUpgradeModal(); });
+document.getElementById('deleteModal').addEventListener('click', function(e) { if (e.target === this) closeDeleteModal(); });
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeUpgradeModal(); closeDeleteModal(); }
+});
+
+async function init() {
+  const user = Auth.getUser();
+  if (user) populateForm(user);
+  const fresh = await Auth.fetchMe();
+  if (fresh) populateForm(fresh);
+  loadStyle();
+}
+
+init();
+</script>
 </body>
 </html>

@@ -1,201 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Feedback — ClassMind AI</title>
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#1B3F6E" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #F6F6F3; --card: #FFFFFF; --card2: #F2F2EF; --border: #E2E2DC;
-      --accent: #1B3F6E; --accent-light: #EBF0F7; --accent-hover: #15335A;
-      --text: #141414; --muted: #747474;
-      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-    }
-    body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
-    h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
-    .app-layout { display: flex; min-height: 100vh; }
-    .page-main { margin-left: 220px; flex: 1; min-width: 0; padding: 32px 28px; max-width: 760px; }
-    @media (max-width: 700px) { .page-main { margin-left: 0; padding: 16px; } }
+    .page-header { padding: 28px 32px 0; }
+    .page-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+    .page-header p { color: var(--muted); font-size: 14px; }
+    .page-content { padding: 24px 32px 40px; max-width: 640px; }
 
-    .page-header { margin-bottom: 28px; }
-    .page-header h1 { font-size: 26px; color: var(--accent); }
-    .page-header p { font-size: 14px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
-
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px; box-shadow: var(--shadow); margin-bottom: 22px; }
-    .card-title { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--accent); margin-bottom: 20px; }
-
-    .form-group { margin-bottom: 18px; }
-    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
-    input, textarea, select { width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: 9px; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); outline: none; transition: border-color .2s; }
-    input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(27,63,110,0.08); }
-    textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
-
-    .category-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-    .cat-btn { padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card2); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; color: var(--text); }
-    .cat-btn:hover { border-color: var(--accent); background: var(--accent-light); }
+    .category-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .cat-btn { padding: 7px 16px; border-radius: 99px; border: 1.5px solid var(--border); background: var(--card2); color: var(--text2); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+    .cat-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--card); }
     .cat-btn.selected { border-color: var(--accent); background: var(--accent); color: #fff; }
 
-    .star-row { display: flex; gap: 8px; margin-top: 4px; }
-    .star { font-size: 28px; cursor: pointer; transition: transform .1s; line-height: 1; opacity: .35; }
-    .star.active { opacity: 1; transform: scale(1.1); }
-
-    .btn-primary { display: inline-block; padding: 12px 28px; border-radius: 9px; border: none; background: var(--accent); color: #fff; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .15s; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
-
     .char-count { font-size: 11px; color: var(--muted); text-align: right; margin-top: 4px; }
-    .char-count.over { color: #B91C1C; }
+    .char-count.warn { color: var(--warn); }
+    .char-count.over { color: var(--danger); }
 
-    .success-state { text-align: center; padding: 36px 20px; }
-    .success-state .icon { font-size: 52px; margin-bottom: 12px; }
-    .success-state h2 { font-size: 22px; color: var(--accent); margin-bottom: 10px; }
-    .success-state p { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
-    .success-state a { color: var(--accent); font-weight: 600; text-decoration: none; font-size: 14px; }
-    .success-state a:hover { text-decoration: underline; }
+    .star-row { display: flex; gap: 6px; margin-top: 6px; }
+    .star { font-size: 28px; cursor: pointer; opacity: .3; transition: opacity .12s, transform .1s; line-height: 1; user-select: none; }
+    .star:hover, .star.active { opacity: 1; transform: scale(1.12); }
+    .star-label { font-size: 12px; color: var(--muted); margin-top: 6px; }
 
-    .alert-error { background: #FEF2F2; color: #B91C1C; border: 1.5px solid #FECACA; border-radius: 9px; padding: 11px 16px; font-size: 13px; font-weight: 500; margin-bottom: 16px; display: none; }
+    .success-card { text-align: center; padding: 40px 24px; }
+    .success-icon { font-size: 52px; margin-bottom: 14px; }
+    .success-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: var(--success); }
+    .success-msg { font-size: 14px; color: var(--text2); margin-bottom: 24px; line-height: 1.6; }
+
+    @media (max-width: 768px) { .page-header { padding: 20px 16px 0; } .page-content { padding: 16px 16px 40px; } }
   </style>
 </head>
 <body>
-<div class="app-layout">
-  <div class="page-main" id="pageMain">
-    <div class="page-header">
-      <h1>Share Your Feedback</h1>
-      <p>Help us make ClassMind AI better. Tell us what's working, what's missing, or how you want the app tuned.</p>
+<div class="page-header">
+  <h1>Share Your Feedback</h1>
+  <p>Help us make ClassMind AI better — every submission is read by the team.</p>
+</div>
+<div class="page-content">
+  <div class="card" id="feedbackCard">
+    <div class="card-title">Submit Feedback</div>
+
+    <div id="errMsg" class="alert-error" style="display:none"></div>
+
+    <div id="feedbackForm">
+      <div class="form-group">
+        <label>Category <span style="color:var(--danger)">*</span></label>
+        <div class="category-grid">
+          <button type="button" class="cat-btn" data-cat="Bug Report" onclick="selectCat(this)">🐛 Bug Report</button>
+          <button type="button" class="cat-btn" data-cat="Feature Request" onclick="selectCat(this)">✨ Feature Request</button>
+          <button type="button" class="cat-btn" data-cat="General Feedback" onclick="selectCat(this)">💬 General Feedback</button>
+          <button type="button" class="cat-btn" data-cat="Course Issue" onclick="selectCat(this)">📚 Course Issue</button>
+          <button type="button" class="cat-btn" data-cat="Study Tip Suggestion" onclick="selectCat(this)">💡 Study Tip Suggestion</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Message <span style="color:var(--danger)">*</span></label>
+        <textarea id="msgInput" rows="5" placeholder="Describe your idea, issue, or suggestion in detail…" style="resize:vertical" maxlength="2000" oninput="updateCharCount()"></textarea>
+        <div class="char-count" id="charCount">0 / 2000</div>
+      </div>
+
+      <div class="form-group">
+        <label>Rating <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+        <div class="star-row" id="starRow">
+          <span class="star" data-v="1" onclick="rateStar(1)" title="Poor">⭐</span>
+          <span class="star" data-v="2" onclick="rateStar(2)" title="Fair">⭐</span>
+          <span class="star" data-v="3" onclick="rateStar(3)" title="Good">⭐</span>
+          <span class="star" data-v="4" onclick="rateStar(4)" title="Great">⭐</span>
+          <span class="star" data-v="5" onclick="rateStar(5)" title="Excellent">⭐</span>
+        </div>
+        <div class="star-label" id="starLabel">Click to rate</div>
+      </div>
+
+      <button class="btn-primary" id="submitBtn" onclick="submitFeedback()">Submit Feedback</button>
     </div>
 
-    <div class="card" id="feedbackCard">
-      <div class="card-title">Submit Feedback</div>
-
-      <div class="alert-error" id="errMsg"></div>
-
-      <form id="feedbackForm" onsubmit="submitFeedback(event)">
-        <div class="form-group">
-          <label>Category</label>
-          <div class="category-grid" id="categoryGrid">
-            <button type="button" class="cat-btn" data-cat="Feature Request" onclick="selectCat(this)">✨ Feature Request</button>
-            <button type="button" class="cat-btn" data-cat="Bug Report" onclick="selectCat(this)">🐛 Bug Report</button>
-            <button type="button" class="cat-btn" data-cat="UI / Design" onclick="selectCat(this)">🎨 UI / Design</button>
-            <button type="button" class="cat-btn" data-cat="Performance" onclick="selectCat(this)">⚡ Performance</button>
-            <button type="button" class="cat-btn" data-cat="General" onclick="selectCat(this)">💬 General</button>
-          </div>
-          <input type="hidden" id="selectedCat" required />
-        </div>
-
-        <div class="form-group">
-          <label for="msgInput">Your message <span style="color:var(--muted);font-weight:400">(required)</span></label>
-          <textarea id="msgInput" placeholder="Describe your idea, issue, or suggestion in as much detail as you like…" maxlength="2000" oninput="updateCharCount(this)"></textarea>
-          <div class="char-count" id="charCount">0 / 2000</div>
-        </div>
-
-        <div class="form-group">
-          <label>How satisfied are you with ClassMind AI overall?</label>
-          <div class="star-row" id="starRow">
-            <span class="star" data-v="1" onclick="rateStar(1)" title="Poor">⭐</span>
-            <span class="star" data-v="2" onclick="rateStar(2)" title="Fair">⭐</span>
-            <span class="star" data-v="3" onclick="rateStar(3)" title="Good">⭐</span>
-            <span class="star" data-v="4" onclick="rateStar(4)" title="Great">⭐</span>
-            <span class="star" data-v="5" onclick="rateStar(5)" title="Excellent">⭐</span>
-          </div>
-          <div style="font-size:12px;color:var(--muted);margin-top:6px" id="ratingLabel">Optional</div>
-        </div>
-
-        <button type="submit" class="btn-primary" id="submitBtn">Send Feedback</button>
-      </form>
-
-      <div id="successState" class="success-state" style="display:none">
-        <div class="icon">🙏</div>
-        <h2>Thank you!</h2>
-        <p>Your feedback has been received. We read every submission and use it to improve ClassMind AI.</p>
-        <a href="/dashboard.html">← Back to Dashboard</a>
-        &nbsp;&nbsp;
-        <a href="javascript:void(0)" onclick="resetForm()">Submit another</a>
-      </div>
+    <div id="successCard" class="success-card" style="display:none">
+      <div class="success-icon">🙏</div>
+      <div class="success-title">Thank you!</div>
+      <div class="success-msg">Your feedback helps us improve ClassMind AI. We read every submission and use it to make the app better for every student.</div>
+      <button class="btn-primary" onclick="resetForm()">Submit Another</button>
     </div>
   </div>
 </div>
-
 <script src="/shared.js"></script>
 <script>
-  'use strict';
-  Auth.requireAuth();
-  renderNav('Feedback');
+if (!Auth.requireAuth()) throw new Error('redirect');
+renderNav('Feedback');
 
-  let selectedRating = null;
-  const LABELS = ['','Poor — needs a lot of work','Fair — some issues','Good — mostly satisfied','Great — really enjoying it!','Excellent — love it!'];
+const STAR_LABELS = ['', 'Poor — needs a lot of work', 'Fair — some issues', 'Good — mostly satisfied', 'Great — really enjoying it!', 'Excellent — love it!'];
+let selectedCat = '';
+let selectedRating = null;
 
-  function selectCat(btn) {
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    document.getElementById('selectedCat').value = btn.dataset.cat;
+function selectCat(btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedCat = btn.dataset.cat;
+}
+
+function rateStar(v) {
+  selectedRating = v;
+  document.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('active', i < v));
+  document.getElementById('starLabel').textContent = STAR_LABELS[v] || '';
+}
+
+function updateCharCount() {
+  const n = document.getElementById('msgInput').value.length;
+  const el = document.getElementById('charCount');
+  el.textContent = n + ' / 2000';
+  el.className = 'char-count' + (n >= 2000 ? ' over' : n >= 1800 ? ' warn' : '');
+}
+
+async function submitFeedback() {
+  const msg = document.getElementById('msgInput').value.trim();
+  const errEl = document.getElementById('errMsg');
+  errEl.style.display = 'none';
+
+  if (!selectedCat) { errEl.textContent = 'Please select a category.'; errEl.style.display = 'block'; return; }
+  if (!msg || msg.length < 10) { errEl.textContent = 'Message must be at least 10 characters.'; errEl.style.display = 'block'; return; }
+  if (msg.length > 2000) { errEl.textContent = 'Message must be under 2000 characters.'; errEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+
+  const res = await Auth.fetchWithAuth('/api/feedback', { method: 'POST', body: JSON.stringify({ category: selectedCat, message: msg, rating: selectedRating }) });
+
+  btn.disabled = false; btn.textContent = 'Submit Feedback';
+
+  if (!res || !res.ok) {
+    const e = await (res ? res.json().catch(() => ({})) : Promise.resolve({}));
+    errEl.textContent = e.error || 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+    return;
   }
 
-  function rateStar(v) {
-    selectedRating = v;
-    document.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('active', i < v));
-    document.getElementById('ratingLabel').textContent = LABELS[v] || '';
-  }
+  document.getElementById('feedbackForm').style.display = 'none';
+  document.getElementById('successCard').style.display = 'block';
+}
 
-  function updateCharCount(el) {
-    const n = el.value.length;
-    const el2 = document.getElementById('charCount');
-    el2.textContent = `${n} / 2000`;
-    el2.classList.toggle('over', n >= 1900);
-  }
-
-  async function submitFeedback(e) {
-    e.preventDefault();
-    const cat = document.getElementById('selectedCat').value;
-    const msg = document.getElementById('msgInput').value.trim();
-    const errEl = document.getElementById('errMsg');
-    errEl.style.display = 'none';
-
-    if (!cat) { errEl.textContent = 'Please select a category.'; errEl.style.display = 'block'; return; }
-    if (!msg) { errEl.textContent = 'Please enter a message.'; errEl.style.display = 'block'; return; }
-
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true; btn.textContent = 'Sending…';
-
-    try {
-      const headers = { 'Content-Type': 'application/json' };
-      const token = Auth.getToken();
-      if (token) headers['Authorization'] = 'Bearer ' + token;
-      const res = await fetch('/api/feedback', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ category: cat, message: msg, rating: selectedRating })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Submission failed');
-      document.getElementById('feedbackForm').style.display = 'none';
-      document.getElementById('successState').style.display = 'block';
-    } catch (err) {
-      errEl.textContent = err.message || 'Something went wrong. Please try again.';
-      errEl.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Send Feedback';
-    }
-  }
-
-  function resetForm() {
-    document.getElementById('feedbackForm').reset();
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
-    document.getElementById('selectedCat').value = '';
-    document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
-    selectedRating = null;
-    document.getElementById('ratingLabel').textContent = 'Optional';
-    document.getElementById('charCount').textContent = '0 / 2000';
-    document.getElementById('feedbackForm').style.display = 'block';
-    document.getElementById('successState').style.display = 'none';
-    document.getElementById('errMsg').style.display = 'none';
-    document.getElementById('submitBtn').disabled = false;
-    document.getElementById('submitBtn').textContent = 'Send Feedback';
-  }
+function resetForm() {
+  selectedCat = '';
+  selectedRating = null;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+  document.getElementById('starLabel').textContent = 'Click to rate';
+  document.getElementById('msgInput').value = '';
+  document.getElementById('charCount').textContent = '0 / 2000';
+  document.getElementById('charCount').className = 'char-count';
+  document.getElementById('errMsg').style.display = 'none';
+  document.getElementById('feedbackForm').style.display = 'block';
+  document.getElementById('successCard').style.display = 'none';
+}
 </script>
 </body>
 </html>

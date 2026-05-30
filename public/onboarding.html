@@ -7,36 +7,34 @@
   <meta name="description" content="Set up your ClassMind AI profile so we can personalize your study experience." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy: #1B3F6E;
-      --navy-dark: #15335A;
-      --navy-light: #EBF0F7;
-      --bg: #F6F6F3;
-      --white: #FFFFFF;
-      --text: #141414;
-      --muted: #6B7280;
-      --border: #E2E2DC;
-      --danger: #B91C1C;
-      --danger-bg: #FEF2F2;
-      --danger-border: #FECACA;
-      --success: #15803D;
-      --shadow: 0 2px 8px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.08);
+      --bg: #0F172A;
+      --bg2: #1E293B;
+      --card: #1E293B;
+      --card2: #263347;
+      --border: #334155;
+      --accent: #3B82F6;
+      --accent-hover: #2563EB;
+      --text: #F1F5F9;
+      --text2: #CBD5E1;
+      --muted: #94A3B8;
+      --success: #22C55E;
+      --warn: #F59E0B;
+      --danger: #EF4444;
+      --radius: 10px;
+      --shadow: 0 4px 32px rgba(0,0,0,0.5);
     }
 
     html, body { height: 100%; }
 
     body {
-      background:
-        linear-gradient(rgba(27,63,110,0.52), rgba(27,63,110,0.52)),
-        url('/images/campus-corridor.jpg') center/cover no-repeat fixed,
-        url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNDAwIDkwMCIgd2lkdGg9IjE0MDAiIGhlaWdodD0iOTAwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZzEiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iNjAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMxNTMzNUEiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMUIzRjZFIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJnMiIgeDE9IjUwJSIgeTE9IjAlIiB4Mj0iNTAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMyZDZhOWYiIHN0b3Atb3BhY2l0eT0iMC41Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMjQ0MCIgc3RvcC1vcGFjaXR5PSIwLjUiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjkwMCIgZmlsbD0idXJsKCNnMSkiLz4KICA8cmVjdCB3aWR0aD0iMTQwMCIgaGVpZ2h0PSI5MDAiIGZpbGw9InVybCgjZzIpIi8+CiAgPCEtLSBDb3JyaWRvciBwZXJzcGVjdGl2ZSBsaW5lcyAtLT4KICA8ZyBvcGFjaXR5PSIwLjA4IiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS41IiBmaWxsPSJub25lIj4KICAgIDxsaW5lIHgxPSI3MDAiIHkxPSIzMDAiIHgyPSIwIiB5Mj0iOTAwIi8+CiAgICA8bGluZSB4MT0iNzAwIiB5MT0iMzAwIiB4Mj0iMTQwMCIgeTI9IjkwMCIvPgogICAgPGxpbmUgeDE9IjcwMCIgeTE9IjMwMCIgeDI9IjIwMCIgeTI9IjkwMCIvPgogICAgPGxpbmUgeDE9IjcwMCIgeTE9IjMwMCIgeDI9IjEyMDAiIHkyPSI5MDAiLz4KICAgIDxsaW5lIHgxPSI3MDAiIHkxPSIzMDAiIHgyPSI0MDAiIHkyPSI5MDAiLz4KICAgIDxsaW5lIHgxPSI3MDAiIHkxPSIzMDAiIHgyPSIxMDAwIiB5Mj0iOTAwIi8+CiAgICA8bGluZSB4MT0iNzAwIiB5MT0iMzAwIiB4Mj0iNjAwIiB5Mj0iOTAwIi8+CiAgICA8bGluZSB4MT0iNzAwIiB5MT0iMzAwIiB4Mj0iODAwIiB5Mj0iOTAwIi8+CiAgICA8IS0tIEhvcml6b250YWwgY29ycmlkb3IgbGluZXMgLS0+CiAgICA8bGluZSB4MT0iMCIgeTE9IjkwMCIgeDI9IjE0MDAiIHkyPSI5MDAiLz4KICAgIDxlbGxpcHNlIGN4PSI3MDAiIGN5PSIzNTAiIHJ4PSIyMDAiIHJ5PSI2MCIvPgogICAgPGVsbGlwc2UgY3g9IjcwMCIgY3k9IjQwMCIgcng9IjMyMCIgcnk9IjEwMCIvPgogICAgPGVsbGlwc2UgY3g9IjcwMCIgY3k9IjQ4MCIgcng9IjQ4MCIgcnk9IjE1MCIvPgogIDwvZz4KICA8ZyBvcGFjaXR5PSIwLjIiIGZpbGw9IiNmZmYiPgogICAgPGNpcmNsZSBjeD0iMjAwIiBjeT0iMTAwIiByPSIyIi8+PGNpcmNsZSBjeD0iNTAwIiBjeT0iNjAiIHI9IjMiLz4KICAgIDxjaXJjbGUgY3g9IjExMDAiIGN5PSI5MCIgcj0iMiIvPjxjaXJjbGUgY3g9IjEzNTAiIGN5PSIxNTAiIHI9IjMiLz4KICAgIDxjaXJjbGUgY3g9IjgwIiBjeT0iNzAwIiByPSIyIi8+PGNpcmNsZSBjeD0iMTM3MCIgY3k9IjgwMCIgcj0iMiIvPgogIDwvZz4KPC9zdmc+Cg==");
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1B3F6E 0%, #0F172A 100%);
       color: var(--text);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 15px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       display: flex;
@@ -44,64 +42,61 @@
       min-height: 100vh;
     }
 
-    @media (max-width: 640px) {
-      body { background: var(--bg); color: var(--text); }
-    }
+    h1, h2, h3 { font-family: 'Playfair Display', serif; }
 
-    /* ── TOP BAR ── */
-    .top-bar {
-      padding: 16px 32px;
+    .topbar {
+      padding: 18px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
+      background: rgba(15,23,42,0.7);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(8px);
       flex-shrink: 0;
     }
-    .logo {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 20px;
+
+    .topbar-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
       font-weight: 700;
-      color: var(--navy);
+      color: #fff;
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
-    .logo-badge {
-      display: inline-block;
-      background: var(--navy);
+
+    .topbar-badge {
+      background: var(--accent);
       color: #fff;
       font-family: 'Inter', sans-serif;
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 1px;
       padding: 2px 7px;
-      border-radius: 4px;
-    }
-    .top-bar-meta {
-      font-size: 13px;
-      color: var(--muted);
+      border-radius: 5px;
     }
 
-    /* ── PROGRESS BAR ── */
-    .progress-container {
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-      padding: 0 32px;
+    .topbar-meta {
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+    }
+
+    .progress-bar-wrap {
+      background: rgba(15,23,42,0.5);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 20px 32px;
       flex-shrink: 0;
     }
-    .progress-inner {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px 0;
-    }
+
     .progress-steps {
       display: flex;
       align-items: center;
-      gap: 0;
+      max-width: 520px;
+      margin: 0 auto;
       position: relative;
     }
+
     .progress-step {
       display: flex;
       flex-direction: column;
@@ -111,26 +106,26 @@
       position: relative;
       z-index: 1;
     }
+
     .progress-step:not(:last-child)::after {
       content: '';
       position: absolute;
-      top: 20px;
+      top: 18px;
       left: 50%;
       right: -50%;
       height: 2px;
       background: var(--border);
       z-index: -1;
-      transition: background 0.4s ease;
-    }
-    .progress-step.completed:not(:last-child)::after {
-      background: var(--navy);
+      transition: background 0.4s;
     }
 
+    .progress-step.done:not(:last-child)::after { background: var(--accent); }
+
     .step-circle {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: var(--bg);
+      background: var(--bg2);
       border: 2px solid var(--border);
       display: flex;
       align-items: center;
@@ -138,31 +133,33 @@
       font-size: 13px;
       font-weight: 700;
       color: var(--muted);
-      transition: all 0.3s ease;
+      transition: all 0.3s;
     }
+
     .progress-step.active .step-circle {
-      background: var(--navy);
-      border-color: var(--navy);
+      background: var(--accent);
+      border-color: var(--accent);
       color: #fff;
-      box-shadow: 0 2px 12px rgba(27,63,110,0.3);
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.2);
     }
-    .progress-step.completed .step-circle {
-      background: var(--navy);
-      border-color: var(--navy);
+
+    .progress-step.done .step-circle {
+      background: var(--accent);
+      border-color: var(--accent);
       color: #fff;
     }
+
     .step-label {
       font-size: 11px;
       font-weight: 600;
       color: var(--muted);
       text-align: center;
-      letter-spacing: 0.2px;
       transition: color 0.3s;
     }
-    .progress-step.active .step-label,
-    .progress-step.completed .step-label { color: var(--navy); }
 
-    /* ── MAIN ── */
+    .progress-step.active .step-label,
+    .progress-step.done .step-label { color: var(--text2); }
+
     .page-center {
       flex: 1;
       display: flex;
@@ -171,107 +168,125 @@
       padding: 44px 20px 60px;
     }
 
-    /* ── CARD ── */
     .onboard-card {
-      background: var(--white);
-      border-radius: 20px;
-      padding: 48px 48px;
-      width: 100%;
-      max-width: 560px;
-      box-shadow: var(--shadow);
+      background: var(--card);
       border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: var(--shadow);
     }
 
-    /* ── STEP PANELS ── */
     .step-panel { display: none; }
     .step-panel.active { display: block; }
 
-    /* Step heading area */
-    .step-icon-big {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      background: var(--navy-light);
+    .step-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.25);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
+      font-size: 26px;
       margin-bottom: 20px;
     }
+
     .step-heading {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 24px;
+      font-size: 1.5rem;
       font-weight: 700;
-      color: var(--navy);
-      margin-bottom: 6px;
+      color: var(--text);
+      margin-bottom: 8px;
       line-height: 1.2;
     }
+
     .step-sub {
       font-size: 14px;
       color: var(--muted);
       margin-bottom: 32px;
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
-    /* ── FORM ELEMENTS ── */
+    .alert-error {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      color: #fca5a5;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .alert-error.show { display: block; }
+
     .form-group { margin-bottom: 22px; }
+
     .form-group label {
       display: block;
       font-size: 13px;
       font-weight: 600;
-      color: var(--text);
+      color: var(--text2);
       margin-bottom: 7px;
-      letter-spacing: 0.1px;
     }
+
     .form-group select,
     .form-group input[type="text"] {
       width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
+      padding: 11px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       font-family: 'Inter', sans-serif;
       font-size: 15px;
       color: var(--text);
-      background: var(--bg);
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
       -webkit-appearance: none;
       appearance: none;
     }
+
     .form-group select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
       padding-right: 40px;
       cursor: pointer;
     }
+
+    .form-group select option { background: var(--bg2); color: var(--text); }
+
     .form-group select:focus,
     .form-group input[type="text"]:focus {
-      border-color: var(--navy);
-      background: var(--white);
-      box-shadow: 0 0 0 3px rgba(27,63,110,0.08);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
     }
-    .form-group select option { background: var(--white); }
-    .form-group input[type="text"]::placeholder { color: #ADADAD; }
-    .form-group input.error-field { border-color: var(--danger); }
 
-    /* ── OTHER INPUT (conditional) ── */
-    .other-input-wrap {
-      margin-top: 12px;
-      display: none;
+    .form-group input[type="text"]::placeholder { color: var(--muted); }
+
+    .form-group input.has-error,
+    .form-group select.has-error {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
     }
-    .other-input-wrap.show { display: block; }
 
-    /* ── LEVEL GRID ── */
+    .other-wrap { margin-top: 12px; display: none; }
+    .other-wrap.show { display: block; }
+
     .level-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 10px;
     }
+
     .level-btn {
       padding: 12px 8px;
-      border: 2px solid var(--border);
-      border-radius: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       background: var(--bg);
       font-family: 'Inter', sans-serif;
       font-size: 13px;
@@ -281,133 +296,91 @@
       text-align: center;
       transition: all 0.18s;
     }
-    .level-btn:hover { border-color: var(--navy); color: var(--navy); background: var(--navy-light); }
+
+    .level-btn:hover { border-color: var(--accent); color: var(--text); }
+
     .level-btn.selected {
-      background: var(--navy);
-      border-color: var(--navy);
+      background: var(--accent);
+      border-color: var(--accent);
       color: #fff;
-      box-shadow: 0 2px 8px rgba(27,63,110,0.25);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
     }
 
-    /* ── COURSE INPUT ── */
-    .course-input-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .course-input-row input {
-      flex: 1;
-      padding: 12px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      color: var(--text);
+    .course-tag-area {
+      min-height: 60px;
+      padding: 10px 12px;
       background: var(--bg);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-      text-transform: uppercase;
-    }
-    .course-input-row input:focus {
-      border-color: var(--navy);
-      background: var(--white);
-      box-shadow: 0 0 0 3px rgba(27,63,110,0.08);
-    }
-    .course-input-row input::placeholder { color: #ADADAD; text-transform: none; }
-
-    .add-course-btn {
-      padding: 12px 20px;
-      background: var(--navy);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.18s;
-      white-space: nowrap;
-    }
-    .add-course-btn:hover { background: var(--navy-dark); }
-
-    /* ── COURSE CHIPS ── */
-    .course-chips {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      min-height: 44px;
-      padding: 12px;
-      border: 1.5px dashed var(--border);
-      border-radius: 10px;
-      background: var(--bg);
-      margin-bottom: 8px;
+      align-items: flex-start;
+      cursor: text;
+      transition: border-color 0.2s;
+      margin-bottom: 10px;
     }
-    .course-chips:empty::before {
-      content: 'Your courses will appear here as chips';
-      font-size: 13px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
+
+    .course-tag-area:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
     }
+
     .course-chip {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      background: var(--navy-light);
-      border: 1px solid #C8D9EE;
+      gap: 5px;
+      padding: 4px 10px;
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.35);
       border-radius: 100px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      color: var(--navy);
+      color: var(--text2);
     }
+
     .chip-remove {
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--navy);
-      font-size: 16px;
+      color: var(--muted);
+      font-size: 14px;
       line-height: 1;
-      opacity: 0.5;
       padding: 0;
       display: flex;
       align-items: center;
+      transition: color 0.15s;
     }
-    .chip-remove:hover { opacity: 1; }
+
+    .chip-remove:hover { color: var(--danger); }
+
+    .course-input-inline {
+      flex: 1;
+      min-width: 120px;
+      background: none;
+      border: none;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      padding: 2px 4px;
+    }
+
+    .course-input-inline::placeholder { color: var(--muted); }
+
     .courses-hint {
       font-size: 12px;
       color: var(--muted);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
-    .skip-link {
-      font-size: 13px;
+
+    .course-count {
+      font-size: 12px;
       color: var(--muted);
-      text-decoration: none;
-      cursor: pointer;
-      background: none;
-      border: none;
-      font-family: 'Inter', sans-serif;
+      text-align: right;
+      margin-top: 4px;
     }
-    .skip-link:hover { color: var(--navy); text-decoration: underline; }
 
-    /* ── ERROR ALERT ── */
-    .error-alert {
-      background: var(--danger-bg);
-      border: 1px solid var(--danger-border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      color: var(--danger);
-      font-size: 13px;
-      font-weight: 500;
-      line-height: 1.5;
-      margin-bottom: 16px;
-      display: none;
-      align-items: flex-start;
-      gap: 8px;
-    }
-    .error-alert.show { display: flex; }
-
-    /* ── NAVIGATION BUTTONS ── */
     .step-nav {
       display: flex;
       align-items: center;
@@ -416,552 +389,430 @@
       padding-top: 24px;
       border-top: 1px solid var(--border);
     }
-    .back-btn {
-      padding: 12px 22px;
+
+    .btn-back {
+      padding: 11px 22px;
       background: transparent;
       color: var(--muted);
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       font-family: 'Inter', sans-serif;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.18s;
     }
-    .back-btn:hover { border-color: var(--navy); color: var(--navy); background: var(--navy-light); }
-    .back-btn:disabled { opacity: 0; pointer-events: none; }
 
-    .next-btn {
-      padding: 13px 28px;
-      background: var(--navy);
+    .btn-back:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
+    .btn-back:disabled { opacity: 0; pointer-events: none; }
+
+    .btn-next {
+      padding: 12px 28px;
+      background: var(--accent);
       color: #fff;
       border: none;
-      border-radius: 10px;
+      border-radius: var(--radius);
       font-family: 'Inter', sans-serif;
       font-size: 15px;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.18s, box-shadow 0.18s, transform 0.1s;
-      box-shadow: 0 2px 8px rgba(27,63,110,0.25);
+      transition: background 0.18s, transform 0.1s;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .next-btn:hover:not(:disabled) {
-      background: var(--navy-dark);
-      box-shadow: 0 4px 16px rgba(27,63,110,0.35);
+
+    .btn-next:hover:not(:disabled) {
+      background: var(--accent-hover);
       transform: translateY(-1px);
     }
-    .next-btn:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      transform: none;
-    }
 
-    /* ── PAGE FOOTER ── */
-    .page-footer {
-      padding: 20px;
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
-      flex-shrink: 0;
-    }
+    .btn-next:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
-    /* ── SPINNER ── */
     .spinner {
-      width: 18px; height: 18px;
-      border: 2px solid rgba(255,255,255,0.4);
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.35);
       border-top-color: #fff;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
-      flex-shrink: 0;
     }
+
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    @media (max-width: 620px) {
-      .onboard-card { padding: 32px 20px; border-radius: 16px; }
-      .top-bar { padding: 14px 20px; }
-      .progress-container { padding: 0 20px; }
-      .level-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
-      .level-btn { padding: 10px 4px; font-size: 12px; }
+    .done-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(34,197,94,0.1);
+      border: 2px solid rgba(34,197,94,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin: 0 auto 24px;
+    }
+
+    .done-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .done-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text2);
+    }
+
+    .done-features .feat-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(59,130,246,0.15);
+      border: 1px solid rgba(59,130,246,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    @media (max-width: 600px) {
+      .onboard-card { padding: 32px 20px; }
+      .topbar { padding: 14px 20px; }
+      .progress-bar-wrap { padding: 16px 20px; }
+      .level-grid { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
 <body>
 
-<!-- Top bar -->
-<div class="top-bar">
-  <a href="/" class="logo">ClassMind<span class="logo-badge">AI</span></a>
-  <div class="top-bar-meta">Setup · Takes about 1 minute</div>
+<div class="topbar">
+  <a href="/" class="topbar-logo">ClassMind<span class="topbar-badge">AI</span></a>
+  <div class="topbar-meta">Setup — takes about 1 minute</div>
 </div>
 
-<!-- Progress bar -->
-<div class="progress-container">
-  <div class="progress-inner">
-    <div class="progress-steps">
-      <div class="progress-step active" id="pstep-1">
-        <div class="step-circle" id="pcircle-1">1</div>
-        <div class="step-label">University</div>
-      </div>
-      <div class="progress-step" id="pstep-2">
-        <div class="step-circle" id="pcircle-2">2</div>
-        <div class="step-label">Your Level</div>
-      </div>
-      <div class="progress-step" id="pstep-3">
-        <div class="step-circle" id="pcircle-3">3</div>
-        <div class="step-label">Courses</div>
-      </div>
+<div class="progress-bar-wrap">
+  <div class="progress-steps">
+    <div class="progress-step active" id="pstep-1">
+      <div class="step-circle" id="pcircle-1">1</div>
+      <div class="step-label">University</div>
+    </div>
+    <div class="progress-step" id="pstep-2">
+      <div class="step-circle" id="pcircle-2">2</div>
+      <div class="step-label">Courses</div>
+    </div>
+    <div class="progress-step" id="pstep-3">
+      <div class="step-circle" id="pcircle-3">3</div>
+      <div class="step-label">Done</div>
     </div>
   </div>
 </div>
 
-<!-- Main content -->
 <div class="page-center">
   <div class="onboard-card">
 
-    <!-- ── STEP 1: University ── -->
     <div class="step-panel active" id="panel-1">
-      <div class="step-icon-big">🏛️</div>
-      <h2 class="step-heading">Which university do you attend?</h2>
-      <p class="step-sub">We'll personalize your experience based on your institution's academic calendar and common course structures.</p>
+      <div class="step-icon">🏛️</div>
+      <h2 class="step-heading">Your university details</h2>
+      <p class="step-sub">Tell us where you study so we can personalize your experience.</p>
 
-      <div class="error-alert" id="error-1" role="alert">
-        <span>⚠</span>
-        <span id="errorText-1">Please select your university.</span>
-      </div>
+      <div class="alert-error" id="err-1"></div>
 
       <div class="form-group">
-        <label for="universitySelect">Select your university</label>
-        <select id="universitySelect" onchange="handleUniversityChange()">
+        <label for="universitySelect">University</label>
+        <select id="universitySelect">
           <option value="">— Choose your university —</option>
           <option value="UAT" selected>University of Africa (UAT)</option>
-          <optgroup label="Federal Universities">
-            <option value="UNIPORT">University of Port Harcourt (UNIPORT)</option>
-            <option value="UNILAG">University of Lagos (UNILAG)</option>
-            <option value="UI">University of Ibadan (UI)</option>
-            <option value="UNIBEN">University of Benin (UNIBEN)</option>
-            <option value="OAU">Obafemi Awolowo University (OAU)</option>
-            <option value="ABU">Ahmadu Bello University (ABU)</option>
-            <option value="FUTA">Federal University of Technology, Akure (FUTA)</option>
-            <option value="UNILORIN">University of Ilorin (UNILORIN)</option>
-            <option value="UNN">University of Nigeria, Nsukka (UNN)</option>
-            <option value="UNIMAID">University of Maiduguri (UNIMAID)</option>
-          </optgroup>
-          <optgroup label="State Universities">
-            <option value="LASU">Lagos State University (LASU)</option>
-            <option value="OOU">Olabisi Onabanjo University (OOU)</option>
-            <option value="RSUST">Rivers State University (RSUST)</option>
-            <option value="UNIUYO">University of Uyo (UNIUYO)</option>
-          </optgroup>
-          <optgroup label="Private Universities">
-            <option value="COVENANT">Covenant University</option>
-            <option value="BABCOCK">Babcock University</option>
-            <option value="BELLS">Bells University of Technology</option>
-            <option value="REDEEMERS">Redeemer's University</option>
-          </optgroup>
-          <option value="other">Other (specify below)</option>
+          <option value="UNILAG">University of Lagos (UNILAG)</option>
+          <option value="ABU">Ahmadu Bello University (ABU)</option>
+          <option value="UNN">University of Nigeria (UNN)</option>
+          <option value="OAU">Obafemi Awolowo University (OAU)</option>
+          <option value="LASU">Lagos State University (LASU)</option>
+          <option value="COVENANT">Covenant University</option>
+          <option value="UNIBEN">University of Benin (UNIBEN)</option>
+          <option value="FUTA">Federal University of Technology Akure (FUTA)</option>
+          <option value="UI">University of Ibadan (UI)</option>
+          <option value="other">Other</option>
         </select>
-      </div>
-
-      <!-- Other university text input -->
-      <div class="form-group other-input-wrap" id="otherUniWrap">
-        <label for="otherUni">Enter your university name</label>
-        <input
-          type="text"
-          id="otherUni"
-          placeholder="e.g. Madonna University, Enugu State University..."
-        />
-      </div>
-    </div>
-
-    <!-- ── STEP 2: Level & Department ── -->
-    <div class="step-panel" id="panel-2">
-      <div class="step-icon-big">📚</div>
-      <h2 class="step-heading">Your year and department</h2>
-      <p class="step-sub">This helps ClassMind suggest relevant courses, past questions, and study materials for your level.</p>
-
-      <div class="error-alert" id="error-2" role="alert">
-        <span>⚠</span>
-        <span id="errorText-2">Please select your level and department.</span>
-      </div>
-
-      <div class="form-group">
-        <label>Academic level</label>
-        <div class="level-grid">
-          <button class="level-btn" data-level="100L" onclick="selectLevel(this)">100L</button>
-          <button class="level-btn" data-level="200L" onclick="selectLevel(this)">200L</button>
-          <button class="level-btn" data-level="300L" onclick="selectLevel(this)">300L</button>
-          <button class="level-btn" data-level="400L" onclick="selectLevel(this)">400L</button>
-          <button class="level-btn" data-level="500L" onclick="selectLevel(this)">500L</button>
+        <div class="other-wrap" id="otherWrap">
+          <input type="text" id="otherUni" placeholder="Enter your university name" />
         </div>
       </div>
 
       <div class="form-group">
-        <label for="departmentSelect">Department / Faculty</label>
-        <select id="departmentSelect">
-          <option value="">— Select your department —</option>
-          <option value="Computer Science">Computer Science</option>
-          <option value="Engineering">Engineering (all disciplines)</option>
-          <option value="Medicine">Medicine &amp; Surgery</option>
-          <option value="Law">Law</option>
-          <option value="Business Admin">Business Administration</option>
-          <option value="Accounting">Accounting &amp; Finance</option>
-          <option value="Education">Education</option>
-          <option value="Sciences">Pure &amp; Applied Sciences</option>
-          <option value="Arts">Arts &amp; Humanities</option>
-          <option value="Social Sciences">Social Sciences</option>
-          <option value="Agriculture">Agriculture</option>
-          <option value="Pharmacy">Pharmacy</option>
-          <option value="Architecture">Architecture &amp; Urban Planning</option>
-          <option value="Mass Communication">Mass Communication</option>
-          <option value="Other">Other</option>
-        </select>
+        <label for="levelSelect">Academic level</label>
+        <div class="level-grid" id="levelGrid">
+          <button type="button" class="level-btn" data-level="100L">100L</button>
+          <button type="button" class="level-btn" data-level="200L">200L</button>
+          <button type="button" class="level-btn" data-level="300L">300L</button>
+          <button type="button" class="level-btn" data-level="400L">400L</button>
+          <button type="button" class="level-btn" data-level="500L">500L</button>
+          <button type="button" class="level-btn" data-level="Postgraduate">PG</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="departmentInput">Department</label>
+        <input type="text" id="departmentInput" placeholder="e.g. Computer Science, Medicine, Law…" />
       </div>
     </div>
 
-    <!-- ── STEP 3: Courses ── -->
+    <div class="step-panel" id="panel-2">
+      <div class="step-icon">📚</div>
+      <h2 class="step-heading">Add your courses</h2>
+      <p class="step-sub">Type your course codes (e.g. CSC301, MTH201). Press Enter or comma to add each one. You must add at least 1 course.</p>
+
+      <div class="alert-error" id="err-2"></div>
+
+      <div class="courses-hint">Your courses this semester:</div>
+      <div class="course-tag-area" id="courseTagArea">
+        <input type="text" class="course-input-inline" id="courseInput" placeholder="Type a course code and press Enter…" maxlength="15" />
+      </div>
+      <div class="course-count" id="courseCount">0 courses added</div>
+    </div>
+
     <div class="step-panel" id="panel-3">
-      <div class="step-icon-big">📋</div>
-      <h2 class="step-heading">Add your courses this semester</h2>
-      <p class="step-sub">Type your course codes (like MTH201, CSC102) and hit Add. ClassMind will track assignments and deadlines for each course.</p>
-
-      <div class="error-alert" id="error-3" role="alert">
-        <span>⚠</span>
-        <span id="errorText-3">Something went wrong saving your profile. Please try again.</span>
+      <div style="text-align:center">
+        <div class="done-icon">🎉</div>
+        <h2 class="step-heading" style="text-align:center" id="doneHeading">You're all set!</h2>
+        <p class="step-sub" style="text-align:center">Here's what ClassMind AI can do for you:</p>
       </div>
 
-      <div class="course-input-row">
-        <input
-          type="text"
-          id="courseInput"
-          placeholder="e.g. MTH201, CSC102, PHY107"
-          maxlength="12"
-          onkeydown="handleCourseKey(event)"
-        />
-        <button class="add-course-btn" onclick="addCourse()">+ Add</button>
-      </div>
+      <ul class="done-features">
+        <li><div class="feat-dot">📚</div><span>Chat with an AI that knows your course material — upload notes and ask questions</span></li>
+        <li><div class="feat-dot">📈</div><span>Track your CGPA and simulate grade scenarios for each semester</span></li>
+        <li><div class="feat-dot">✅</div><span>Manage assignments, deadlines, and group projects in a clean task board</span></li>
+      </ul>
 
-      <div class="courses-hint">Your courses:</div>
-      <div class="course-chips" id="courseChips"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
-        <span class="courses-hint" id="courseCount">0 courses added</span>
-        <button class="skip-link" onclick="skipCourses()">Skip this step</button>
-      </div>
+      <div class="alert-error" id="err-3"></div>
     </div>
 
-    <!-- ── NAVIGATION ── -->
     <div class="step-nav">
-      <button type="button" class="back-btn" id="backBtn" onclick="prevStep()" disabled>← Back</button>
-      <button type="button" class="next-btn" id="nextBtn" onclick="nextStep()">
-        <span id="nextBtnText">Next</span>
-        <span>→</span>
+      <button type="button" class="btn-back" id="backBtn" disabled>← Back</button>
+      <button type="button" class="btn-next" id="nextBtn">
+        <span id="nextLabel">Next</span>
+        <span id="nextArrow">→</span>
       </button>
     </div>
 
   </div>
 </div>
 
-<div class="page-footer">
-  Your information is private and used only to personalize your ClassMind experience.
-</div>
-
 <script>
-  // ── State ──
-  let currentStep = 1;
-  const totalSteps = 3;
-  let selectedLevel = '';
-  let courses = [];
+  var currentStep = 1;
+  var totalSteps = 3;
+  var selectedLevel = '';
+  var courses = [];
 
-  // ── Guard: must be logged in ──
   (function() {
-    const token = localStorage.getItem('cm_token');
-    if (!token) {
-      window.location.replace('/login.html');
+    var token = localStorage.getItem('cm_token');
+    if (!token) window.location.replace('/login.html');
+    var u = localStorage.getItem('cm_user');
+    if (u) {
+      try {
+        var user = JSON.parse(u);
+        if (user.name) {
+          document.getElementById('doneHeading').textContent = "You're all set, " + user.name.split(' ')[0] + "!";
+        }
+      } catch(e) {}
     }
   })();
 
-  // ── Progress bar update ──
   function updateProgress() {
-    for (let i = 1; i <= totalSteps; i++) {
-      const pstep = document.getElementById('pstep-' + i);
-      const circle = document.getElementById('pcircle-' + i);
-      pstep.classList.remove('active', 'completed');
-      if (i < currentStep) {
-        pstep.classList.add('completed');
-        circle.textContent = '✓';
-      } else if (i === currentStep) {
-        pstep.classList.add('active');
-        circle.textContent = i;
-      } else {
-        circle.textContent = i;
-      }
+    for (var i = 1; i <= totalSteps; i++) {
+      var ps = document.getElementById('pstep-' + i);
+      var pc = document.getElementById('pcircle-' + i);
+      ps.classList.remove('active', 'done');
+      if (i < currentStep) { ps.classList.add('done'); pc.textContent = '✓'; }
+      else if (i === currentStep) { ps.classList.add('active'); pc.textContent = i; }
+      else { pc.textContent = i; }
     }
+    document.getElementById('backBtn').disabled = currentStep === 1;
+    var lbl = document.getElementById('nextLabel');
+    var arr = document.getElementById('nextArrow');
+    if (currentStep === totalSteps) { lbl.textContent = 'Go to Dashboard'; arr.textContent = ''; }
+    else if (currentStep === totalSteps - 1) { lbl.textContent = 'Finish Setup'; arr.textContent = '→'; }
+    else { lbl.textContent = 'Next'; arr.textContent = '→'; }
   }
 
-  // ── Panel switch ──
-  function showStep(step) {
-    for (let i = 1; i <= totalSteps; i++) {
-      const panel = document.getElementById('panel-' + i);
-      panel.classList.toggle('active', i === step);
+  function showStep(n) {
+    for (var i = 1; i <= totalSteps; i++) {
+      document.getElementById('panel-' + i).classList.toggle('active', i === n);
     }
-
-    // Back button
-    const backBtn = document.getElementById('backBtn');
-    backBtn.disabled = step === 1;
-
-    // Next button label
-    const nextBtnText = document.getElementById('nextBtnText');
-    if (step === totalSteps) {
-      nextBtnText.textContent = 'Finish Setup';
-    } else {
-      nextBtnText.textContent = 'Next';
-    }
-
-    // Update progress
     updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ── Validation per step ──
-  function validateStep(step) {
-    hideError(step);
-    if (step === 1) {
-      const uni = document.getElementById('universitySelect').value;
-      if (!uni) {
-        showError(1, 'Please select your university to continue.');
-        return false;
-      }
-      if (uni === 'other') {
-        const other = document.getElementById('otherUni').value.trim();
-        if (!other) {
-          showError(1, 'Please enter your university name.');
-          document.getElementById('otherUni').focus();
-          return false;
-        }
-      }
-      return true;
+  function showErr(step, msg) {
+    var el = document.getElementById('err-' + step);
+    el.textContent = msg;
+    el.classList.add('show');
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function hideErr(step) {
+    var el = document.getElementById('err-' + step);
+    if (el) el.classList.remove('show');
+  }
+
+  function validateStep1() {
+    hideErr(1);
+    var uni = document.getElementById('universitySelect').value;
+    if (!uni) { showErr(1, 'Please select your university.'); return false; }
+    if (uni === 'other') {
+      var other = document.getElementById('otherUni').value.trim();
+      if (!other) { showErr(1, 'Please enter your university name.'); document.getElementById('otherUni').focus(); return false; }
     }
-    if (step === 2) {
-      if (!selectedLevel) {
-        showError(2, 'Please select your academic level (100L, 200L, etc.).');
-        return false;
-      }
-      const dept = document.getElementById('departmentSelect').value;
-      if (!dept) {
-        showError(2, 'Please select your department or faculty.');
-        document.getElementById('departmentSelect').focus();
-        return false;
-      }
-      return true;
-    }
-    // Step 3: always valid (skip is allowed)
+    if (!selectedLevel) { showErr(1, 'Please select your academic level.'); return false; }
+    var dept = document.getElementById('departmentInput').value.trim();
+    if (!dept) { showErr(1, 'Please enter your department.'); document.getElementById('departmentInput').focus(); return false; }
     return true;
   }
 
-  // ── Navigation ──
-  function nextStep() {
-    try {
-      if (!validateStep(currentStep)) return;
-      if (currentStep === totalSteps) { submitOnboarding(); return; }
-      currentStep++;
-      showStep(currentStep);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (e) {
-      console.error('nextStep error:', e);
-      showError(currentStep, 'An unexpected error occurred. Please refresh the page and try again.');
-    }
+  function validateStep2() {
+    hideErr(2);
+    if (courses.length === 0) { showErr(2, 'Please add at least 1 course before continuing.'); document.getElementById('courseInput').focus(); return false; }
+    return true;
   }
 
-  function prevStep() {
-    if (currentStep > 1) {
-      hideError(currentStep);
-      currentStep--;
-      showStep(currentStep);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }
+  document.getElementById('universitySelect').addEventListener('change', function() {
+    document.getElementById('otherWrap').classList.toggle('show', this.value === 'other');
+    hideErr(1);
+  });
 
-  // ── University change ──
-  function handleUniversityChange() {
-    const val = document.getElementById('universitySelect').value;
-    const wrap = document.getElementById('otherUniWrap');
-    wrap.classList.toggle('show', val === 'other');
-    if (val !== 'other') {
-      document.getElementById('otherUni').value = '';
-    }
-    hideError(1);
-  }
+  document.querySelectorAll('.level-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.level-btn').forEach(function(b) { b.classList.remove('selected'); });
+      this.classList.add('selected');
+      selectedLevel = this.dataset.level;
+      hideErr(1);
+    });
+  });
 
-  // ── Level selection ──
-  function selectLevel(btn) {
-    document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedLevel = btn.dataset.level;
-    hideError(2);
-  }
-
-  // ── Course management ──
-  function addCourse() {
-    const input = document.getElementById('courseInput');
-    const raw = input.value.trim().toUpperCase();
-
-    if (!raw) {
-      input.focus();
-      return;
-    }
-
-    // Accept comma-separated input
-    const codes = raw.split(/[\s,;]+/).filter(Boolean);
-    let added = 0;
-    codes.forEach(code => {
-      const clean = code.replace(/[^A-Z0-9]/g, '').substring(0, 10);
+  function addCourse(raw) {
+    var codes = raw.toUpperCase().split(/[\s,;]+/).filter(Boolean);
+    codes.forEach(function(code) {
+      var clean = code.replace(/[^A-Z0-9]/g, '').substring(0, 12);
       if (clean && !courses.includes(clean)) {
         courses.push(clean);
-        added++;
       }
     });
-
-    input.value = '';
-    input.focus();
     renderChips();
   }
 
   function removeCourse(code) {
-    courses = courses.filter(c => c !== code);
+    courses = courses.filter(function(c) { return c !== code; });
     renderChips();
   }
 
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
   function renderChips() {
-    const container = document.getElementById('courseChips');
-    container.innerHTML = courses.map(code => `
-      <div class="course-chip">
-        ${escHtml(code)}
-        <button class="chip-remove" onclick="removeCourse('${escAttr(code)}')" title="Remove ${escHtml(code)}">&times;</button>
-      </div>
-    `).join('');
+    var area = document.getElementById('courseTagArea');
+    var inp = document.getElementById('courseInput');
+    var existing = area.querySelectorAll('.course-chip');
+    existing.forEach(function(el) { el.remove(); });
+    courses.forEach(function(code) {
+      var chip = document.createElement('div');
+      chip.className = 'course-chip';
+      chip.innerHTML = escHtml(code) + '<button type="button" class="chip-remove" title="Remove">×</button>';
+      chip.querySelector('.chip-remove').addEventListener('click', function() { removeCourse(code); });
+      area.insertBefore(chip, inp);
+    });
     document.getElementById('courseCount').textContent =
       courses.length === 0 ? '0 courses added' :
       courses.length === 1 ? '1 course added' :
-      `${courses.length} courses added`;
+      courses.length + ' courses added';
+    hideErr(2);
   }
 
-  function handleCourseKey(e) {
-    if (e.key === 'Enter') {
+  document.getElementById('courseInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
-      addCourse();
+      var val = this.value.trim();
+      if (val) { addCourse(val); this.value = ''; }
     }
-    // Auto-add on comma or space after a code
-    if ((e.key === ',' || e.key === ' ') && e.target.value.trim().length >= 3) {
-      e.preventDefault();
-      addCourse();
+    if (e.key === 'Backspace' && !this.value && courses.length > 0) {
+      courses.pop();
+      renderChips();
     }
-  }
+  });
 
-  function skipCourses() {
-    courses = [];
-    submitOnboarding();
-  }
+  document.getElementById('courseInput').addEventListener('blur', function() {
+    var val = this.value.trim();
+    if (val) { addCourse(val); this.value = ''; }
+  });
 
-  // ── Error helpers ──
-  function showError(step, msg) {
-    const el = document.getElementById('error-' + step);
-    if (msg) document.getElementById('errorText-' + step).textContent = msg;
-    el.classList.add('show');
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-  function hideError(step) {
-    const el = document.getElementById('error-' + step);
-    if (el) el.classList.remove('show');
-  }
+  document.getElementById('courseTagArea').addEventListener('click', function() {
+    document.getElementById('courseInput').focus();
+  });
 
-  // ── Set loading on finish button ──
-  function setSubmitLoading(loading) {
-    const btn = document.getElementById('nextBtn');
-    const text = document.getElementById('nextBtnText');
-    if (loading) {
-      btn.disabled = true;
-      btn.innerHTML = '<div class="spinner"></div><span>Saving...</span>';
-    } else {
-      btn.disabled = false;
-      btn.innerHTML = '<span id="nextBtnText">Finish Setup</span><span>→</span>';
-    }
-  }
+  document.getElementById('nextBtn').addEventListener('click', function() {
+    if (currentStep === 1 && !validateStep1()) return;
+    if (currentStep === 2 && !validateStep2()) return;
+    if (currentStep === totalSteps) { submitOnboarding(); return; }
+    currentStep++;
+    showStep(currentStep);
+  });
 
-  // ── Submit onboarding ──
+  document.getElementById('backBtn').addEventListener('click', function() {
+    if (currentStep > 1) { hideErr(currentStep); currentStep--; showStep(currentStep); }
+  });
+
   async function submitOnboarding() {
-    hideError(3);
-    setSubmitLoading(true);
+    hideErr(3);
+    var btn = document.getElementById('nextBtn');
+    btn.disabled = true;
+    document.getElementById('nextLabel').textContent = 'Saving…';
+    document.getElementById('nextArrow').innerHTML = '<div class="spinner"></div>';
 
-    // Gather values
-    const uniSelect = document.getElementById('universitySelect').value;
-    const university = uniSelect === 'other'
-      ? document.getElementById('otherUni').value.trim()
-      : uniSelect;
-    const level = selectedLevel;
-    const department = document.getElementById('departmentSelect').value;
-    const token = localStorage.getItem('cm_token');
-
-    const payload = {
-      university,
-      level,
-      department,
-      courses,
-      onboarded: 1
-    };
+    var uniVal = document.getElementById('universitySelect').value;
+    var university = uniVal === 'other' ? document.getElementById('otherUni').value.trim() : uniVal;
+    var level = selectedLevel;
+    var department = document.getElementById('departmentInput').value.trim();
+    var token = localStorage.getItem('cm_token');
 
     try {
-      const res = await fetch('/api/auth/profile', {
+      var res = await fetch('/api/auth/profile', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify(payload)
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ university: university, level: level, department: department, courses: courses, onboarded: 1 })
       });
 
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        throw new Error('Unexpected server response.');
-      }
+      var data;
+      try { data = await res.json(); } catch(ex) { throw new Error('Unexpected server response.'); }
+      if (!res.ok) throw new Error(data.message || data.error || 'Failed to save your profile. Please try again.');
 
-      if (!res.ok) {
-        throw new Error(data.message || data.error || 'Failed to save your profile. Please try again.');
-      }
-
-      // Update token and stored user object
       if (data.token) localStorage.setItem('cm_token', data.token);
-      const storedUser = localStorage.getItem('cm_user');
-      if (storedUser) {
+      var stored = localStorage.getItem('cm_user');
+      if (stored) {
         try {
-          const user = JSON.parse(storedUser);
-          Object.assign(user, payload);
+          var user = JSON.parse(stored);
+          Object.assign(user, { university: university, level: level, department: department, courses: courses, onboarded: 1 });
           if (data.user) Object.assign(user, data.user);
           localStorage.setItem('cm_user', JSON.stringify(user));
-        } catch (e) { /* leave as is */ }
+        } catch(e) {}
       }
 
-      // Success — go to dashboard
       window.location.href = '/dashboard.html';
 
-    } catch (err) {
-      setSubmitLoading(false);
-      showError(3, err.message || 'Something went wrong. Please check your connection and try again.');
-
-      // Scroll to error
-      document.getElementById('error-3').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch(err) {
+      btn.disabled = false;
+      document.getElementById('nextLabel').textContent = 'Go to Dashboard';
+      document.getElementById('nextArrow').textContent = '';
+      showErr(3, err.message || 'Something went wrong. Please check your connection and try again.');
     }
   }
 
-  // ── Utils ──
-  function escHtml(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-  function escAttr(str) {
-    return String(str || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
-  }
-
-  // ── Init ──
   showStep(1);
 </script>
 </body>

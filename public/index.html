@@ -1,1097 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ClassMind AI — Academic Study Assistant for Nigerian University Students</title>
-  <meta name="description" content="ClassMind AI transforms your WhatsApp group chats, PDFs and lecture notes into structured study plans. Built for Nigerian university students." />
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#1B3F6E" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ClassMind AI — Study Smarter for Nigerian University Success</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --navy: #1B3F6E;
-      --navy-dark: #15335A;
-      --navy-light: #EBF0F7;
-      --navy-mid: #2B5499;
-      --bg: #F6F6F3;
-      --white: #FFFFFF;
-      --text: #141414;
-      --muted: #6B7280;
-      --border: #E2E2DC;
-      --gold: #C4933F;
-      --gold-dark: #A67B30;
-      --gold-light: #FDF3E3;
-      --shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.04);
-      --shadow-lg: 0 4px 24px rgba(0,0,0,0.10), 0 20px 60px rgba(0,0,0,0.06);
+      --bg: #0F172A; --bg2: #1E293B; --card: #1E293B; --border: #334155;
+      --accent: #3B82F6; --text: #F1F5F9; --text2: #CBD5E1; --muted: #94A3B8;
+      --radius: 10px;
     }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    a { color: var(--accent); text-decoration: none; }
 
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+    /* Nav */
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 64px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(15,23,42,.95); backdrop-filter: blur(8px); z-index: 10; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #fff; }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-links a { font-size: 14px; color: var(--text2); }
+    .nav-links a:hover { color: var(--text); }
+    .btn-nav { background: var(--accent); color: #fff; padding: 9px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-nav:hover { background: #2563EB; }
 
-    /* ════════════════ SPLASH ════════════════ */
-    #splash {
-      position: fixed; inset: 0;
-      background: var(--navy);
-      z-index: 9999;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 18px;
-      transition: opacity 0.55s ease, transform 0.55s ease;
-    }
-    #splash.hiding { opacity: 0; transform: translateY(-14px); pointer-events: none; }
-    #splash.hidden { display: none; }
+    /* Hero */
+    .hero { text-align: center; padding: 90px 64px 60px; max-width: 900px; margin: 0 auto; }
+    .hero-badge { display: inline-block; background: rgba(59,130,246,.15); color: var(--accent); border: 1px solid rgba(59,130,246,.3); border-radius: 99px; padding: 4px 16px; font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 28px; }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(36px, 6vw, 58px); line-height: 1.15; margin-bottom: 22px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { font-size: 18px; color: var(--text2); max-width: 600px; margin: 0 auto 36px; }
+    .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { background: var(--accent); color: #fff; padding: 14px 32px; border-radius: var(--radius); font-size: 16px; font-weight: 600; border: none; cursor: pointer; }
+    .btn-primary:hover { background: #2563EB; }
+    .btn-outline { background: transparent; color: var(--text); padding: 14px 32px; border-radius: var(--radius); font-size: 16px; font-weight: 600; border: 1px solid var(--border); cursor: pointer; }
+    .btn-outline:hover { background: var(--card); }
 
-    .splash-mark { animation: splashIn 0.65s cubic-bezier(.34,1.56,.64,1) both; }
-    .splash-wordmark {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 30px; font-weight: 700; color: #fff;
-      display: flex; align-items: center; gap: 9px;
-      animation: splashIn 0.65s 0.12s cubic-bezier(.34,1.56,.64,1) both;
-    }
-    .splash-ai-badge {
-      background: var(--gold); color: #fff;
-      font-family: 'Inter', sans-serif; font-size: 11px;
-      font-weight: 700; letter-spacing: 1.5px;
-      padding: 3px 10px; border-radius: 6px;
-    }
-    .splash-tagline {
-      font-size: 11px; color: rgba(255,255,255,0.42);
-      letter-spacing: 2.5px; text-transform: uppercase;
-      animation: splashIn 0.5s 0.22s ease both;
-    }
-    .splash-bar {
-      width: 110px; height: 2px;
-      background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;
-      animation: splashIn 0.4s 0.28s ease both;
-    }
-    .splash-bar-fill { height: 100%; background: var(--gold); border-radius: 2px; animation: loadBar 1.15s 0.38s ease-out both; }
+    /* Features */
+    .section { padding: 80px 64px; max-width: 1200px; margin: 0 auto; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 40px); text-align: center; margin-bottom: 12px; }
+    .section-sub { text-align: center; color: var(--muted); font-size: 16px; margin-bottom: 48px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .feature-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+    .feature-icon { font-size: 32px; margin-bottom: 14px; }
+    .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .feature-desc { font-size: 14px; color: var(--text2); line-height: 1.6; }
 
-    @keyframes splashIn { from { opacity:0; transform:scale(0.84) translateY(12px); } to { opacity:1; transform:scale(1) translateY(0); } }
-    @keyframes loadBar  { from { width:0; } to { width:100%; } }
+    /* How it works */
+    .steps { display: flex; gap: 0; counter-reset: step; flex-wrap: wrap; justify-content: center; }
+    .step { flex: 1; min-width: 200px; max-width: 280px; padding: 28px 24px; text-align: center; position: relative; }
+    .step::after { content: '→'; position: absolute; right: -10px; top: 36px; font-size: 20px; color: var(--border); }
+    .step:last-child::after { display: none; }
+    .step-num { width: 48px; height: 48px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 700; font-size: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .step-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+    .step-desc { font-size: 13px; color: var(--text2); }
 
-    /* ════════════════ UTILITIES ════════════════ */
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    /* Pricing */
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 700px; margin: 0 auto; }
+    .plan-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; }
+    .plan-card.featured { border-color: var(--accent); position: relative; }
+    .plan-card.featured::before { content: 'Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 3px 16px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+    .plan-name { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .plan-price { font-size: 36px; font-weight: 700; margin-bottom: 6px; }
+    .plan-price sup { font-size: 18px; vertical-align: super; }
+    .plan-period { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .plan-features li { font-size: 14px; color: var(--text2); display: flex; gap: 8px; }
+    .plan-features li::before { content: '✓'; color: #22C55E; font-weight: 700; flex-shrink: 0; }
+    .plan-features li.locked::before { content: '🔒'; }
 
-    /* ════════════════ LOGO MARK SVG ════════════════ */
-    /* Inline SVG reused at multiple sizes — see HTML */
+    /* CTA banner */
+    .cta-banner { background: linear-gradient(135deg, #1E3A5F, #1B3F6E); border-radius: var(--radius); padding: 56px; text-align: center; margin: 0 64px 80px; }
+    .cta-banner h2 { font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 12px; }
+    .cta-banner p { color: var(--text2); margin-bottom: 28px; }
 
-    /* ════════════════ BUTTONS ════════════════ */
-    .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 26px; border-radius: 8px; border: none;
-      font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
-      cursor: pointer; text-decoration: none;
-      transition: all 0.18s ease; white-space: nowrap;
-    }
-    .btn-primary { background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(27,63,110,.3); }
-    .btn-primary:hover { background: var(--navy-dark); box-shadow: 0 4px 16px rgba(27,63,110,.4); transform: translateY(-1px); }
-    .btn-gold { background: var(--gold); color: #fff; box-shadow: 0 2px 8px rgba(196,147,63,.35); }
-    .btn-gold:hover { background: var(--gold-dark); transform: translateY(-1px); }
-    .btn-outline { background: transparent; color: var(--navy); border: 2px solid var(--navy); }
-    .btn-outline:hover { background: var(--navy-light); transform: translateY(-1px); }
-    .btn-ghost { background: transparent; color: var(--text); }
-    .btn-ghost:hover { background: var(--border); }
-    .btn-lg { padding: 16px 34px; font-size: 16px; border-radius: 10px; }
-    .btn-sm { padding: 8px 18px; font-size: 13px; }
+    /* Footer */
+    footer { border-top: 1px solid var(--border); padding: 24px 64px; display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 13px; flex-wrap: wrap; gap: 10px; }
 
-    /* ════════════════ NAV ════════════════ */
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(246,246,243,0.96);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
-    .nav-inner { display: flex; align-items: center; height: 68px; gap: 12px; }
-    .logo {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 20px; font-weight: 700; color: var(--navy);
-      text-decoration: none;
-      display: flex; align-items: center; gap: 9px;
-    }
-    .logo-ai-badge {
-      display: inline-block; background: var(--gold); color: #fff;
-      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700;
-      letter-spacing: 1.5px; padding: 2px 7px; border-radius: 4px;
-      margin-left: 4px; vertical-align: middle; position: relative; top: -2px;
-    }
-    .nav-links { display: flex; align-items: center; gap: 4px; margin-left: 40px; list-style: none; }
-    .nav-links a {
-      text-decoration: none; color: var(--muted); font-size: 14px;
-      font-weight: 500; padding: 6px 14px; border-radius: 6px;
-      transition: color 0.15s, background 0.15s;
-    }
-    .nav-links a:hover { color: var(--navy); background: var(--navy-light); }
-    .nav-ctas { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-    .nav-mobile-toggle {
-      display: none; flex-direction: column; gap: 5px;
-      cursor: pointer; padding: 8px; margin-left: auto; background: none; border: none;
-    }
-    .nav-mobile-toggle span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; }
-
-    /* ════════════════ HERO ════════════════ */
-    .hero {
-      padding: 92px 0 80px;
-      background:
-        radial-gradient(ellipse 600px 400px at 82% 28%, rgba(196,147,63,.06) 0%, transparent 100%),
-        radial-gradient(ellipse 400px 300px at 15% 72%, rgba(27,63,110,.05) 0%, transparent 100%),
-        repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(27,63,110,.033) 31px, rgba(27,63,110,.033) 32px),
-        linear-gradient(155deg, #F5F6F1 0%, #E9EFF8 58%, #D8E6F4 100%);
-      overflow: hidden; position: relative;
-    }
-    .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
-
-    .hero-eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--navy-light); border: 1px solid #C8D9EE; color: var(--navy);
-      font-size: 12.5px; font-weight: 600; padding: 6px 16px;
-      border-radius: 100px; margin-bottom: 22px; letter-spacing: 0.2px;
-    }
-    .hero-eyebrow-dot { width: 7px; height: 7px; background: var(--gold); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.45)} }
-
-    .hero h1 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: clamp(34px, 4.6vw, 56px); font-weight: 900;
-      color: var(--navy); line-height: 1.1; letter-spacing: -.5px; margin-bottom: 22px;
-    }
-    .hero h1 .hl {
-      position: relative; display: inline;
-    }
-    .hero h1 .hl::after {
-      content: ''; position: absolute;
-      bottom: 3px; left: 0; right: 0; height: 5px;
-      background: linear-gradient(90deg, var(--gold), rgba(196,147,63,.25));
-      border-radius: 3px;
-    }
-    .hero-sub { font-size: 17px; color: var(--muted); line-height: 1.75; margin-bottom: 34px; max-width: 450px; }
-    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 34px; }
-    .hero-social-proof { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
-    .avatar-stack { display: flex; }
-    .avatar { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; margin-left: -8px; }
-    .avatar:first-child { margin-left: 0; }
-
-    /* ════════════════ PHONES SCENE ════════════════ */
-    .hero-visual { position: relative; display: flex; align-items: center; justify-content: center; }
-    .phones-scene { position: relative; width: 390px; height: 480px; }
-
-    .phone-wrap { position: absolute; transition: filter 0.3s; }
-    .phone-wrap:hover { filter: brightness(1.06) drop-shadow(0 12px 32px rgba(0,0,0,.18)); }
-
-    .phone-frame {
-      width: 155px; border-radius: 28px;
-      border: 2.5px solid #18181f;
-      background: #fff;
-      box-shadow: 0 20px 56px rgba(0,0,0,.22), 0 4px 12px rgba(0,0,0,.12);
-      overflow: hidden;
-    }
-    .phone-notch { height: 20px; background: #18181f; display: flex; align-items: center; justify-content: center; }
-    .phone-notch-pill { width: 44px; height: 9px; background: #0b0b14; border-radius: 5px; }
-    .phone-screen { background: var(--bg); }
-
-    /* p1 — Dashboard, back-left */
-    .phone-wrap.p1 { top: 55px; left: 8px; transform: rotate(-14deg); z-index: 1; opacity: .8; }
-    /* p2 — Study Hub, centre/main */
-    .phone-wrap.p2 { top: 14px; left: 106px; transform: rotate(-3deg); z-index: 3; }
-    /* p3 — Task Board, front-right */
-    .phone-wrap.p3 { top: 68px; left: 222px; transform: rotate(10deg); z-index: 2; opacity: .86; }
-
-    /* Phone screen elements */
-    .ps-hdr { background: var(--navy); padding: 7px 10px; color: #fff; font-size: 9px; font-weight: 700; font-family: 'Inter',sans-serif; display: flex; align-items: center; gap: 6px; }
-    .ps-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
-    .ps-body { padding: 9px 10px; }
-    .ps-greet { font-size: 9px; font-weight: 700; color: var(--navy); margin-bottom: 7px; font-family: 'Playfair Display',serif; }
-    .ps-stats { display: flex; gap: 4px; margin-bottom: 8px; }
-    .ps-stat { flex:1; background: var(--navy-light); border-radius: 6px; padding: 5px 3px; text-align: center; }
-    .ps-stat-n { font-size: 13px; font-weight: 700; color: var(--navy); font-family: 'Playfair Display',serif; line-height: 1; }
-    .ps-stat-l { font-size: 6.5px; color: var(--muted); margin-top: 2px; }
-    .ps-task { background: #fff; border-radius: 6px; padding: 6px 7px; border-left: 3px solid #B91C1C; margin-bottom: 5px; }
-    .ps-task-t { font-size: 7.5px; font-weight: 700; color: var(--text); line-height: 1.3; }
-    .ps-task-m { font-size: 6.5px; color: var(--muted); margin-top: 2px; }
-
-    /* Chat screen (p2) */
-    .ps-chat { padding: 8px 9px; }
-    .chat-lbl { font-size: 6.5px; color: var(--muted); margin-bottom: 3px; }
-    .chat-lbl.right { text-align: right; }
-    .chat-bubble { border-radius: 9px; padding: 6px 8px; font-size: 7.5px; line-height: 1.45; margin-bottom: 6px; max-width: 92%; }
-    .chat-user { background: var(--navy); color: #fff; margin-left: auto; border-bottom-right-radius: 3px; }
-    .chat-ai { background: #fff; color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 3px; }
-    .chat-ai-tag { font-size: 6.5px; color: var(--gold); font-weight: 700; display: block; margin-bottom: 3px; }
-    .chat-input-mock { display: flex; gap: 3px; align-items: center; background: #fff; border: 1px solid var(--border); border-radius: 7px; padding: 5px 7px; margin-top: 6px; }
-    .chat-input-line { flex:1; height: 5px; background: var(--bg); border-radius: 3px; }
-    .chat-send { width: 18px; height: 18px; border-radius: 50%; background: var(--navy); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .chat-send-arrow { width: 0; height: 0; border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent; border-left: 6px solid #fff; margin-left: 1px; }
-
-    /* Kanban screen (p3) */
-    .ps-kanban { padding: 8px 9px; }
-    .ps-col-lbl { font-size: 7px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 4px; }
-    .ps-card { background: #fff; border-radius: 6px; padding: 6px 7px; margin-bottom: 4px; border: 1px solid var(--border); }
-    .ps-card-t { font-size: 7.5px; font-weight: 600; color: var(--text); line-height: 1.3; }
-    .ps-chip { font-size: 6px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-top: 3px; display: inline-block; }
-
-    /* Floating badges */
-    .float-badge {
-      position: absolute; background: var(--white); border: 1px solid var(--border);
-      border-radius: 12px; padding: 8px 13px;
-      box-shadow: var(--shadow); display: flex; align-items: center;
-      gap: 8px; font-size: 12px; font-weight: 600; color: var(--text);
-      white-space: nowrap; z-index: 10;
-    }
-    .float-badge-icon { font-size: 16px; }
-    .float-badge.fb1 { top: 4px; right: -8px; }
-    .float-badge.fb2 { bottom: 16px; left: -12px; }
-
-    /* ════════════════ UNIVERSITIES STRIP ════════════════ */
-    .unis-section { padding: 30px 0; background: var(--white); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .unis-label { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; text-align: center; margin-bottom: 16px; }
-    .unis-scroll { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 9px 16px; }
-    .uni-chip {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 100px;
-      font-size: 12px; font-weight: 600; color: var(--navy); background: var(--bg);
-      white-space: nowrap; transition: border-color .15s, background .15s;
-    }
-    .uni-chip:hover { border-color: var(--navy); background: var(--navy-light); }
-    .uni-shield { display: inline-block; width: 13px; height: 15px; }
-
-    /* ════════════════ STATS ════════════════ */
-    .stats-section { padding: 68px 0; background: var(--navy); position: relative; overflow: hidden; border-top: 4px solid var(--gold); }
-    .stats-section::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
-    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); position:relative; z-index:1; }
-    .stat-item { text-align:center; padding: 14px 18px; border-right: 1px solid rgba(255,255,255,.1); }
-    .stat-item:last-child { border-right: none; }
-    .stat-number { font-family:'Playfair Display',Georgia,serif; font-size: 46px; font-weight:700; color:#fff; line-height:1; margin-bottom:8px; }
-    .stat-desc { font-size: 13px; color: rgba(255,255,255,.55); line-height:1.5; }
-    .stat-desc strong { color:rgba(255,255,255,.9); display:block; font-size:14px; margin-bottom:2px; }
-
-    /* ════════════════ SECTION COMMONS ════════════════ */
-    .section-eyebrow { font-size: 11px; font-weight:700; color:var(--gold); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
-    .section-heading { font-family:'Playfair Display',Georgia,serif; font-size:clamp(27px,3.8vw,42px); font-weight:700; color:var(--navy); line-height:1.2; margin-bottom:14px; }
-    .section-sub { font-size: 17px; color:var(--muted); max-width:540px; line-height:1.72; }
-    .section-header { margin-bottom:58px; }
-    .section-header.centered { text-align:center; }
-    .section-header.centered .section-sub { margin:0 auto; }
-
-    /* ════════════════ RESEARCH ════════════════ */
-    .research-section { padding: 96px 0; background: var(--bg); }
-    .research-grid { display:grid; grid-template-columns:1fr 1fr; gap:76px; align-items:start; }
-    .research-visual { background:var(--white); border:1px solid var(--border); border-radius:20px; padding:30px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
-    .research-visual::before { content:'\201C'; position:absolute; top:-14px; left:18px; font-family:'Playfair Display',serif; font-size:110px; color:var(--navy-light); line-height:1; pointer-events:none; }
-    .research-visual-header { display:flex; align-items:center; gap:12px; margin-bottom:22px; padding-bottom:14px; border-bottom:1px solid var(--border); position:relative; z-index:1; }
-    .rv-icon { width:42px; height:42px; border-radius:10px; background:var(--navy-light); display:flex; align-items:center; justify-content:center; font-size:20px; }
-    .rv-title { font-family:'Playfair Display',Georgia,serif; font-size:16px; font-weight:700; color:var(--navy); }
-    .rv-sub { font-size:11.5px; color:var(--muted); }
-    .ref-list { list-style:none; position:relative; z-index:1; }
-    .ref-item { padding:12px 0; border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:flex-start; }
-    .ref-item:last-child { border-bottom:none; padding-bottom:0; }
-    .ref-num { min-width:22px; height:22px; border-radius:50%; background:var(--navy); color:#fff; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
-    .ref-text { font-size:12.5px; color:var(--muted); line-height:1.6; }
-    .ref-text strong { color:var(--text); font-weight:600; }
-    .ref-text em { font-style:italic; }
-    .research-points { list-style:none; }
-    .research-point { display:flex; align-items:flex-start; gap:16px; padding:15px 0; border-bottom:1px solid var(--border); }
-    .research-point:last-child { border-bottom:none; }
-    .rp-icon { width:42px; height:42px; border-radius:10px; background:var(--navy-light); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
-    .rp-title { font-size:14.5px; font-weight:700; color:var(--text); margin-bottom:4px; }
-    .rp-desc { font-size:13.5px; color:var(--muted); line-height:1.65; }
-
-    /* ════════════════ HOW IT WORKS ════════════════ */
-    .how-section { padding: 96px 0; background:var(--white); }
-    .steps-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:40px; position:relative; }
-    .steps-grid::before { content:''; position:absolute; top:44px; left:calc(16.66% + 24px); right:calc(16.66% + 24px); height:2px; background:linear-gradient(90deg,var(--gold-light),var(--gold),var(--gold-light)); opacity:.55; pointer-events:none; }
-    .step { text-align:center; position:relative; }
-    .step-number { width:72px; height:72px; border-radius:50%; background:var(--navy); color:#fff; font-family:'Playfair Display',Georgia,serif; font-size:28px; font-weight:700; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; position:relative; z-index:1; box-shadow:0 4px 20px rgba(27,63,110,.25); }
-    .step-number::after { content:''; position:absolute; inset:-5px; border-radius:50%; border:2px solid rgba(196,147,63,.28); }
-    .step h3 { font-family:'Playfair Display',Georgia,serif; font-size:20px; font-weight:700; color:var(--navy); margin-bottom:10px; }
-    .step p { font-size:14.5px; color:var(--muted); line-height:1.72; }
-
-    /* ════════════════ FEATURES ════════════════ */
-    .features-section { padding: 96px 0; background:var(--bg); }
-    .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
-    .feature-card { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:28px; transition:box-shadow .2s,transform .2s,border-color .2s; }
-    .feature-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-3px); border-color:rgba(196,147,63,.38); }
-    .feature-icon { width:52px; height:52px; border-radius:12px; background:var(--navy-light); display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:18px; }
-    .feature-card h3 { font-family:'Playfair Display',Georgia,serif; font-size:18px; font-weight:700; color:var(--navy); margin-bottom:10px; }
-    .feature-card p { font-size:14px; color:var(--muted); line-height:1.7; }
-    .feature-tag { display:inline-block; margin-top:14px; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:600; background:var(--gold-light); color:var(--gold-dark); }
-
-    /* ════════════════ TESTIMONIALS ════════════════ */
-    .testimonials-section { padding:96px 0; background:var(--navy); position:relative; overflow:hidden; }
-    .testimonials-section::before { content:''; position:absolute; top:-120px; right:-120px; width:400px; height:400px; background:radial-gradient(circle,rgba(196,147,63,.08) 0%,transparent 70%); pointer-events:none; }
-    .testimonials-section .section-heading { color:#fff; }
-    .testimonials-section .section-sub { color:rgba(255,255,255,.6); }
-    .testimonials-section .section-eyebrow { color:var(--gold); }
-    .testimonials-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
-    .testimonial-card { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:28px; transition:background .2s; }
-    .testimonial-card:hover { background:rgba(255,255,255,.11); }
-    .stars { color:var(--gold); font-size:15px; margin-bottom:14px; letter-spacing:2px; }
-    .testimonial-text { font-size:14.5px; color:rgba(255,255,255,.83); line-height:1.75; font-style:italic; margin-bottom:22px; }
-    .testimonial-author { display:flex; align-items:center; gap:12px; }
-    .author-avatar { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; color:#fff; flex-shrink:0; }
-    .author-name { font-size:14px; font-weight:700; color:#fff; margin-bottom:2px; }
-    .author-school { font-size:11.5px; color:rgba(255,255,255,.5); }
-
-    /* ════════════════ PRICING ════════════════ */
-    .pricing-section { padding:96px 0; background:var(--white); }
-    .pricing-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; align-items:start; }
-    .pricing-card { border:2px solid var(--border); border-radius:20px; padding:32px 28px; background:var(--white); transition:box-shadow .2s,transform .2s; position:relative; }
-    .pricing-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-3px); }
-    .pricing-card.popular { border-color:var(--navy); box-shadow:0 4px 24px rgba(27,63,110,.15); transform:scale(1.03); }
-    .pricing-card.popular:hover { transform:scale(1.03) translateY(-3px); }
-    .popular-badge { position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:var(--gold); color:#fff; font-size:11px; font-weight:700; padding:4px 16px; border-radius:100px; letter-spacing:.5px; white-space:nowrap; }
-    .plan-name { font-family:'Playfair Display',Georgia,serif; font-size:22px; font-weight:700; color:var(--navy); margin-bottom:6px; }
-    .plan-tagline { font-size:13px; color:var(--muted); margin-bottom:22px; }
-    .plan-price { font-family:'Playfair Display',Georgia,serif; font-size:42px; font-weight:700; color:var(--navy); line-height:1; margin-bottom:4px; }
-    .plan-price sup { font-size:20px; vertical-align:super; }
-    .plan-price sub { font-size:15px; font-family:'Inter',sans-serif; font-weight:500; color:var(--muted); }
-    .plan-period { font-size:13px; color:var(--muted); margin-bottom:28px; }
-    .plan-features { list-style:none; margin-bottom:28px; }
-    .plan-features li { display:flex; align-items:flex-start; gap:10px; padding:8px 0; font-size:14px; color:var(--text); border-bottom:1px solid var(--border); }
-    .plan-features li:last-child { border-bottom:none; }
-    .plan-features .check { color:#15803D; font-size:15px; flex-shrink:0; margin-top:1px; }
-    .plan-features .cross { color:#D1D5DB; font-size:15px; flex-shrink:0; }
-
-    /* ════════════════ CTA ════════════════ */
-    .cta-section { padding:96px 0; background:linear-gradient(135deg,#1B3F6E 0%,#2B5499 100%); text-align:center; position:relative; overflow:hidden; }
-    .cta-seal { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:360px; height:360px; opacity:.055; pointer-events:none; }
-    .cta-section::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); pointer-events:none; }
-    .cta-inner { position:relative; z-index:1; }
-    .cta-section h2 { font-family:'Playfair Display',Georgia,serif; font-size:clamp(30px,5vw,52px); font-weight:700; color:#fff; margin-bottom:16px; line-height:1.15; }
-    .cta-section p { font-size:17px; color:rgba(255,255,255,.75); margin-bottom:40px; max-width:510px; margin-left:auto; margin-right:auto; line-height:1.72; }
-    .cta-form { display:flex; gap:12px; max-width:450px; margin:0 auto 20px; }
-    .cta-input { flex:1; padding:14px 18px; border-radius:10px; font-family:'Inter',sans-serif; font-size:15px; background:rgba(255,255,255,.15); color:#fff; outline:none; border:1.5px solid rgba(255,255,255,.2); transition:border-color .2s; }
-    .cta-input::placeholder { color:rgba(255,255,255,.48); }
-    .cta-input:focus { border-color:rgba(255,255,255,.5); background:rgba(255,255,255,.2); }
-    .btn-white { background:#fff; color:var(--navy); font-weight:700; padding:14px 26px; border-radius:10px; border:none; font-family:'Inter',sans-serif; font-size:15px; cursor:pointer; transition:all .18s; white-space:nowrap; text-decoration:none; }
-    .btn-white:hover { background:#EDF2FB; box-shadow:0 4px 16px rgba(0,0,0,.15); }
-    .cta-note { font-size:13px; color:rgba(255,255,255,.48); }
-
-    /* ════════════════ FOOTER ════════════════ */
-    footer { background:var(--navy); color:rgba(255,255,255,.6); padding:60px 0 36px; }
-    .footer-grid { display:grid; grid-template-columns:1.8fr 1fr 1fr 1fr; gap:48px; margin-bottom:48px; }
-    .footer-logo { font-family:'Playfair Display',Georgia,serif; font-size:20px; font-weight:700; color:#fff; margin-bottom:12px; display:flex; align-items:center; gap:9px; text-decoration:none; }
-    .footer-ai-badge { background:var(--gold); }
-    .footer-tagline { font-size:13.5px; line-height:1.7; max-width:230px; margin-bottom:22px; }
-    .footer-seal { display:block; width:86px; height:86px; opacity:.45; }
-    .footer-col h4 { font-size:11px; font-weight:700; color:rgba(255,255,255,.35); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:16px; }
-    .footer-col ul { list-style:none; }
-    .footer-col li { margin-bottom:10px; }
-    .footer-col a { text-decoration:none; color:rgba(255,255,255,.6); font-size:14px; transition:color .15s; }
-    .footer-col a:hover { color:#fff; }
-    .footer-bottom { border-top:1px solid rgba(255,255,255,.1); padding-top:24px; display:flex; align-items:center; justify-content:space-between; font-size:13px; }
-    .footer-bottom a { color:rgba(255,255,255,.5); text-decoration:none; }
-    .footer-bottom a:hover { color:rgba(255,255,255,.8); }
-
-    /* ════════════════ RESPONSIVE ════════════════ */
-    @media (max-width: 960px) {
-      .hero-grid { grid-template-columns:1fr; gap:40px; }
-      .hero-visual { display:none; }
-      .hero { padding:64px 0 56px; }
-      .hero h1 { font-size:clamp(30px,8vw,46px); }
-      .hero-sub { max-width:100%; }
-    }
-    @media (max-width: 900px) {
-      .stats-grid { grid-template-columns:repeat(2,1fr); }
-      .stat-item { border-right:none; border-bottom:1px solid rgba(255,255,255,.1); }
-      .stat-item:nth-child(2) { border-right:none; }
-      .stat-item:last-child { border-bottom:none; }
-      .research-grid { grid-template-columns:1fr; gap:40px; }
-      .steps-grid { grid-template-columns:1fr; gap:28px; }
-      .steps-grid::before { display:none; }
-      .features-grid { grid-template-columns:repeat(2,1fr); }
-      .testimonials-grid { grid-template-columns:1fr; gap:14px; }
-      .pricing-grid { grid-template-columns:1fr; gap:18px; }
-      .pricing-card.popular { transform:none; }
-      .footer-grid { grid-template-columns:1fr 1fr; gap:28px; }
-      .footer-col:first-child { grid-column:1/-1; }
-      .nav-links { display:none; }
-      .nav-mobile-toggle { display:flex; }
-      .nav-ctas .btn-ghost { display:none; }
-    }
-    @media (max-width: 600px) {
-      .features-grid { grid-template-columns:1fr; }
-      .hero-ctas { flex-direction:column; }
-      .cta-form { flex-direction:column; }
-      .footer-grid { grid-template-columns:1fr; }
-      .footer-bottom { flex-direction:column; gap:8px; text-align:center; }
-      .unis-scroll { gap:8px 10px; }
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .hero { padding: 60px 20px 40px; }
+      .section { padding: 60px 20px; }
+      .cta-banner { margin: 0 20px 60px; padding: 40px 24px; }
+      footer { padding: 20px; }
+      .step::after { display: none; }
     }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════ SPLASH ══════════════════ -->
-<div id="splash">
-  <div class="splash-mark">
-    <svg width="80" height="80" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect width="48" height="48" rx="11" fill="rgba(255,255,255,0.1)"/>
-      <path d="M8 34V18C8 16.34 9.34 15 11 15H23V34Q16 32 11 32C9.34 32 8 33.34 8 35Z" fill="white" opacity="0.92"/>
-      <path d="M40 34V18C40 16.34 38.66 15 37 15H25V34Q32 32 37 32C38.66 32 40 33.34 40 35Z" fill="white" opacity="0.7"/>
-      <line x1="24" y1="15" x2="24" y2="34" stroke="rgba(255,255,255,0.28)" stroke-width="1.5"/>
-      <circle cx="24" cy="8.5" r="3" fill="#C4933F"/>
-      <circle cx="14.5" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/>
-      <circle cx="33.5" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/>
-      <line x1="14.5" y1="12" x2="24" y2="8.5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-      <line x1="33.5" y1="12" x2="24" y2="8.5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-      <line x1="14.5" y1="12" x2="24" y2="15" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
-      <line x1="33.5" y1="12" x2="24" y2="15" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
-    </svg>
-  </div>
-  <div class="splash-wordmark">ClassMind<span class="splash-ai-badge">AI</span></div>
-  <div class="splash-tagline">Academic Study Assistant</div>
-  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
-</div>
-
-<!-- ══════════════════ NAV ══════════════════ -->
 <nav>
-  <div class="container">
-    <div class="nav-inner">
-      <a href="/" class="logo" aria-label="ClassMind AI Home">
-        <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect width="48" height="48" rx="11" fill="#1B3F6E"/>
-          <path d="M8 34V18C8 16.34 9.34 15 11 15H23V34Q16 32 11 32C9.34 32 8 33.34 8 35Z" fill="white" opacity="0.92"/>
-          <path d="M40 34V18C40 16.34 38.66 15 37 15H25V34Q32 32 37 32C38.66 32 40 33.34 40 35Z" fill="white" opacity="0.7"/>
-          <line x1="24" y1="15" x2="24" y2="34" stroke="rgba(255,255,255,0.28)" stroke-width="1.5"/>
-          <circle cx="24" cy="8.5" r="3" fill="#C4933F"/>
-          <circle cx="14.5" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/>
-          <circle cx="33.5" cy="12" r="1.8" fill="rgba(255,255,255,0.55)"/>
-          <line x1="14.5" y1="12" x2="24" y2="8.5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-          <line x1="33.5" y1="12" x2="24" y2="8.5" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-        </svg>
-        ClassMind<span class="logo-ai-badge">AI</span>
-      </a>
-      <ul class="nav-links">
-        <li><a href="#features">Features</a></li>
-        <li><a href="#how-it-works">How it works</a></li>
-        <li><a href="#research">Research</a></li>
-        <li><a href="#pricing">Pricing</a></li>
-      </ul>
-      <div class="nav-ctas">
-        <a href="/login.html" class="btn btn-ghost btn-sm">Sign In</a>
-        <a href="/signup.html" class="btn btn-primary btn-sm">Get Started Free</a>
-      </div>
-      <button class="nav-mobile-toggle" aria-label="Open menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
+  <div class="nav-logo">ClassMind AI</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="/login.html">Sign in</a>
+    <button class="btn-nav" onclick="window.location='/signup.html'">Get Started Free</button>
   </div>
 </nav>
 
-<!-- ══════════════════ HERO ══════════════════ -->
 <section class="hero">
-  <div class="container">
-    <div class="hero-grid">
-
-      <!-- LEFT — Text content -->
-      <div class="hero-content">
-        <div class="hero-eyebrow">
-          <span class="hero-eyebrow-dot"></span>
-          🎓 Academic AI Assistant · Built for Nigerian Universities
-        </div>
-        <h1>Study smarter with your personal <span class="hl">academic AI</span></h1>
-        <p class="hero-sub">
-          Upload your WhatsApp group chat, PDF lecture notes, or timetable — ClassMind AI extracts every deadline, organises your schedule, and tutors you in the style you learn best.
-        </p>
-        <div class="hero-ctas">
-          <a href="/signup.html" class="btn btn-primary btn-lg">Get Started Free</a>
-          <a href="/login.html" class="btn btn-outline btn-lg">Sign In</a>
-        </div>
-        <div class="hero-social-proof">
-          <div class="avatar-stack">
-            <div class="avatar" style="background:#1B3F6E">C</div>
-            <div class="avatar" style="background:#2B5499">E</div>
-            <div class="avatar" style="background:#6D28D9">F</div>
-            <div class="avatar" style="background:#B45309">T</div>
-            <div class="avatar" style="background:#15803D">A</div>
-          </div>
-          <span>Loved by <strong>2,400+</strong> Nigerian university students</span>
-        </div>
-      </div>
-
-      <!-- RIGHT — 3 Phone mockups -->
-      <div class="hero-visual">
-        <div class="phones-scene">
-
-          <!-- Phone 1: Dashboard (back-left) -->
-          <div class="phone-wrap p1">
-            <div class="phone-frame">
-              <div class="phone-notch"><div class="phone-notch-pill"></div></div>
-              <div class="phone-screen">
-                <div class="ps-hdr"><div class="ps-dot"></div>ClassMind AI</div>
-                <div class="ps-body">
-                  <div class="ps-greet">Good morning, Chidi</div>
-                  <div class="ps-stats">
-                    <div class="ps-stat"><div class="ps-stat-n">4</div><div class="ps-stat-l">Tasks</div></div>
-                    <div class="ps-stat"><div class="ps-stat-n" style="color:#B91C1C">2</div><div class="ps-stat-l">Urgent</div></div>
-                    <div class="ps-stat"><div class="ps-stat-n">3.8</div><div class="ps-stat-l">CGPA</div></div>
-                  </div>
-                  <div class="ps-task">
-                    <div class="ps-task-t">MTH201 Test — Differentiation</div>
-                    <div class="ps-task-m">Due Friday 10:00 AM · LT4</div>
-                  </div>
-                  <div class="ps-task" style="border-left-color:#B45309">
-                    <div class="ps-task-t">CSC102 Lab Report (C Program)</div>
-                    <div class="ps-task-m">Due Thursday · Submit hardcopy</div>
-                  </div>
-                  <div class="ps-task" style="border-left-color:#15803D">
-                    <div class="ps-task-t">CSC227 OS Essay · 500 words</div>
-                    <div class="ps-task-m">Due Monday next week</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Phone 2: Study Hub — AI Chat (centre/main) -->
-          <div class="phone-wrap p2">
-            <div class="phone-frame">
-              <div class="phone-notch"><div class="phone-notch-pill"></div></div>
-              <div class="phone-screen">
-                <div class="ps-hdr"><div class="ps-dot"></div>Study Hub · AI Chat</div>
-                <div class="ps-chat">
-                  <div class="chat-lbl right">You</div>
-                  <div class="chat-bubble chat-user">Explain the 1st Law of Thermodynamics for my CHM201 exam</div>
-                  <span class="chat-ai-tag">ClassMind AI</span>
-                  <div class="chat-bubble chat-ai">The First Law states energy cannot be created or destroyed — only converted. For CHM201 exam questions, identify system vs surroundings, then apply ΔU = Q − W. Internal energy is a state function — always key in MCQs.</div>
-                  <div class="chat-lbl right" style="margin-top:4px">You</div>
-                  <div class="chat-bubble chat-user">Give me 3 likely exam questions on this</div>
-                  <div class="chat-input-mock">
-                    <div class="chat-input-line"></div>
-                    <div class="chat-send"><div class="chat-send-arrow"></div></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Phone 3: Task Board (front-right) -->
-          <div class="phone-wrap p3">
-            <div class="phone-frame">
-              <div class="phone-notch"><div class="phone-notch-pill"></div></div>
-              <div class="phone-screen">
-                <div class="ps-hdr"><div class="ps-dot"></div>Task Board</div>
-                <div class="ps-kanban">
-                  <div class="ps-col-lbl" style="color:#1B3F6E">To Do</div>
-                  <div class="ps-card">
-                    <div class="ps-card-t">MTH201 Assignment — Integration</div>
-                    <span class="ps-chip" style="background:#FEE2E2;color:#991B1B">HIGH</span>
-                  </div>
-                  <div class="ps-card">
-                    <div class="ps-card-t">CSC227 OS Scheduling Essay</div>
-                    <span class="ps-chip" style="background:#FEF3C7;color:#92400E">MED</span>
-                  </div>
-                  <div class="ps-col-lbl" style="color:#B45309;margin-top:7px">In Progress</div>
-                  <div class="ps-card">
-                    <div class="ps-card-t">BIO201 Lab Report Write-up</div>
-                    <span class="ps-chip" style="background:#DCFCE7;color:#166534">LOW</span>
-                  </div>
-                  <div class="ps-col-lbl" style="color:#15803D;margin-top:7px">Done</div>
-                  <div class="ps-card" style="opacity:.55">
-                    <div class="ps-card-t">PHY101 Practical Report</div>
-                    <span class="ps-chip" style="background:#F3F4F6;color:#6B7280">DONE</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Floating badges -->
-          <div class="float-badge fb1">
-            <span class="float-badge-icon">📋</span>
-            <span>6 deadlines detected</span>
-          </div>
-          <div class="float-badge fb2">
-            <span class="float-badge-icon">🎓</span>
-            <span>AI Tutor active</span>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
+  <div class="hero-badge">Built for Nigerian University Students</div>
+  <h1>Study Smarter with<br><span>AI-Powered</span> Academic Support</h1>
+  <p>Upload your lecture notes, WhatsApp chats, past questions, and timetables. ClassMind AI extracts tasks, analyses course content, and chats with your materials.</p>
+  <div class="hero-cta">
+    <button class="btn-primary" onclick="window.location='/signup.html'">Start for Free →</button>
+    <button class="btn-outline" onclick="window.location='/login.html'">Sign in</button>
   </div>
 </section>
 
-<!-- ══════════════════ UNIVERSITIES STRIP ══════════════════ -->
-<section class="unis-section">
-  <div class="container">
-    <div class="unis-label">Trusted by students at Nigeria's leading universities</div>
-    <div class="unis-scroll">
-      <div class="uni-chip">
-        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
-        UNILAG
-      </div>
-      <div class="uni-chip">
-        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
-        UNIPORT
-      </div>
-      <div class="uni-chip">
-        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
-        UI (Ibadan)
-      </div>
-      <div class="uni-chip">
-        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
-        OAU (Ile-Ife)
-      </div>
-      <div class="uni-chip">
-        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
-        ABU (Zaria)
-      </div>
-      <div class="uni-chip">
-        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
-        UNIBEN
-      </div>
-      <div class="uni-chip">
-        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
-        UNN
-      </div>
-      <div class="uni-chip">
-        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
-        FUTA
-      </div>
-      <div class="uni-chip">
-        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
-        LASU
-      </div>
-      <div class="uni-chip">
-        <svg class="uni-shield" viewBox="0 0 13 15" fill="none"><path d="M6.5 0L0 3v4.5C0 11.1 2.8 14.3 6.5 15 10.2 14.3 13 11.1 13 7.5V3L6.5 0z" fill="#1B3F6E" opacity=".25"/></svg>
-        FUOYE
-      </div>
+<div class="section" id="features">
+  <div class="section-title">Everything you need to ace your semester</div>
+  <div class="section-sub">One platform for all your academic needs.</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📖</div>
+      <div class="feature-title">Study Hub — AI Document Analysis</div>
+      <div class="feature-desc">Upload any academic material — WhatsApp chats, PDF notes, timetables, past questions. Get tasks, timetables, lecturers, and topics automatically extracted.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <div class="feature-title">Course Chat — RAG Study Assistant</div>
+      <div class="feature-desc">Upload your notes once. Ask questions anytime. The AI answers exclusively from your course materials, keeping answers accurate and exam-focused.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✓</div>
+      <div class="feature-title">Smart Task Board</div>
+      <div class="feature-desc">Tasks extracted from your uploads appear automatically in a Kanban board. Track To Do → In Progress → Done with priorities and deadlines.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">CGPA Calculator</div>
+      <div class="feature-desc">Calculate your GPA and CGPA using the Nigerian 5-point grading system. See your classification (First Class, 2:1, 2:2, Third Class) instantly.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏗</div>
+      <div class="feature-title">AI Project Builder</div>
+      <div class="feature-desc">Generate full Nigerian university final-year project chapters with AI — Introduction, Literature Review, Methodology, and more. Upload your writing style for authentic results.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <div class="feature-title">Smart Reminders</div>
+      <div class="feature-desc">Set reminders for deadlines, tests, and assignments. Get browser notifications so you never miss a submission date.</div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ══════════════════ STATS ══════════════════ -->
-<section class="stats-section">
-  <div class="container">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-number">2,400+</div>
-        <div class="stat-desc"><strong>Active students</strong>across 47 Nigerian universities</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">98%</div>
-        <div class="stat-desc"><strong>Deadline detection rate</strong>from WhatsApp chat exports</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">0.4</div>
-        <div class="stat-desc"><strong>Average GPA increase</strong>reported after one semester</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">3 min</div>
-        <div class="stat-desc"><strong>Average setup time</strong>from sign-up to first analysis</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════ RESEARCH ══════════════════ -->
-<section class="research-section" id="research">
-  <div class="container">
-    <div class="research-grid">
-      <div>
-        <div class="section-eyebrow">Research-Backed</div>
-        <h2 class="section-heading">Built on evidence,<br>not guesswork</h2>
-        <p class="section-sub" style="margin-bottom:32px">ClassMind AI applies established learning-science principles and is designed around the documented challenges of Nigerian higher education.</p>
-        <ul class="research-points">
-          <li class="research-point">
-            <div class="rp-icon">🧠</div>
-            <div>
-              <div class="rp-title">Spaced Repetition &amp; Active Recall</div>
-              <div class="rp-desc">AI-generated practice questions are timed to Ebbinghaus forgetting-curve intervals — maximising long-term retention before exams.</div>
-            </div>
-          </li>
-          <li class="research-point">
-            <div class="rp-icon">📐</div>
-            <div>
-              <div class="rp-title">Cognitive Load Theory</div>
-              <div class="rp-desc">Complex lecture materials are broken into chunked summaries so your working memory isn't overwhelmed when studying dense topics.</div>
-            </div>
-          </li>
-          <li class="research-point">
-            <div class="rp-icon">🌍</div>
-            <div>
-              <div class="rp-title">Culturally Adaptive Pedagogy</div>
-              <div class="rp-desc">Teaching-style modes (including Naija Mode) reflect research showing culturally contextualised instruction improves comprehension for African learners.</div>
-            </div>
-          </li>
-          <li class="research-point">
-            <div class="rp-icon">📊</div>
-            <div>
-              <div class="rp-title">Formative Assessment Design</div>
-              <div class="rp-desc">The task board and CGPA tracker implement ongoing self-monitoring — consistently linked to higher academic performance in undergraduate research.</div>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <div class="research-visual">
-        <div class="research-visual-header">
-          <div class="rv-icon">📚</div>
-          <div>
-            <div class="rv-title">Academic References</div>
-            <div class="rv-sub">Design foundations &amp; further reading</div>
-          </div>
-        </div>
-        <ul class="ref-list">
-          <li class="ref-item">
-            <div class="ref-num">1</div>
-            <div class="ref-text"><strong>Cepeda et al. (2006)</strong> — <em>Distributed practice in verbal recall tasks: A review and quantitative synthesis.</em> Psychological Bulletin, 132(3), 354–380.</div>
-          </li>
-          <li class="ref-item">
-            <div class="ref-num">2</div>
-            <div class="ref-text"><strong>Sweller, J. (1988)</strong> — <em>Cognitive load during problem solving: Effects on learning.</em> Cognitive Science, 12(2), 257–285.</div>
-          </li>
-          <li class="ref-item">
-            <div class="ref-num">3</div>
-            <div class="ref-text"><strong>Adeyemi, T.O. (2008)</strong> — <em>Teachers' teaching experience and students' learning outcomes in secondary schools in Ondo State.</em> Asian Journal of Information Technology, 7(5), 201–209.</div>
-          </li>
-          <li class="ref-item">
-            <div class="ref-num">4</div>
-            <div class="ref-text"><strong>Black &amp; Wiliam (1998)</strong> — <em>Assessment and classroom learning.</em> Assessment in Education, 5(1), 7–74.</div>
-          </li>
-          <li class="ref-item">
-            <div class="ref-num">5</div>
-            <div class="ref-text"><strong>NUC (2023)</strong> — <em>State of tertiary education report.</em> National Universities Commission, Abuja: Federal Government of Nigeria.</div>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════ HOW IT WORKS ══════════════════ -->
-<section class="how-section" id="how-it-works">
-  <div class="container">
-    <div class="section-header centered">
-      <div class="section-eyebrow">How it works</div>
-      <h2 class="section-heading">From WhatsApp group to study plan<br>in 3 simple steps</h2>
-      <p class="section-sub">No manual entry. No missed deadlines. Just upload, analyse, and conquer your semester.</p>
-    </div>
-    <div class="steps-grid">
+<div class="section" id="how" style="background:var(--bg2);max-width:100%;padding:80px 64px">
+  <div style="max-width:1000px;margin:0 auto">
+    <div class="section-title">How it works</div>
+    <div class="section-sub">Get started in minutes, no technical setup needed.</div>
+    <div class="steps">
       <div class="step">
-        <div class="step-number">1</div>
-        <div style="font-size:28px;margin-bottom:10px">📤</div>
-        <h3>Upload Your Material</h3>
-        <p>Paste your WhatsApp group chat export, drag in a PDF, upload lecture notes, or share a timetable photo. Any format works.</p>
+        <div class="step-num">1</div>
+        <div class="step-title">Create your account</div>
+        <div class="step-desc">Sign up free with your email. Complete a quick profile with your university, level, and courses.</div>
       </div>
       <div class="step">
-        <div class="step-number">2</div>
-        <div style="font-size:28px;margin-bottom:10px">🧠</div>
-        <h3>AI Analyses Everything</h3>
-        <p>ClassMind scans your content, extracts every assignment with its deadline, builds your class schedule, and maps out key exam topics.</p>
+        <div class="step-num">2</div>
+        <div class="step-title">Upload your materials</div>
+        <div class="step-desc">Upload WhatsApp exports, lecture notes, timetables, past questions — any academic document.</div>
       </div>
       <div class="step">
-        <div class="step-number">3</div>
-        <div style="font-size:28px;margin-bottom:10px">🚀</div>
-        <h3>Study Smarter</h3>
-        <p>Chat with your AI tutor, get countdown timers on every deadline, generate past questions, and track your CGPA — all in one place.</p>
+        <div class="step-num">3</div>
+        <div class="step-title">AI does the heavy lifting</div>
+        <div class="step-desc">ClassMind extracts tasks, organises your timetable, and builds a knowledge base from your notes.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-title">Study with AI</div>
+        <div class="step-desc">Chat with your course materials, track tasks, calculate CGPA, and build your final year project.</div>
       </div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ══════════════════ FEATURES ══════════════════ -->
-<section class="features-section" id="features">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-eyebrow">Features</div>
-      <h2 class="section-heading">Everything a Nigerian student needs</h2>
-      <p class="section-sub">Built from the ground up for UNIPORT, UNILAG, UI, OAU, and every other Nigerian university experience.</p>
+<div class="section">
+  <div class="section-title">Simple, transparent pricing</div>
+  <div class="section-sub">Start free. Upgrade when you need more.</div>
+  <div class="pricing-grid">
+    <div class="plan-card">
+      <div class="plan-name">Basic</div>
+      <div class="plan-price">Free</div>
+      <div class="plan-period">No credit card required</div>
+      <ul class="plan-features">
+        <li>Study Hub analysis</li>
+        <li>Course Chat (RAG)</li>
+        <li>Task board</li>
+        <li>CGPA calculator</li>
+        <li>15 AI queries/day</li>
+        <li class="locked">WhatsApp auto-sync</li>
+        <li class="locked">Unlimited AI queries</li>
+      </ul>
+      <button class="btn-outline" style="width:100%;font-size:14px;padding:12px" onclick="window.location='/signup.html'">Get Started Free</button>
     </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <h3>Smart Analysis</h3>
-        <p>Paste any WhatsApp chat and instantly get a structured breakdown of assignments, deadlines, venues, and lecturers — automatically detected by AI.</p>
-        <span class="feature-tag">AI-Powered</span>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">👨‍🏫</div>
-        <h3>AI Tutor — 6 Teaching Styles</h3>
-        <p>Study in the style that clicks for you: Simple English, Academic, Exam Mode, Naija Mode, ELI5, or One-on-One Tutor. Switch anytime.</p>
-        <span class="feature-tag">6 Modes</span>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📝</div>
-        <h3>Past Questions Generator</h3>
-        <p>Generate likely exam questions from your uploaded topics, with model answers and marking scheme hints. Prepare smarter, not longer.</p>
-        <span class="feature-tag">Exam Prep</span>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🎓</div>
-        <h3>CGPA Calculator</h3>
-        <p>Enter your scores and credit loads to instantly calculate your CGPA, see your class standing, and project what you need in final exams.</p>
-        <span class="feature-tag">Grade Tracker</span>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📸</div>
-        <h3>Document Scanner</h3>
-        <p>Snap a photo of your handwritten timetable or a printed assignment sheet. Our OCR engine reads it and adds it to your dashboard automatically.</p>
-        <span class="feature-tag">OCR-Enabled</span>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📶</div>
-        <h3>Works Offline</h3>
-        <p>No steady internet? No problem. ClassMind is a Progressive Web App — once loaded, your dashboard, notes, and timetable work without data.</p>
-        <span class="feature-tag">PWA</span>
-      </div>
+    <div class="plan-card featured">
+      <div class="plan-name">Premium</div>
+      <div class="plan-price"><sup>₦</sup>1,500</div>
+      <div class="plan-period">per month · Cancel anytime</div>
+      <ul class="plan-features">
+        <li>Everything in Basic</li>
+        <li>Unlimited AI queries</li>
+        <li>WhatsApp group auto-sync</li>
+        <li>Unlimited projects</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="btn-primary" style="width:100%;font-size:14px;padding:12px">Coming Soon</button>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ══════════════════ TESTIMONIALS ══════════════════ -->
-<section class="testimonials-section" id="testimonials">
-  <div class="container">
-    <div class="section-header centered">
-      <div class="section-eyebrow">Student Stories</div>
-      <h2 class="section-heading">Real students, real results</h2>
-      <p class="section-sub">From Port Harcourt to Ibadan, ClassMind AI is helping students survive and thrive.</p>
-    </div>
-    <div class="testimonials-grid">
-      <div class="testimonial-card">
-        <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"I used to miss assignment deadlines all the time because our CSC group chat moves so fast. I pasted the chat into ClassMind and it found 6 deadlines I had completely missed. Wrote two of the assignments with the AI tutor the same night. Submitted everything on time. This app is a lifesaver."</p>
-        <div class="testimonial-author">
-          <div class="author-avatar" style="background:#2B5499">C</div>
-          <div>
-            <div class="author-name">Chidinma Okafor</div>
-            <div class="author-school">CSC 300L · University of Lagos (UNILAG)</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card">
-        <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"I failed my first year because I didn't know how to study for Nigerian university exams. Second year I found ClassMind. The Naija Mode tutor explains things the way my seniors would — not like a foreign textbook. My GPA went from 2.7 to 3.9 in one semester. I'm not joking."</p>
-        <div class="testimonial-author">
-          <div class="author-avatar" style="background:#6D28D9">E</div>
-          <div>
-            <div class="author-name">Emeka Nwachukwu</div>
-            <div class="author-school">MEE 200L · University of Port Harcourt</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card">
-        <div class="stars">★★★★★</div>
-        <p class="testimonial-text">"As a medical student our timetable changes every week and we have a million things to keep track of. I just forward everything to ClassMind — group chats, scan of notice boards, PDF handouts — and it organises everything for me. The countdown timers for exams are chef's kiss."</p>
-        <div class="testimonial-author">
-          <div class="author-avatar" style="background:#B45309">F</div>
-          <div>
-            <div class="author-name">Fatimah Al-Amin</div>
-            <div class="author-school">MBBS 400L · Ahmadu Bello University (ABU)</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<div class="cta-banner">
+  <h2>Ready to study smarter?</h2>
+  <p>Join thousands of Nigerian university students using ClassMind AI to get better results.</p>
+  <button class="btn-primary" onclick="window.location='/signup.html'" style="font-size:16px;padding:14px 36px">Create your free account →</button>
+</div>
 
-<!-- ══════════════════ PRICING ══════════════════ -->
-<section class="pricing-section" id="pricing">
-  <div class="container">
-    <div class="section-header centered">
-      <div class="section-eyebrow">Pricing</div>
-      <h2 class="section-heading">Affordable for every student</h2>
-      <p class="section-sub">Start free. Upgrade when you're ready. Cancel anytime — no wahala.</p>
-    </div>
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <div class="plan-name">Free</div>
-        <div class="plan-tagline">Try before you buy</div>
-        <div class="plan-price">₦0</div>
-        <div class="plan-period">forever</div>
-        <ul class="plan-features">
-          <li><span class="check">✓</span> 3 AI analyses per month</li>
-          <li><span class="check">✓</span> Assignment &amp; deadline extraction</li>
-          <li><span class="check">✓</span> Timetable builder</li>
-          <li><span class="check">✓</span> Simple + Naija AI styles</li>
-          <li><span class="cross">✗</span> <span style="color:#9CA3AF">Unlimited AI chat</span></li>
-          <li><span class="cross">✗</span> <span style="color:#9CA3AF">Past questions generator</span></li>
-          <li><span class="cross">✗</span> <span style="color:#9CA3AF">Document scanner (OCR)</span></li>
-        </ul>
-        <a href="/signup.html" class="btn btn-outline" style="width:100%;justify-content:center">Get Started Free</a>
-      </div>
-      <div class="pricing-card popular">
-        <div class="popular-badge">Most Popular</div>
-        <div class="plan-name">Scholar</div>
-        <div class="plan-tagline">For the serious student</div>
-        <div class="plan-price"><sup>₦</sup>500<sub>/mo</sub></div>
-        <div class="plan-period">billed monthly</div>
-        <ul class="plan-features">
-          <li><span class="check">✓</span> <strong>Unlimited</strong> AI analyses</li>
-          <li><span class="check">✓</span> Assignment &amp; deadline extraction</li>
-          <li><span class="check">✓</span> Timetable builder</li>
-          <li><span class="check">✓</span> <strong>All 6</strong> AI teaching styles</li>
-          <li><span class="check">✓</span> Unlimited AI chat sessions</li>
-          <li><span class="check">✓</span> Past questions generator</li>
-          <li><span class="cross">✗</span> <span style="color:#9CA3AF">Document scanner (OCR)</span></li>
-        </ul>
-        <a href="/signup.html" class="btn btn-primary" style="width:100%;justify-content:center">Get Scholar</a>
-      </div>
-      <div class="pricing-card">
-        <div class="plan-name">Pro</div>
-        <div class="plan-tagline">For the overachiever</div>
-        <div class="plan-price"><sup>₦</sup>1,500<sub>/mo</sub></div>
-        <div class="plan-period">billed monthly</div>
-        <ul class="plan-features">
-          <li><span class="check">✓</span> <strong>Everything</strong> in Scholar</li>
-          <li><span class="check">✓</span> Document scanner &amp; OCR</li>
-          <li><span class="check">✓</span> CGPA calculator &amp; projector</li>
-          <li><span class="check">✓</span> Priority AI responses</li>
-          <li><span class="check">✓</span> Offline mode (PWA)</li>
-          <li><span class="check">✓</span> Export to PDF</li>
-          <li><span class="check">✓</span> Priority support</li>
-        </ul>
-        <a href="/signup.html" class="btn btn-outline" style="width:100%;justify-content:center">Get Pro</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════ CTA ══════════════════ -->
-<section class="cta-section">
-  <!-- Academic seal watermark -->
-  <svg class="cta-seal" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs>
-      <path id="ct" d="M90,90 m-70,0 a70,70 0 0,1 140,0"/>
-      <path id="cb" d="M90,90 m-70,0 a70,70 0 0,0 140,0"/>
-    </defs>
-    <circle cx="90" cy="90" r="82" stroke="white" stroke-width="1" fill="none"/>
-    <circle cx="90" cy="90" r="71" stroke="white" stroke-width="0.6" fill="none"/>
-    <circle cx="90" cy="90" r="56" stroke="white" stroke-width="0.5" fill="none"/>
-    <text x="90" y="16" text-anchor="middle" fill="white" font-size="9" font-family="Inter,sans-serif">★</text>
-    <text x="164" y="95" text-anchor="middle" fill="white" font-size="9" font-family="Inter,sans-serif">★</text>
-    <text x="90" y="177" text-anchor="middle" fill="white" font-size="9" font-family="Inter,sans-serif">★</text>
-    <text x="16" y="95" text-anchor="middle" fill="white" font-size="9" font-family="Inter,sans-serif">★</text>
-    <text font-size="9.5" font-family="Inter,sans-serif" font-weight="700" letter-spacing="4" fill="white"><textPath href="#ct" startOffset="2%">CLASSMIND AI  ·  ACADEMIC EXCELLENCE  ·  NG</textPath></text>
-    <text font-size="9.5" font-family="Inter,sans-serif" font-weight="700" letter-spacing="4" fill="white"><textPath href="#cb" startOffset="5%">EST. 2024  ·  NIGERIAN UNIVERSITIES  ·  📚</textPath></text>
-    <!-- Centre book mark -->
-    <path d="M76 104V88C76 86.9 76.9 86 78 86H89V104Q83 102.5 79 102.5C77 102.5 76 103.2 76 104Z" fill="white" opacity="0.7"/>
-    <path d="M104 104V88C104 86.9 103.1 86 102 86H91V104Q97 102.5 101 102.5C103 102.5 104 103.2 104 104Z" fill="white" opacity="0.5"/>
-    <line x1="90" y1="86" x2="90" y2="104" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <circle cx="90" cy="81.5" r="3.5" fill="#C4933F" opacity="0.8"/>
-  </svg>
-  <div class="cta-inner">
-    <h2>Ready to study smarter?</h2>
-    <p>Join thousands of Nigerian students who never miss a deadline, always know what to study, and actually understand their coursework.</p>
-    <form class="cta-form" onsubmit="handleCtaSubmit(event)">
-      <input type="email" class="cta-input" placeholder="Enter your university email" required autocomplete="email" id="ctaEmail" />
-      <button type="submit" class="btn-white">Get Started Free</button>
-    </form>
-    <div class="cta-note">No credit card required &nbsp;·&nbsp; Free forever plan available &nbsp;·&nbsp; Cancel anytime</div>
-  </div>
-</section>
-
-<!-- ══════════════════ FOOTER ══════════════════ -->
 <footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <a href="/" class="footer-logo">
-          <svg width="28" height="28" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <rect width="48" height="48" rx="11" fill="rgba(255,255,255,0.12)"/>
-            <path d="M8 34V18C8 16.34 9.34 15 11 15H23V34Q16 32 11 32C9.34 32 8 33.34 8 35Z" fill="white" opacity="0.9"/>
-            <path d="M40 34V18C40 16.34 38.66 15 37 15H25V34Q32 32 37 32C38.66 32 40 33.34 40 35Z" fill="white" opacity="0.65"/>
-            <line x1="24" y1="15" x2="24" y2="34" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
-            <circle cx="24" cy="8.5" r="3" fill="#C4933F"/>
-          </svg>
-          ClassMind<span class="logo-ai-badge footer-ai-badge">AI</span>
-        </a>
-        <p class="footer-tagline">The smart academic assistant built for Nigerian university students. Extract, organise, and conquer your semester.</p>
-        <!-- Academic seal -->
-        <svg class="footer-seal" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <defs>
-            <path id="ft" d="M90,90 m-70,0 a70,70 0 0,1 140,0"/>
-            <path id="fb2" d="M90,90 m-70,0 a70,70 0 0,0 140,0"/>
-          </defs>
-          <circle cx="90" cy="90" r="82" stroke="white" stroke-width="1" fill="none"/>
-          <circle cx="90" cy="90" r="70" stroke="white" stroke-width="0.6" fill="none"/>
-          <circle cx="90" cy="90" r="55" stroke="white" stroke-width="0.4" fill="none"/>
-          <text x="90" y="16" text-anchor="middle" fill="white" font-size="8" font-family="Inter,sans-serif">★</text>
-          <text x="164" y="95" text-anchor="middle" fill="white" font-size="8" font-family="Inter,sans-serif">★</text>
-          <text x="90" y="177" text-anchor="middle" fill="white" font-size="8" font-family="Inter,sans-serif">★</text>
-          <text x="16" y="95" text-anchor="middle" fill="white" font-size="8" font-family="Inter,sans-serif">★</text>
-          <text font-size="9" font-family="Inter,sans-serif" font-weight="700" letter-spacing="3.8" fill="white"><textPath href="#ft" startOffset="2%">CLASSMIND AI  ·  ACADEMIC EXCELLENCE</textPath></text>
-          <text font-size="9" font-family="Inter,sans-serif" font-weight="700" letter-spacing="3.8" fill="white"><textPath href="#fb2" startOffset="7%">EST. 2024  ·  NIGERIAN UNIVERSITIES</textPath></text>
-          <path d="M76 104V88C76 86.9 76.9 86 78 86H89V104Q83 102.5 79 102.5C77 102.5 76 103.2 76 104Z" fill="white" opacity="0.65"/>
-          <path d="M104 104V88C104 86.9 103.1 86 102 86H91V104Q97 102.5 101 102.5C103 102.5 104 103.2 104 104Z" fill="white" opacity="0.45"/>
-          <line x1="90" y1="86" x2="90" y2="104" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-          <circle cx="90" cy="81.5" r="3" fill="#C4933F" opacity="0.75"/>
-        </svg>
-      </div>
-      <div class="footer-col">
-        <h4>Product</h4>
-        <ul>
-          <li><a href="#features">Features</a></li>
-          <li><a href="#how-it-works">How it works</a></li>
-          <li><a href="#research">Research</a></li>
-          <li><a href="#pricing">Pricing</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Account</h4>
-        <ul>
-          <li><a href="/signup.html">Sign Up Free</a></li>
-          <li><a href="/login.html">Sign In</a></li>
-          <li><a href="/dashboard.html">Dashboard</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Company</h4>
-        <ul>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Service</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>&copy; 2026 ClassMind AI. All rights reserved.</span>
-      <span>Proudly built for Nigerian students 🇳🇬 &nbsp;·&nbsp; <a href="#research">Research-backed learning</a></span>
-    </div>
+  <div>© 2025 ClassMind AI. Built for Nigerian university students.</div>
+  <div style="display:flex;gap:20px">
+    <a href="/login.html">Sign in</a>
+    <a href="/signup.html">Sign up</a>
+    <a href="/feedback.html">Feedback</a>
   </div>
 </footer>
 
 <script>
-  // ── Splash screen ──
-  (function() {
-    if (sessionStorage.getItem('cm_splash_shown')) {
-      document.getElementById('splash').classList.add('hidden');
-      return;
+  const token = localStorage.getItem('cm_token');
+  if (token) {
+    const user = (() => { try { return JSON.parse(localStorage.getItem('cm_user') || 'null'); } catch { return null; } })();
+    if (user) {
+      window.location.replace(user.onboarded ? '/dashboard.html' : '/onboarding.html');
     }
-    sessionStorage.setItem('cm_splash_shown', '1');
-    setTimeout(function() {
-      var s = document.getElementById('splash');
-      s.classList.add('hiding');
-      setTimeout(function() { s.classList.add('hidden'); }, 580);
-    }, 1500);
-  })();
-
-  // ── CTA email form ──
-  function handleCtaSubmit(e) {
-    e.preventDefault();
-    var email = document.getElementById('ctaEmail').value.trim();
-    if (email) window.location.href = '/signup.html?email=' + encodeURIComponent(email);
-  }
-
-  // ── Pass ref param to signup links ──
-  var ref = new URLSearchParams(window.location.search).get('ref');
-  if (ref) {
-    document.querySelectorAll('a[href="/signup.html"]').forEach(function(a) {
-      a.href = '/signup.html?ref=' + encodeURIComponent(ref);
-    });
   }
 </script>
 </body>
