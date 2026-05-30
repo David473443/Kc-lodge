@@ -685,6 +685,13 @@
         body: JSON.stringify({ message: text, style: activeStyle, context: studyContext, history: chatHistory.slice(-10) })
       });
       if (!res) { typingEl.remove(); return; }
+      if (!res.ok) {
+        typingEl.remove();
+        const e = await res.json().catch(() => ({}));
+        showToast(e.error || 'Chat failed. Please try again.', 'error');
+        document.getElementById('sendBtn').disabled = false;
+        return;
+      }
       typingEl.remove();
       const box = document.getElementById('chatMessages');
       const aiDiv = document.createElement('div');
