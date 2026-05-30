@@ -281,11 +281,8 @@
   function renderHero(user) {
     const period = timeOfDay();
     const name = (user && user.name) ? user.name : 'Student';
-    const level = (user && user.level) ? user.level : '';
-    const uni = (user && user.university) ? user.university : '';
-    const sub = level && uni ? level + ' student at ' + uni : (uni || level || 'Welcome back');
     document.getElementById('hero-greeting').textContent = 'Good ' + period + ', ' + name + '!';
-    document.getElementById('hero-sub').textContent = sub;
+    document.getElementById('hero-sub').textContent = 'Welcome back';
   }
 
   function setStatVal(id, val, sub) {
@@ -381,12 +378,10 @@
     const liveUser = Auth.getUser() || cachedUser;
     renderHero(liveUser);
 
-    const courses = (liveUser.courses && Array.isArray(liveUser.courses)) ? liveUser.courses : [];
     const unread = updates.filter(u => !u.read_flag).length;
 
     setStatVal('stat-tasks', tasks.length, 'total tasks');
     setStatVal('stat-notes', analyses.length, 'saved notes');
-    setStatVal('stat-courses', courses.length, 'enrolled');
     setStatVal('stat-updates', unread, 'unread updates');
 
     renderRecentTasks(tasks);
@@ -413,10 +408,6 @@
         <div class="stat-card">
           <div class="stat-label">Active Notes</div>
           <div id="stat-notes"><div class="skel"></div></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Courses</div>
-          <div id="stat-courses"><div class="skel"></div></div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Updates Unread</div>

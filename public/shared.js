@@ -324,7 +324,6 @@ function renderNav(activeLabel) {
     if (n) n.textContent = u.name || 'Student';
     if (e) e.textContent = u.email || '';
     if (a) a.textContent = (u.name || 'U')[0].toUpperCase();
-    if (!u.email_verified) injectVerifyBanner();
   });
 }
 
@@ -339,36 +338,6 @@ function toggleMobileNav() {
 function handleLogout() {
   Auth.clearAuth();
   window.location.replace('/login.html');
-}
-
-function injectVerifyBanner() {
-  const user = Auth.getUser();
-  if (!user || user.email_verified || document.getElementById('verifyBanner')) return;
-  const banner = document.createElement('div');
-  banner.id = 'verifyBanner';
-  banner.innerHTML = `\u{1F4E7} Please verify your email to unlock all features.
-    <button onclick="resendVerification(this)">Resend email</button>`;
-  const main = document.querySelector('.main');
-  if (main) main.insertAdjacentElement('afterbegin', banner);
-  else document.body.insertAdjacentElement('afterbegin', banner);
-}
-
-async function resendVerification(btn) {
-  btn.disabled = true;
-  btn.textContent = 'Sending…';
-  try {
-    const res = await Auth.fetchWithAuth('/api/auth/resend-verification', { method: 'POST' });
-    if (res && res.ok) {
-      btn.textContent = 'Sent!';
-      showToast('Verification email sent. Check your inbox.', 'success');
-    } else {
-      btn.textContent = 'Retry';
-      btn.disabled = false;
-    }
-  } catch {
-    btn.textContent = 'Retry';
-    btn.disabled = false;
-  }
 }
 
 // ── Reminders polling ──────────────────────────────────────────────────────

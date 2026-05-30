@@ -210,9 +210,8 @@ db.exec(`
 `);
 
 // Migrations for existing deployments
-try { db.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE reminders ADD COLUMN enabled INTEGER DEFAULT 1'); } catch {}
-db.prepare('UPDATE users SET onboarded=1 WHERE onboarded=0').run();
+db.prepare('UPDATE users SET onboarded=1, email_verified=1 WHERE onboarded=0 OR email_verified=0').run();
 
 // ── Security middleware ──
 app.set('trust proxy', 1); // Railway / reverse proxy
@@ -357,19 +356,11 @@ app.post('/api/auth/register', async (req, res) => {
     const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(norm);
     if (existing) return res.status(400).json({ error: 'An account with this email already exists.' });
     const hash = await bcrypt.hash(password, 12);
-    const result = db.prepare('INSERT INTO users (name, email, password_hash, onboarded) VALUES (?, ?, ?, 1)').run(name.trim(), norm, hash);
+    const result = db.prepare('INSERT INTO users (name, email, password_hash, onboarded, email_verified) VALUES (?, ?, ?, 1, 1)').run(name.trim(), norm, hash);
     const userId = result.lastInsertRowid;
-    const user = { id: userId, name: name.trim(), email: norm, onboarded: 1, email_verified: 0, university: '', level: '', department: '', courses: [] };
+    const user = { id: userId, name: name.trim(), email: norm };
     const token = jwt.sign({ id: userId }, _JWT, { expiresIn: '7d' });
-
-    // Send verification email (non-blocking)
-    const verifyToken = crypto.randomBytes(32).toString('hex');
-    const expires = new Date(Date.now() + 24 * 3600000).toISOString();
-    db.prepare('INSERT OR REPLACE INTO email_verifications (user_id, token, expires_at) VALUES (?,?,?)').run(userId, verifyToken, expires);
-    const link = `${APP_URL}/verify-email.html?token=${verifyToken}`;
-    sendEmail(norm, 'Verify your ClassMind AI email', verifyEmailHtml(name.trim(), link));
-
-    res.json({ token, user, emailSent: !!resend });
+    res.json({ token, user });
   } catch (err) { apiErr(res, err); }
 });
 
@@ -381,21 +372,21 @@ app.post('/api/auth/login', async (req, res) => {
     if (!u) return res.status(401).json({ error: 'Invalid email or password.' });
     const valid = await bcrypt.compare(password, u.password_hash);
     if (!valid) return res.status(401).json({ error: 'Invalid email or password.' });
-    const user = { id: u.id, name: u.name, email: u.email, university: u.university, level: u.level, department: u.department, courses: JSON.parse(u.courses || '[]'), onboarded: u.onboarded, email_verified: u.email_verified };
+    const user = { id: u.id, name: u.name, email: u.email };
     const token = jwt.sign({ id: u.id }, _JWT, { expiresIn: '7d' });
     res.json({ token, user });
   } catch (err) { apiErr(res, err); }
 });
 
 app.get('/api/auth/me', auth, (req, res) => {
-  const u = db.prepare('SELECT id,name,email,university,level,department,courses,onboarded,email_verified,created_at FROM users WHERE id=?').get(req.user.id);
+  const u = db.prepare('SELECT id,name,email,created_at FROM users WHERE id=?').get(req.user.id);
   if (!u) return res.status(404).json({ error: 'User not found.' });
-  res.json({ ...u, courses: JSON.parse(u.courses || '[]') });
+  res.json(u);
 });
 
 app.put('/api/auth/profile', auth, async (req, res) => {
   try {
-    const { name, university, level, department, courses, onboarded, password, current_password } = req.body;
+    const { name, password, current_password } = req.body;
     const u = db.prepare('SELECT * FROM users WHERE id=?').get(req.user.id);
     let hash = u.password_hash;
     if (password) {
@@ -405,41 +396,10 @@ app.put('/api/auth/profile', auth, async (req, res) => {
       if (!valid) return res.status(400).json({ error: 'Current password is incorrect.' });
       hash = await bcrypt.hash(password, 12);
     }
-    db.prepare('UPDATE users SET name=?,university=?,level=?,department=?,courses=?,onboarded=?,password_hash=? WHERE id=?')
-      .run(name||u.name, university??u.university, level??u.level, department??u.department, JSON.stringify(courses||JSON.parse(u.courses||'[]')), onboarded!==undefined?onboarded:u.onboarded, hash, req.user.id);
-    const updated = db.prepare('SELECT id,name,email,university,level,department,courses,onboarded,email_verified FROM users WHERE id=?').get(req.user.id);
-    const user = { ...updated, courses: JSON.parse(updated.courses||'[]') };
-    const token = jwt.sign({ id: user.id }, _JWT, { expiresIn: '7d' });
-    res.json({ token, user });
-  } catch (err) { apiErr(res, err); }
-});
-
-// ── Email verification ──
-app.get('/api/auth/verify-email', (req, res) => {
-  const { token } = req.query;
-  if (!token) return res.redirect('/login.html?verify_error=1');
-  const row = db.prepare('SELECT * FROM email_verifications WHERE token=?').get(token);
-  if (!row) return res.redirect('/login.html?verify_error=1');
-  if (new Date(row.expires_at) < new Date()) {
-    db.prepare('DELETE FROM email_verifications WHERE id=?').run(row.id);
-    return res.redirect('/login.html?verify_error=expired');
-  }
-  db.prepare('UPDATE users SET email_verified=1 WHERE id=?').run(row.user_id);
-  db.prepare('DELETE FROM email_verifications WHERE id=?').run(row.id);
-  res.redirect('/login.html?verified=1');
-});
-
-app.post('/api/auth/resend-verification', auth, async (req, res) => {
-  try {
-    const u = db.prepare('SELECT * FROM users WHERE id=?').get(req.user.id);
-    if (!u) return res.status(404).json({ error: 'User not found.' });
-    if (u.email_verified) return res.json({ ok: true, already: true });
-    const token = crypto.randomBytes(32).toString('hex');
-    const expires = new Date(Date.now() + 24 * 3600000).toISOString();
-    db.prepare('INSERT OR REPLACE INTO email_verifications (user_id, token, expires_at) VALUES (?,?,?)').run(u.id, token, expires);
-    const link = `${APP_URL}/verify-email.html?token=${token}`;
-    await sendEmail(u.email, 'Verify your ClassMind AI email', verifyEmailHtml(u.name, link));
-    res.json({ ok: true });
+    db.prepare('UPDATE users SET name=?,password_hash=? WHERE id=?').run(name||u.name, hash, req.user.id);
+    const updated = db.prepare('SELECT id,name,email FROM users WHERE id=?').get(req.user.id);
+    const token = jwt.sign({ id: updated.id }, _JWT, { expiresIn: '7d' });
+    res.json({ token, user: updated });
   } catch (err) { apiErr(res, err); }
 });
 

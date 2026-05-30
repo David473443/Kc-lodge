@@ -24,15 +24,6 @@
     .toggle-pw { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px 4px; border-radius: 4px; line-height: 1; }
     .toggle-pw:hover { color: var(--text); }
 
-    .courses-wrap { display: flex; flex-wrap: wrap; gap: 7px; min-height: 28px; margin-bottom: 10px; }
-    .course-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--accent-light); color: var(--accent); border: 1px solid rgba(59,130,246,.3); border-radius: 99px; padding: 4px 10px; font-size: 12px; font-weight: 700; }
-    .chip-remove { background: none; border: none; color: var(--accent); font-size: 14px; cursor: pointer; line-height: 1; padding: 0; opacity: .7; }
-    .chip-remove:hover { opacity: 1; color: var(--danger); }
-    .add-course-row { display: flex; gap: 8px; }
-    .add-course-row input { flex: 1; }
-    .btn-add { padding: 10px 16px; border-radius: var(--radius); border: 1.5px solid var(--accent); background: var(--accent-light); color: var(--accent); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: all .15s; flex-shrink: 0; }
-    .btn-add:hover { background: var(--accent); color: #fff; }
-
     .plan-badge { display: inline-block; background: var(--accent-light); color: var(--accent); border: 1.5px solid rgba(59,130,246,.35); border-radius: 99px; font-size: 12px; font-weight: 700; padding: 4px 14px; margin-bottom: 10px; }
     .plan-meta { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
     .plan-features { display: flex; flex-direction: column; gap: 7px; margin-bottom: 20px; }
@@ -75,57 +66,6 @@
       <div class="form-group">
         <label>Email</label>
         <input type="email" id="p-email" readonly disabled />
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>University</label>
-        <select id="p-university">
-          <option value="">Select university…</option>
-          <option value="UAT">University of Africa (UAT)</option>
-          <option>University of Lagos</option>
-          <option>University of Ibadan</option>
-          <option>Obafemi Awolowo University</option>
-          <option>University of Nigeria, Nsukka</option>
-          <option>Ahmadu Bello University</option>
-          <option>University of Benin</option>
-          <option>Covenant University</option>
-          <option>Lagos State University</option>
-          <option>Federal University of Technology, Akure</option>
-          <option>University of Port Harcourt</option>
-          <option>Nnamdi Azikiwe University</option>
-          <option>Bayero University Kano</option>
-          <option>University of Ilorin</option>
-          <option>Federal University of Technology, Minna</option>
-          <option>Landmark University</option>
-          <option>Pan-Atlantic University</option>
-          <option>Babcock University</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Level</label>
-        <select id="p-level">
-          <option value="">Select level…</option>
-          <option value="100L">100L</option>
-          <option value="200L">200L</option>
-          <option value="300L">300L</option>
-          <option value="400L">400L</option>
-          <option value="500L">500L</option>
-          <option value="Postgraduate">Postgraduate</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Department</label>
-      <input type="text" id="p-department" placeholder="e.g. Computer Science" />
-    </div>
-    <div class="form-group">
-      <label>Courses</label>
-      <div class="courses-wrap" id="coursesWrap"></div>
-      <div class="add-course-row">
-        <input type="text" id="courseInput" placeholder="Type a course code, then press Enter (e.g. MTH201)" onkeydown="handleCourseKey(event)" />
-        <button type="button" class="btn-add" onclick="addCourse()">+ Add</button>
       </div>
     </div>
     <button class="btn-primary" id="saveProfileBtn" onclick="saveProfile()">Save Profile</button>
@@ -252,60 +192,12 @@
 if (!Auth.requireAuth()) throw new Error('redirect');
 renderNav('Settings');
 
-let courses = [];
-
 function esc(s) { return escHtmlClient(s); }
-
-function renderCourses() {
-  const wrap = document.getElementById('coursesWrap');
-  if (!courses.length) {
-    wrap.innerHTML = '<span style="font-size:12px;color:var(--muted)">No courses added yet</span>';
-    return;
-  }
-  wrap.innerHTML = courses.map((c, i) =>
-    '<div class="course-chip">' + esc(c) +
-    '<button type="button" class="chip-remove" onclick="removeCourse(' + i + ')" title="Remove">\xD7</button>' +
-    '</div>'
-  ).join('');
-}
-
-function addCourse() {
-  const input = document.getElementById('courseInput');
-  const vals = input.value.split(/[,\n]+/).map(v => v.trim().toUpperCase()).filter(Boolean);
-  vals.forEach(v => { if (v && !courses.includes(v)) courses.push(v); });
-  renderCourses();
-  input.value = '';
-  input.focus();
-}
-
-function removeCourse(i) { courses.splice(i, 1); renderCourses(); }
-
-function handleCourseKey(e) {
-  if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addCourse(); }
-}
 
 function populateForm(user) {
   if (!user) return;
   document.getElementById('p-name').value = user.name || '';
   document.getElementById('p-email').value = user.email || '';
-  const uniSel = document.getElementById('p-university');
-  const uniVal = user.university || '';
-  let found = false;
-  for (let i = 0; i < uniSel.options.length; i++) {
-    if (uniSel.options[i].value === uniVal || uniSel.options[i].text === uniVal) {
-      uniSel.selectedIndex = i; found = true; break;
-    }
-  }
-  if (!found && uniVal) {
-    const opt = document.createElement('option');
-    opt.value = uniVal; opt.textContent = uniVal;
-    uniSel.appendChild(opt); uniSel.value = uniVal;
-  }
-  document.getElementById('p-level').value = user.level || '';
-  document.getElementById('p-department').value = user.department || '';
-  courses = Array.isArray(user.courses) ? user.courses.slice() :
-    (user.courses ? String(user.courses).split(',').map(s => s.trim()).filter(Boolean) : []);
-  renderCourses();
 }
 
 async function saveProfile() {
@@ -315,21 +207,14 @@ async function saveProfile() {
   if (!name) { errEl.textContent = 'Name is required.'; errEl.style.display = 'block'; return; }
   const btn = document.getElementById('saveProfileBtn');
   btn.disabled = true; btn.textContent = 'Saving…';
-  const payload = {
-    name,
-    university: document.getElementById('p-university').value,
-    level: document.getElementById('p-level').value,
-    department: document.getElementById('p-department').value.trim(),
-    courses
-  };
-  const res = await Auth.fetchWithAuth('/api/auth/profile', { method: 'PUT', body: JSON.stringify(payload) });
+  const res = await Auth.fetchWithAuth('/api/auth/profile', { method: 'PUT', body: JSON.stringify({ name }) });
   btn.disabled = false; btn.textContent = 'Save Profile';
   if (!res || !res.ok) {
     const e = await (res ? res.json().catch(() => ({})) : Promise.resolve({}));
     errEl.textContent = e.error || 'Could not save profile.'; errEl.style.display = 'block'; return;
   }
   const data = await res.json();
-  if (data.token) Auth.setAuth(data.token, data.user || payload);
+  if (data.token) Auth.setAuth(data.token, data.user || { name });
   showToast('Profile saved!', 'success');
 }
 
