@@ -529,7 +529,7 @@
         <label for="universitySelect">University</label>
         <select id="universitySelect">
           <option value="">— Choose your university —</option>
-          <option value="UAT" selected>University of Africa (UAT)</option>
+          <option value="UAT">University of Africa (UAT)</option>
           <option value="UNILAG">University of Lagos (UNILAG)</option>
           <option value="ABU">Ahmadu Bello University (ABU)</option>
           <option value="UNN">University of Nigeria (UNN)</option>
@@ -779,14 +779,12 @@
     var university = uniVal === 'other' ? document.getElementById('otherUni').value.trim() : uniVal;
     var level = selectedLevel;
     var department = document.getElementById('departmentInput').value.trim();
-    var token = localStorage.getItem('cm_token');
-
     try {
-      var res = await fetch('/api/auth/profile', {
+      var res = await Auth.fetchWithAuth('/api/auth/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ university: university, level: level, department: department, courses: courses, onboarded: 1 })
       });
+      if (!res) return; // 401 — Auth.fetchWithAuth redirects to login
 
       var data;
       try { data = await res.json(); } catch(ex) { throw new Error('Unexpected server response.'); }

@@ -262,6 +262,7 @@ const generalLimiter = rateLimit({
 
 app.use('/api/auth', authLimiter);
 app.use('/api/analyze', aiLimiter);
+app.use('/api/analyze-files', aiLimiter);
 app.use('/api/chat', aiLimiter);
 app.use('/api/kb/chat', aiLimiter);
 app.use('/api', generalLimiter);

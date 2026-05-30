@@ -331,7 +331,7 @@ async function submitAdd() {
   const body = { title, subject: document.getElementById('a-subject').value.trim(), priority: document.getElementById('a-priority').value, deadline: document.getElementById('a-deadline').value, details: document.getElementById('a-details').value.trim() };
   const res = await Auth.fetchWithAuth('/api/tasks', { method: 'POST', body: JSON.stringify(body) });
   btn.disabled = false; btn.textContent = 'Add Task';
-  if (!res || !res.ok) { const e = await res.json().catch(() => ({})); showToast(e.error || 'Could not add task', 'error'); return; }
+  if (!res || !res.ok) { const e = res ? await res.json().catch(() => ({})) : {}; showToast(e.error || 'Could not add task', 'error'); return; }
   const task = await res.json();
   task.status = task.status || 'todo';
   allTasks.unshift(task);
@@ -362,7 +362,7 @@ async function submitEdit() {
   const body = { title, subject: document.getElementById('e-subject').value.trim(), priority: document.getElementById('e-priority').value, deadline: document.getElementById('e-deadline').value, details: document.getElementById('e-details').value.trim(), status: task ? task.status : 'todo' };
   const res = await Auth.fetchWithAuth('/api/tasks/' + editingId, { method: 'PUT', body: JSON.stringify(body) });
   btn.disabled = false; btn.textContent = 'Save Changes';
-  if (!res || !res.ok) { const e = await res.json().catch(() => ({})); showToast(e.error || 'Could not save', 'error'); return; }
+  if (!res || !res.ok) { const e = res ? await res.json().catch(() => ({})) : {}; showToast(e.error || 'Could not save', 'error'); return; }
   const updated = await res.json();
   const idx = allTasks.findIndex(t => t.id === editingId);
   if (idx !== -1) allTasks[idx] = Object.assign({}, allTasks[idx], updated);

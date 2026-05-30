@@ -406,6 +406,17 @@ function formatDate(d) {
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+['createModal', 'styleModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) closeModal(id);
+  });
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    ['createModal', 'styleModal'].forEach(id => closeModal(id));
+  }
+});
+
 loadProjects();
 </script>
 </body>
