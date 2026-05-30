@@ -231,7 +231,7 @@
   if (token) {
     const user = (() => { try { return JSON.parse(localStorage.getItem('cm_user') || 'null'); } catch { return null; } })();
     if (user) {
-      window.location.replace(user.onboarded ? '/dashboard.html' : '/onboarding.html');
+      window.location.replace('/dashboard.html');
     }
   }
 </script>

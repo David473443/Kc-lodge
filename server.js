@@ -212,6 +212,7 @@ db.exec(`
 // Migrations for existing deployments
 try { db.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE reminders ADD COLUMN enabled INTEGER DEFAULT 1'); } catch {}
+db.prepare('UPDATE users SET onboarded=1 WHERE onboarded=0').run();
 
 // ── Security middleware ──
 app.set('trust proxy', 1); // Railway / reverse proxy
